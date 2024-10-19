@@ -94,7 +94,7 @@ public class LevelsScreen extends ScreenAdapter {
         if (Gdx.input.isTouched()) {
             Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
             if (levelButtons[0].contains(touchPos.x, touchPos.y)) {
-                // game.setScreen(new Level1Screen(game));
+                 game.setScreen(new Level1LoadingScreen(game));
             } else if (levelButtons[1].contains(touchPos.x, touchPos.y)) {
                 // game.setScreen(new Level2Screen(game));
             } else if (levelButtons[2].contains(touchPos.x, touchPos.y)) {

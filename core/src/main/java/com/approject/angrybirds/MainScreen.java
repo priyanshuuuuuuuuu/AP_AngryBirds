@@ -19,6 +19,9 @@ public class MainScreen extends ScreenAdapter {
     AngryBirds game;
     Rectangle newGameButton, loadGameButton, settingsButton, exitButton;
 
+    // Fade-in effect variables
+//    float alpha = 0;  // Start fully transparent
+
     public MainScreen(AngryBirds game) {
         this.game = game;
     }
@@ -37,7 +40,6 @@ public class MainScreen extends ScreenAdapter {
         int buttonSpacing = 15;
         int centerX = (Gdx.graphics.getWidth() - newGame.getWidth()) / 2;
 
-        // Set buttons positions (y positions relative to title)
         newGameButton = new Rectangle(centerX, 500, newGame.getWidth(), newGame.getHeight());
         loadGameButton = new Rectangle(centerX, newGameButton.y - newGameButton.height - buttonSpacing, loadGame.getWidth(), loadGame.getHeight());
         settingsButton = new Rectangle(centerX, loadGameButton.y - loadGameButton.height - buttonSpacing, settings.getWidth(), settings.getHeight());
@@ -49,13 +51,20 @@ public class MainScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        batch.begin();
-        // Draw the background
-        batch.draw(backgroundImage, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // Update alpha for fade-in effect
+//        if (alpha < 1) {
+//            alpha += delta;  // Increase alpha over time
+//            if (alpha > 1) alpha = 1;  // Cap alpha at 1 (fully opaque)
+//        }
 
-        // Draw the title at the top center of the screen
-        float titleX = (Gdx.graphics.getWidth() - title.getWidth())/2;
-        float titleY = 650; // No margin from the top
+        // Begin drawing
+        batch.begin();
+//        batch.setColor(1, 1, 1, alpha);  // Apply alpha for fade-in effect
+
+        // Draw the background and title
+        batch.draw(backgroundImage, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        float titleX = (Gdx.graphics.getWidth() - title.getWidth()) / 2;
+        float titleY = 650;
         batch.draw(title, titleX, titleY);
 
         // Draw buttons
@@ -69,16 +78,12 @@ public class MainScreen extends ScreenAdapter {
         if (Gdx.input.isTouched()) {
             Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
             if (newGameButton.contains(touchPos.x, touchPos.y)) {
-                // Transition to Levels screen
                 game.setScreen(new LevelsScreen(game));
             } else if (loadGameButton.contains(touchPos.x, touchPos.y)) {
-                // Handle load game
                 System.out.println("Load Game clicked!");
             } else if (settingsButton.contains(touchPos.x, touchPos.y)) {
-                // Handle settings
                 System.out.println("Settings clicked!");
             } else if (exitButton.contains(touchPos.x, touchPos.y)) {
-                // Exit the game
                 Gdx.app.exit();
             }
         }
