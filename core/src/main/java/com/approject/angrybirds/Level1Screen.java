@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -20,9 +21,11 @@ public class Level1Screen extends ScreenAdapter {
     Texture pauseButtonTexture;
     Texture scoreImage;
     BitmapFont scoreFont; // Font for displaying score
-    Texture noMusic;
     AngryBirds game;
     int score; // Score variable
+
+    // Bird object
+    RedBird redBird; // Declare RedBird object
 
     // Scene2D stage to manage buttons
     Stage stage;
@@ -46,6 +49,9 @@ public class Level1Screen extends ScreenAdapter {
         scoreFont = new BitmapFont(); // You can also use a custom font here if you want
         scoreFont.getData().setScale(2); // Set the scale of the font for better visibility
 
+        // Create RedBird object and set its initial position
+        redBird = new RedBird(batch, new Vector2(200, 200)); // Position at (200, 200)
+
         // Set up the stage and add input processor for button handling
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
@@ -63,7 +69,6 @@ public class Level1Screen extends ScreenAdapter {
 
         // Add the pause button to the stage
         stage.addActor(pauseButton);
-
 
         // Add listener for the pause button click
         pauseButton.addListener(new ClickListener() {
@@ -122,7 +127,6 @@ public class Level1Screen extends ScreenAdapter {
                 // Handle option button 1 click
                 System.out.println("Option 1 clicked");
                 hideOptionButtons();
-
             }
         });
 
@@ -142,6 +146,7 @@ public class Level1Screen extends ScreenAdapter {
             }
         });
     }
+
     private void hideOptionButtons() {
         // Hide the option buttons and set the visibility of pause to default state
         optionButton1.setVisible(false);
@@ -172,6 +177,9 @@ public class Level1Screen extends ScreenAdapter {
         int slingshotX = 250;
         int slingshotY = 145;
         batch.draw(slingshot, slingshotX, slingshotY, slingshotWidth, slingshotHeight);
+
+        // Draw the red bird on the screen
+        redBird.render(); // Render the RedBird
 
         // Set score image to the top-right corner
         int scoreImageWidth = 90;
@@ -205,5 +213,6 @@ public class Level1Screen extends ScreenAdapter {
         stage.dispose();
         scoreImage.dispose();
         scoreFont.dispose(); // Dispose of the font
+        redBird.dispose();  // Dispose of the RedBird
     }
 }
