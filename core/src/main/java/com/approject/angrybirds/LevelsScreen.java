@@ -5,8 +5,12 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class LevelsScreen extends ScreenAdapter {
     SpriteBatch batch;
@@ -24,6 +28,13 @@ public class LevelsScreen extends ScreenAdapter {
     Texture level9;
     Rectangle[] levelButtons;
 
+    OrthographicCamera camera;
+    Viewport viewport;
+
+    // Virtual width and height for the camera
+    private static final float VIRTUAL_WIDTH = 800;
+    private static final float VIRTUAL_HEIGHT = 600;
+
     public LevelsScreen(AngryBirds game) {
         this.game = game;
     }
@@ -33,7 +44,7 @@ public class LevelsScreen extends ScreenAdapter {
         batch = new SpriteBatch();
         backgroundImage = new Texture("main.png");
         title = new Texture("title.png");
-        level1 = new Texture("level1.png");
+        level1 = new Texture("newlevel1.png");
         level2 = new Texture("level2.png");
         level3 = new Texture("levels.png");
         level4 = new Texture("levels.png");
@@ -43,58 +54,72 @@ public class LevelsScreen extends ScreenAdapter {
         level8 = new Texture("levels.png");
         level9 = new Texture("levels.png");
 
+        // Initialize OrthographicCamera and FitViewport
+        camera = new OrthographicCamera();
+        viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+        viewport.apply();
 
-        // Initialize buttons
+        // Set camera to look at the center of the world
+        camera.position.set(VIRTUAL_WIDTH / 2f, VIRTUAL_HEIGHT / 2f, 0);
+        camera.update();
+
+        // Initialize buttons as world coordinates rectangles
         levelButtons = new Rectangle[9];
-        levelButtons[0] = new Rectangle(0, 0, level1.getWidth(), level1.getHeight());
-        levelButtons[1] = new Rectangle(0, 0, level2.getWidth(), level2.getHeight());
-        levelButtons[2] = new Rectangle(0, 0, level3.getWidth(), level3.getHeight());
-        levelButtons[3] = new Rectangle(0, 0, level4.getWidth(), level4.getHeight());
-        levelButtons[4] = new Rectangle(0, 0, level5.getWidth(), level5.getHeight());
-        levelButtons[5] = new Rectangle(0, 0, level6.getWidth(), level6.getHeight());
-        levelButtons[6] = new Rectangle(0, 0, level7.getWidth(), level7.getHeight());
-        levelButtons[7] = new Rectangle(0, 0, level8.getWidth(), level8.getHeight());
-        levelButtons[8] = new Rectangle(0, 0, level9.getWidth(), level9.getHeight());
-
-        // Define button positions in a grid
-        int buttonSpacing = 50;
+        int buttonSpacing = 5;
         int buttonsPerRow = 5;
         int buttonWidth = level1.getWidth();
         int buttonHeight = level1.getHeight();
-        int startX = (Gdx.graphics.getWidth() - (buttonWidth * buttonsPerRow + buttonSpacing * (buttonsPerRow - 1))) / 2;
+        int startX = (int) ((VIRTUAL_WIDTH - (buttonWidth * buttonsPerRow + buttonSpacing * (buttonsPerRow - 1))) / 2);
         int startY = 400; // Adjusting to keep title at top
 
         for (int i = 0; i < levelButtons.length; i++) {
             int row = i / buttonsPerRow;
             int col = i % buttonsPerRow;
-            levelButtons[i].setPosition(startX + col * (buttonWidth + buttonSpacing), startY - row * (buttonHeight + buttonSpacing));
+            levelButtons[i] = new Rectangle(
+                startX + col * (buttonWidth + buttonSpacing),
+                startY - row * (buttonHeight + buttonSpacing),
+                buttonWidth, buttonHeight);
         }
     }
 
     @Override
     public void render(float delta) {
+        // Clear screen with black color
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // Update camera and set the projection matrix for the batch
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
+
         batch.begin();
-        batch.draw(backgroundImage, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        batch.draw(title, (Gdx.graphics.getWidth() - title.getWidth()) / 2, 650);
-        batch.draw(level1, levelButtons[0].x, levelButtons[0].y);
-        batch.draw(level2, levelButtons[1].x, levelButtons[1].y);
-        batch.draw(level3, levelButtons[2].x, levelButtons[2].y);
-        batch.draw(level4, levelButtons[3].x, levelButtons[3].y);
-        batch.draw(level5, levelButtons[4].x, levelButtons[4].y);
-        batch.draw(level6, levelButtons[5].x, levelButtons[5].y);
-        batch.draw(level7, levelButtons[6].x, levelButtons[6].y);
-        batch.draw(level8, levelButtons[7].x, levelButtons[7].y);
-        batch.draw(level9, levelButtons[8].x, levelButtons[8].y);
+        batch.draw(backgroundImage, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        float titleX = VIRTUAL_WIDTH - 630 ;
+        float titleY = VIRTUAL_HEIGHT - 150;
+        int titleWidth = 450;
+        int titleHeight = 250;
+        batch.draw(title, titleX, titleY, titleWidth, titleHeight);
+        int levelButtonsWidth = 100;
+        int levelButtonsHeight = 100;
+        batch.draw(level1, levelButtons[0].x, levelButtons[0].y, levelButtonsWidth, levelButtonsHeight);
+        batch.draw(level2, levelButtons[1].x, levelButtons[1].y, levelButtonsWidth, levelButtonsHeight);
+        batch.draw(level3, levelButtons[2].x, levelButtons[2].y, levelButtonsWidth, levelButtonsHeight);
+        batch.draw(level4, levelButtons[3].x, levelButtons[3].y, levelButtonsWidth, levelButtonsHeight);
+        batch.draw(level5, levelButtons[4].x, levelButtons[4].y, levelButtonsWidth, levelButtonsHeight);
+        batch.draw(level6, levelButtons[5].x, levelButtons[5].y, levelButtonsWidth, levelButtonsHeight);
+        batch.draw(level7, levelButtons[6].x, levelButtons[6].y, levelButtonsWidth, levelButtonsHeight);
+        batch.draw(level8, levelButtons[7].x, levelButtons[7].y, levelButtonsWidth, levelButtonsHeight);
+        batch.draw(level9, levelButtons[8].x, levelButtons[8].y, levelButtonsWidth, levelButtonsHeight);
         batch.end();
 
-        // Handle input
+        // Handle input in world coordinates
         if (Gdx.input.isTouched()) {
-            Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+            Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+            viewport.unproject(touchPos);  // Convert screen coordinates to world coordinates
+
+            // Check if a button was clicked
             if (levelButtons[0].contains(touchPos.x, touchPos.y)) {
-                 game.setScreen(new Level1LoadingScreen(game));
+                game.setScreen(new Level1LoadingScreen(game));
             } else if (levelButtons[1].contains(touchPos.x, touchPos.y)) {
                 // game.setScreen(new Level2Screen(game));
             } else if (levelButtons[2].contains(touchPos.x, touchPos.y)) {
@@ -105,6 +130,12 @@ public class LevelsScreen extends ScreenAdapter {
                 // game.setScreen(new Level5Screen(game));
             }
         }
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        // Update the viewport when resizing the screen
+        viewport.update(width, height);
     }
 
     @Override

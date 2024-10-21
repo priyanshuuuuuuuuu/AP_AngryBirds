@@ -5,8 +5,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class MainScreen extends ScreenAdapter {
     SpriteBatch batch;
@@ -19,8 +22,12 @@ public class MainScreen extends ScreenAdapter {
     AngryBirds game;
     Rectangle newGameButton, loadGameButton, settingsButton, exitButton;
 
-    // Fade-in effect variables
-//    float alpha = 0;  // Start fully transparent
+    // Constants for the virtual size of the game world
+    private static final float VIRTUAL_WIDTH = 800;
+    private static final float VIRTUAL_HEIGHT = 600;
+
+    OrthographicCamera camera;
+    Viewport viewport;
 
     public MainScreen(AngryBirds game) {
         this.game = game;
@@ -29,6 +36,8 @@ public class MainScreen extends ScreenAdapter {
     @Override
     public void show() {
         batch = new SpriteBatch();
+
+        // Load textures
         backgroundImage = new Texture("main.png");
         newGame = new Texture("newGame.png");
         loadGame = new Texture("loadGame.png");
@@ -36,58 +45,78 @@ public class MainScreen extends ScreenAdapter {
         exit = new Texture("exit.png");
         title = new Texture("title.png");
 
-        // Define button positions and sizes with spacing
-        int buttonSpacing = 15;
-        int centerX = (Gdx.graphics.getWidth() - newGame.getWidth()) / 2;
+        // Create the camera and StretchViewport
+        camera = new OrthographicCamera();
+        viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+        camera.position.set(VIRTUAL_WIDTH / 2f, VIRTUAL_HEIGHT / 2f, 0);
+        camera.update();
 
-        newGameButton = new Rectangle(centerX, 500, newGame.getWidth(), newGame.getHeight());
-        loadGameButton = new Rectangle(centerX, newGameButton.y - newGameButton.height - buttonSpacing, loadGame.getWidth(), loadGame.getHeight());
-        settingsButton = new Rectangle(centerX, loadGameButton.y - loadGameButton.height - buttonSpacing, settings.getWidth(), settings.getHeight());
-        exitButton = new Rectangle(centerX, settingsButton.y - settingsButton.height - buttonSpacing, exit.getWidth(), exit.getHeight());
+        // Define button positions and reduce their sizes
+        int buttonSpacing = 15;
+        float buttonWidth = newGame.getWidth() * 0.75f;  // Reduce button size to 75%
+        float buttonHeight = newGame.getHeight() * 0.75f;
+
+        float centerX = 300;
+
+        // Define button rectangles in world coordinates (centered and spaced vertically)
+        newGameButton = new Rectangle(centerX, 350, buttonWidth, buttonHeight);  // Lowered for better layout
+        loadGameButton = new Rectangle(centerX, newGameButton.y - buttonHeight - buttonSpacing, buttonWidth, buttonHeight);
+        settingsButton = new Rectangle(centerX, loadGameButton.y - buttonHeight - buttonSpacing, buttonWidth, buttonHeight);
+        exitButton = new Rectangle(centerX, settingsButton.y - buttonHeight - buttonSpacing, buttonWidth, buttonHeight);
     }
 
     @Override
     public void render(float delta) {
+        // Update the camera and viewport
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
+
+        // Clear the screen and set background color
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Update alpha for fade-in effect
-//        if (alpha < 1) {
-//            alpha += delta;  // Increase alpha over time
-//            if (alpha > 1) alpha = 1;  // Cap alpha at 1 (fully opaque)
-//        }
-
         // Begin drawing
         batch.begin();
-//        batch.setColor(1, 1, 1, alpha);  // Apply alpha for fade-in effect
+        batch.draw(backgroundImage, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
-        // Draw the background and title
-        batch.draw(backgroundImage, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        float titleX = (Gdx.graphics.getWidth() - title.getWidth()) / 2;
-        float titleY = 650;
-        batch.draw(title, titleX, titleY);
+        // Keep the original size for the title
+        float titleX = VIRTUAL_WIDTH - 630 ;
+        float titleY = VIRTUAL_HEIGHT - 150;
+        int titleWidth = 450;
+        int titleHeight = 250;
+        batch.draw(title, titleX, titleY, titleWidth, titleHeight);  // Draw title without resizing
 
-        // Draw buttons
-        batch.draw(newGame, newGameButton.x, newGameButton.y);
-        batch.draw(loadGame, loadGameButton.x, loadGameButton.y);
-        batch.draw(settings, settingsButton.x, settingsButton.y);
-        batch.draw(exit, exitButton.x, exitButton.y);
+        // Draw buttons with their updated positions and sizes
+        batch.draw(newGame, newGameButton.x, newGameButton.y, 180,60);
+        batch.draw(loadGame, loadGameButton.x, loadGameButton.y, 180,60);
+        batch.draw(settings, settingsButton.x, settingsButton.y, 180,60);
+        batch.draw(exit, exitButton.x, exitButton.y, 180,60);
         batch.end();
 
-        // Handle input
         if (Gdx.input.isTouched()) {
-            Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+            // Log the touch coordinates
+            System.out.println("Touch X: " + Gdx.input.getX() + ", Touch Y: " + Gdx.input.getY());
+
+            Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+            viewport.unproject(touchPos);  // Convert screen coordinates to world coordinates
+
+            // Check which button was clicked...
             if (newGameButton.contains(touchPos.x, touchPos.y)) {
                 game.setScreen(new LevelsScreen(game));
             } else if (loadGameButton.contains(touchPos.x, touchPos.y)) {
                 System.out.println("Load Game clicked!");
             } else if (settingsButton.contains(touchPos.x, touchPos.y)) {
                 game.setScreen(new Settings(game));
-                System.out.println("Settings clicked!");
             } else if (exitButton.contains(touchPos.x, touchPos.y)) {
                 Gdx.app.exit();
             }
         }
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        // Update the viewport to handle resizing
+        viewport.update(width, height);
     }
 
     @Override
