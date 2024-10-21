@@ -42,7 +42,7 @@ public class Level1Screen extends ScreenAdapter {
     public void show() {
         batch = new SpriteBatch();
         backGroundGameplayImage = new Texture("gamePlay.png");
-        slingshot = new Texture("1.png");
+        slingshot = new Texture("sling.png");
         scoreImage = new Texture("score.png");
 
         // Initialize BitmapFont with default font
@@ -172,10 +172,10 @@ public class Level1Screen extends ScreenAdapter {
         batch.begin();
         batch.draw(backGroundGameplayImage, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        int slingshotWidth = 100;
-        int slingshotHeight = 150;
+        int slingshotWidth = 150;
+        int slingshotHeight = 200;
         int slingshotX = 250;
-        int slingshotY = 145;
+        int slingshotY = 100;
         batch.draw(slingshot, slingshotX, slingshotY, slingshotWidth, slingshotHeight);
 
         // Draw the red bird on the screen
