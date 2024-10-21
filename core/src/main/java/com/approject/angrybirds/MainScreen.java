@@ -82,6 +82,7 @@ public class MainScreen extends ScreenAdapter {
             } else if (loadGameButton.contains(touchPos.x, touchPos.y)) {
                 System.out.println("Load Game clicked!");
             } else if (settingsButton.contains(touchPos.x, touchPos.y)) {
+                game.setScreen(new Settings(game));
                 System.out.println("Settings clicked!");
             } else if (exitButton.contains(touchPos.x, touchPos.y)) {
                 Gdx.app.exit();

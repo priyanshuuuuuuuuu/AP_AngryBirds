@@ -19,7 +19,11 @@ public abstract class Bird {
     public abstract void specialAbility();
 
     public void render(){
-        batch.draw(texture, position.x, position.y);
+        int birdWidth = 100;
+        int birdHeight = 100;
+        int birdCoordinateX = 100;
+        int birdCoordinateY = 100;
+        batch.draw(texture,birdWidth, birdHeight, birdCoordinateX,birdCoordinateY);
     }
     public void dispose(){
         texture.dispose();
