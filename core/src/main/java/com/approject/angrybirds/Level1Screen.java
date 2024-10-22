@@ -12,7 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 public class Level1Screen extends ScreenAdapter {
     SpriteBatch batch;
@@ -20,12 +21,12 @@ public class Level1Screen extends ScreenAdapter {
     Texture slingshot;
     Texture pauseButtonTexture;
     Texture scoreImage;
-    BitmapFont scoreFont; // Font for displaying score
+    BitmapFont scoreFont;
     AngryBirds game;
-    int score; // Score variable
+    int score;
 
     // Bird object
-    RedBird redBird; // Declare RedBird object
+    RedBird redBird;
 
     // Scene2D stage to manage buttons
     Stage stage;
@@ -33,9 +34,12 @@ public class Level1Screen extends ScreenAdapter {
     ImageButton optionButton1, optionButton2, optionButton3;
     boolean showOptions = false;
 
+    private static final float VIRTUAL_WIDTH = 800;
+    private static final float VIRTUAL_HEIGHT = 600;
+
     public Level1Screen(AngryBirds game) {
         this.game = game;
-        score = 0; // Initialize the score to 0
+        score = 0;
     }
 
     @Override
@@ -46,14 +50,14 @@ public class Level1Screen extends ScreenAdapter {
         scoreImage = new Texture("score.png");
 
         // Initialize BitmapFont with default font
-        scoreFont = new BitmapFont(); // You can also use a custom font here if you want
-        scoreFont.getData().setScale(2); // Set the scale of the font for better visibility
+        scoreFont = new BitmapFont();
+        scoreFont.getData().setScale(2);
 
         // Create RedBird object and set its initial position
-        redBird = new RedBird(batch, new Vector2(200, 200)); // Position at (200, 200)
+        redBird = new RedBird(batch, new Vector2(200, 50));
 
-        // Set up the stage and add input processor for button handling
-        stage = new Stage(new ScreenViewport());
+        // Set up the stage with ExtendViewport (800x600)
+        stage = new Stage(new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
         Gdx.input.setInputProcessor(stage);
 
         // Load pause button texture and create an ImageButton
@@ -64,8 +68,8 @@ public class Level1Screen extends ScreenAdapter {
         pauseButton.getStyle().imageUp = skin.getDrawable("pauseButton");
 
         // Set position and size for the pause button
-        pauseButton.setSize(80, 80); // Circular size
-        pauseButton.setPosition(10, Gdx.graphics.getHeight() - 90); // Top-left position
+        pauseButton.setSize(40, 40); // Circular size
+        pauseButton.setPosition(10, 550); // Adjust position relative to viewport
 
         // Add the pause button to the stage
         stage.addActor(pauseButton);
@@ -93,9 +97,9 @@ public class Level1Screen extends ScreenAdapter {
         optionButton3 = createButton("off.png", skin);
 
         // Set positions for the option buttons (below the pause button)
-        optionButton1.setPosition(10, Gdx.graphics.getHeight() - 90);
-        optionButton2.setPosition(10, Gdx.graphics.getHeight() - 200);
-        optionButton3.setPosition(10, Gdx.graphics.getHeight() - 300);
+        optionButton1.setPosition(10, 500);
+        optionButton2.setPosition(10, stage.getViewport().getWorldHeight() - 140);
+        optionButton3.setPosition(10, stage.getViewport().getWorldHeight() - 190);
 
         // Initially hide the option buttons
         optionButton1.setVisible(false);
@@ -116,7 +120,7 @@ public class Level1Screen extends ScreenAdapter {
         skin.add(texturePath, buttonTexture);
         ImageButton button = new ImageButton(new ImageButton.ImageButtonStyle());
         button.getStyle().imageUp = skin.getDrawable(texturePath);
-        button.setSize(80, 80); // Set button size
+        button.setSize(40, 40); // Set button size
         return button;
     }
 
@@ -124,7 +128,6 @@ public class Level1Screen extends ScreenAdapter {
         optionButton1.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Handle option button 1 click
                 System.out.println("Option 1 clicked");
                 hideOptionButtons();
             }
@@ -133,7 +136,6 @@ public class Level1Screen extends ScreenAdapter {
         optionButton2.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Handle option button 2 click
                 System.out.println("Option 2 clicked");
             }
         });
@@ -141,22 +143,19 @@ public class Level1Screen extends ScreenAdapter {
         optionButton3.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Handle option button 3 click
                 System.out.println("Option 3 clicked");
             }
         });
     }
 
     private void hideOptionButtons() {
-        // Hide the option buttons and set the visibility of pause to default state
         optionButton1.setVisible(false);
         optionButton2.setVisible(false);
         optionButton3.setVisible(false);
-        showOptions = false;  // Reset the state of showOptions
+        showOptions = false;
     }
 
     private void toggleOptionButtons() {
-        // Toggle visibility of the option buttons
         optionButton1.setVisible(showOptions);
         optionButton2.setVisible(showOptions);
         optionButton3.setVisible(showOptions);
@@ -170,7 +169,7 @@ public class Level1Screen extends ScreenAdapter {
 
         // Begin drawing the background and slingshot
         batch.begin();
-        batch.draw(backGroundGameplayImage, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.draw(backGroundGameplayImage, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         int slingshotWidth = 150;
         int slingshotHeight = 200;
@@ -179,18 +178,18 @@ public class Level1Screen extends ScreenAdapter {
         batch.draw(slingshot, slingshotX, slingshotY, slingshotWidth, slingshotHeight);
 
         // Draw the red bird on the screen
-        redBird.render(); // Render the RedBird
+        redBird.render();
 
         // Set score image to the top-right corner
         int scoreImageWidth = 90;
         int scoreImageHeight = 45;
-        int scoreImageX = Gdx.graphics.getWidth() - scoreImageWidth - 10; // 10px padding from the right
-        int scoreImageY = Gdx.graphics.getHeight() - scoreImageHeight - 10; // 10px padding from the top
+        int scoreImageX = (int) (VIRTUAL_WIDTH - scoreImageWidth - 10);
+        int scoreImageY = (int) (VIRTUAL_HEIGHT - scoreImageHeight - 10);
         batch.draw(scoreImage, scoreImageX, scoreImageY, scoreImageWidth, scoreImageHeight);
 
         // Draw the score below the score image
         String scoreText = "" + score;
-        scoreFont.draw(batch, scoreText, scoreImageX, scoreImageY - 10); // 10px padding below the image
+        scoreFont.draw(batch, scoreText, scoreImageX, scoreImageY - 10);
 
         batch.end();
 
@@ -201,7 +200,7 @@ public class Level1Screen extends ScreenAdapter {
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
+        stage.getViewport().update(width, height, true); // Maintain aspect ratio
     }
 
     @Override
@@ -212,7 +211,7 @@ public class Level1Screen extends ScreenAdapter {
         pauseButtonTexture.dispose();
         stage.dispose();
         scoreImage.dispose();
-        scoreFont.dispose(); // Dispose of the font
-        redBird.dispose();  // Dispose of the RedBird
+        scoreFont.dispose();
+        redBird.dispose();
     }
 }

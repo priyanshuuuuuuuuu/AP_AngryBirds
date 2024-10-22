@@ -16,9 +16,9 @@ public class LevelsScreen extends ScreenAdapter {
     AngryBirds game;
     Texture backgroundImage;
     Texture title;
-    Texture level1;
-    Texture level2;
-    Texture level3;
+    Texture level1, level1Hover;
+    Texture level2, level2Hover;
+    Texture level3, level3Hover;
     Texture level4;
     Texture level5;
     Texture level6;
@@ -52,8 +52,11 @@ public class LevelsScreen extends ScreenAdapter {
         backgroundImage = new Texture("bgLevel.png");
         title = new Texture("selectLevel.png");
         level1 = new Texture("newlevel1.png");
+        level1Hover = new Texture("level1Hover.png");
         level2 = new Texture("2.png");
+        level2Hover = new Texture("level2Hover.png");
         level3 = new Texture("3rd.png");
+        level3Hover = new Texture("level2Hover.png");
         level4 = new Texture("lock.png");
         level5 = new Texture("lock.png");
         level6 = new Texture("lock.png");
@@ -121,11 +124,30 @@ public class LevelsScreen extends ScreenAdapter {
         int titleWidth = 450;
         int titleHeight = 150;
         batch.draw(title, titleX, titleY, titleWidth, titleHeight);
-
+        Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+        viewport.unproject(touchPos);
+        boolean isHovering = false;
         // Draw the level buttons
-        batch.draw(level1, levelButtons[0].x, levelButtons[0].y, levelButtons[0].width, levelButtons[0].height);
-        batch.draw(level2, levelButtons[1].x, levelButtons[1].y, levelButtons[1].width, levelButtons[1].height);
-        batch.draw(level3, levelButtons[2].x, levelButtons[2].y, levelButtons[2].width, levelButtons[2].height);
+        if(levelButtons[0].contains(touchPos.x, touchPos.y)) {
+            batch.draw(level1Hover, levelButtons[0].x, levelButtons[0].y, levelButtons[0].width, levelButtons[0].height);
+            isHovering = true;
+        }else{
+            batch.draw(level1, levelButtons[0].x, levelButtons[0].y, levelButtons[0].width, levelButtons[0].height);
+        }
+
+        if(levelButtons[1].contains(touchPos.x, touchPos.y)) {
+            batch.draw(level2Hover, levelButtons[1].x, levelButtons[1].y, levelButtons[1].width, levelButtons[1].height);
+            isHovering = true;
+        }else{
+            batch.draw(level2, levelButtons[1].x, levelButtons[1].y, levelButtons[1].width, levelButtons[1].height);
+        }
+
+        if(levelButtons[2].contains(touchPos.x, touchPos.y)) {
+            batch.draw(level3Hover, levelButtons[2].x, levelButtons[2].y, levelButtons[2].width, levelButtons[2].height);
+            isHovering = true;
+        }else{
+            batch.draw(level3, levelButtons[2].x, levelButtons[2].y, levelButtons[2].width, levelButtons[2].height);
+        }
         batch.draw(level4, levelButtons[3].x, levelButtons[3].y, levelButtons[3].width, levelButtons[3].height);
         batch.draw(level5, levelButtons[4].x, levelButtons[4].y, levelButtons[4].width, levelButtons[4].height);
         batch.draw(level6, levelButtons[5].x, levelButtons[5].y, levelButtons[5].width, levelButtons[5].height);
@@ -153,8 +175,7 @@ public class LevelsScreen extends ScreenAdapter {
 
         // Handle input in world coordinates
         if (Gdx.input.isTouched()) {
-            Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
-            viewport.unproject(touchPos);  // Convert screen coordinates to world coordinates
+             // Convert screen coordinates to world coordinates
 
             // Check if a button was clicked
             if (levelButtons[0].contains(touchPos.x, touchPos.y)) {

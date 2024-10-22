@@ -92,7 +92,6 @@ public class MainScreen extends ScreenAdapter {
             isHovering = true;
         } else {
             batch.draw(newGame, newGameButton.x, newGameButton.y, 180, 60);
-            isHovering = false;
         }
 
         if (loadGameButton.contains(touchPos.x, touchPos.y)) {
@@ -100,7 +99,6 @@ public class MainScreen extends ScreenAdapter {
             isHovering = true;
         } else {
             batch.draw(loadGame, loadGameButton.x, loadGameButton.y, 180, 60);
-            isHovering = false;
         }
 
         if (settingsButton.contains(touchPos.x, touchPos.y)) {
@@ -108,7 +106,6 @@ public class MainScreen extends ScreenAdapter {
             isHovering = true;
         } else {
             batch.draw(settings, settingsButton.x, settingsButton.y, 180, 60);
-            isHovering = false;
         }
 
         if (exitButton.contains(touchPos.x, touchPos.y)) {
@@ -116,7 +113,6 @@ public class MainScreen extends ScreenAdapter {
             isHovering = true;
         } else {
             batch.draw(exit, exitButton.x, exitButton.y, 180, 60);
-            isHovering = false;
         }
 
         batch.end();
