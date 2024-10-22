@@ -24,4 +24,5 @@ public class AngryBirds extends Game {
         batch.dispose();
         stage.dispose();
     }
+
 }

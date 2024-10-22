@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -19,10 +18,16 @@ public class LoadingScreen extends ScreenAdapter {
     private OrthographicCamera camera;
     private Viewport viewport;
     private float xPos, yPos;
+    private Texture loadingBar;
+    private Texture pressKeySpace;
 
     // Define the virtual width and height for the FitViewport
     private static final float VIRTUAL_WIDTH = 800;
     private static final float VIRTUAL_HEIGHT = 600;
+
+    // For animating the loading bar
+    private float elapsedTime = 0f; // Time elapsed since loading started
+    private float maxLoadingTime = 2f; // Total time for the loading bar to fill (2 seconds)
 
     public LoadingScreen(AngryBirds game) {
         this.game = game;
@@ -31,7 +36,9 @@ public class LoadingScreen extends ScreenAdapter {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        backgroundImage = new Texture("MainScreenBackground.png");
+        backgroundImage = new Texture("try.png");
+        loadingBar = new Texture("bar.png");
+        pressKeySpace = new Texture("space.png"); // Load the image for "Press SPACE to continue"
 
         // Create an orthographic camera
         camera = new OrthographicCamera();
@@ -68,11 +75,42 @@ public class LoadingScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(.25f, .25f, .25f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // Update the elapsed time
+        elapsedTime += delta;
+
         // Begin drawing
         batch.begin();
+
         // Draw the background image centered based on the virtual coordinates
-        batch.draw(backgroundImage,0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        batch.draw(backgroundImage, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+
+        // Calculate the width of the loading bar as a percentage of elapsed time
+        float loadingProgress = Math.min(elapsedTime / maxLoadingTime, 1f); // Ensure the progress doesn't exceed 1
+        float loadingBarWidth = 300 * loadingProgress; // Adjust width based on progress
+        float loadingBarHeight = 40;
+
+        // Position the loading bar at the bottom center (horizontally start from the left)
+        float loadingBarX = (VIRTUAL_WIDTH - 300) / 2f;  // Fixed start position, bar will grow to the right
+        float loadingBarY = 50; // Set Y position near the bottom (adjust as needed)
+
+        // If loading is not complete, draw the loading bar
+        if (elapsedTime < maxLoadingTime) {
+            batch.draw(loadingBar, loadingBarX, loadingBarY, loadingBarWidth, loadingBarHeight);
+        }
+
+        // If loading is complete, show the "Press space to continue" image where the loading bar was
+        if (elapsedTime >= maxLoadingTime) {
+            float pressKeySpaceWidth = 300; // Adjust according to the size of the image
+            float pressKeySpaceHeight = 40; // Adjust according to the size of the image
+            batch.draw(pressKeySpace, loadingBarX, loadingBarY, pressKeySpaceWidth, pressKeySpaceHeight);
+        }
+
         batch.end();
+
+        // Check if spacebar is pressed, then switch to MainScreen
+        if (elapsedTime >= maxLoadingTime && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            game.setScreen(new MainScreen(game));
+        }
     }
 
     @Override
@@ -85,5 +123,7 @@ public class LoadingScreen extends ScreenAdapter {
     public void dispose() {
         batch.dispose();
         backgroundImage.dispose();
+        loadingBar.dispose();
+        pressKeySpace.dispose(); // Dispose of the pressKeySpace texture
     }
 }
