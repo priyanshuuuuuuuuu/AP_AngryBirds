@@ -38,7 +38,7 @@ public class MainScreen extends ScreenAdapter {
         batch = new SpriteBatch();
 
         // Load textures
-        backgroundImage = new Texture("main.png");
+        backgroundImage = new Texture("finalBg.png");
         newGame = new Texture("newGame.png");
         loadGame = new Texture("loadGame.png");
         settings = new Texture("settings.png");

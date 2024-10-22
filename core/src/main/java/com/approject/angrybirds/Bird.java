@@ -23,7 +23,9 @@ public abstract class Bird {
         int birdHeight = 100;
         int birdCoordinateX = 100;
         int birdCoordinateY = 100;
+        //batch.begin();
         batch.draw(texture,birdWidth, birdHeight, birdCoordinateX,birdCoordinateY);
+        //batch.end();
     }
     public void dispose(){
         texture.dispose();
