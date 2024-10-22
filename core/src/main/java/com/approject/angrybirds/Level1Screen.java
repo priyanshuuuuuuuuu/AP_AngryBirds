@@ -4,214 +4,120 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class Level1Screen extends ScreenAdapter {
-    SpriteBatch batch;
-    Texture backGroundGameplayImage;
-    Texture slingshot;
-    Texture pauseButtonTexture;
-    Texture scoreImage;
-    BitmapFont scoreFont;
-    AngryBirds game;
-    int score;
+    private AngryBirds game;
+    private SpriteBatch batch;
+    private Texture background;
+    private Viewport viewport;
+    private RedBird redBird1;  // First RedBird
+    private RedBird redBird2;  // Second RedBird
+    private Texture pauseButton;
+    private Texture playButton;
+    private Rectangle pauseButtonBounds;  // For detecting click on pause/play button
+    private boolean isPaused;  // Track if the game is paused
 
-    // Bird object
-    RedBird redBird;
-
-    // Scene2D stage to manage buttons
-    Stage stage;
-    ImageButton pauseButton;
-    ImageButton optionButton1, optionButton2, optionButton3;
-    boolean showOptions = false;
-
-    private static final float VIRTUAL_WIDTH = 800;
-    private static final float VIRTUAL_HEIGHT = 600;
+    // Constants for virtual width and height
+    private static final float VIRTUAL_WIDTH = 1920;
+    private static final float VIRTUAL_HEIGHT = 1080;
 
     public Level1Screen(AngryBirds game) {
         this.game = game;
-        score = 0;
+        isPaused = false;  // Game starts in playing state
     }
 
     @Override
     public void show() {
         batch = new SpriteBatch();
-        backGroundGameplayImage = new Texture("gamePlay.png");
-        slingshot = new Texture("sling.png");
-        scoreImage = new Texture("score.png");
+        background = new Texture("gamePlay.png");
+        pauseButton = new Texture("pauseButton.png");
+        playButton = new Texture("play.png");
 
-        // Initialize BitmapFont with default font
-        scoreFont = new BitmapFont();
-        scoreFont.getData().setScale(2);
+        // Initialize RedBird objects with their positions
+        redBird1 = new RedBird(batch, new Vector2(100, 50));  // Red bird at position (100, 50)
+        redBird2 = new RedBird(batch, new Vector2(200, 100)); // Another red bird at position (200, 100)
 
-        // Create RedBird object and set its initial position
-        redBird = new RedBird(batch, new Vector2(200, 50));
+        // Create a viewport with 1920x1080 dimensions
+        viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        viewport.apply(true);  // Apply the viewport and center the camera
 
-        // Set up the stage with ExtendViewport (800x600)
-        stage = new Stage(new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
-        Gdx.input.setInputProcessor(stage);
-
-        // Load pause button texture and create an ImageButton
-        pauseButtonTexture = new Texture("pausebutton.png");
-        Skin skin = new Skin();
-        skin.add("pauseButton", pauseButtonTexture);
-        pauseButton = new ImageButton(new ImageButton.ImageButtonStyle());
-        pauseButton.getStyle().imageUp = skin.getDrawable("pauseButton");
-
-        // Set position and size for the pause button
-        pauseButton.setSize(40, 40); // Circular size
-        pauseButton.setPosition(10, 550); // Adjust position relative to viewport
-
-        // Add the pause button to the stage
-        stage.addActor(pauseButton);
-
-        // Add listener for the pause button click
-        pauseButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                // Toggle visibility of option buttons when pause is clicked
-                showOptions = !showOptions;
-                toggleOptionButtons();
-            }
-        });
-
-        // Set up additional buttons (option buttons) to show when pause is clicked
-        createOptionButtons();
-    }
-
-    private void createOptionButtons() {
-        Skin skin = new Skin();
-
-        // Example option button textures
-        optionButton1 = createButton("play.png", skin);
-        optionButton2 = createButton("music.png", skin);
-        optionButton3 = createButton("off.png", skin);
-
-        // Set positions for the option buttons (below the pause button)
-        optionButton1.setPosition(10, 500);
-        optionButton2.setPosition(10, stage.getViewport().getWorldHeight() - 140);
-        optionButton3.setPosition(10, stage.getViewport().getWorldHeight() - 190);
-
-        // Initially hide the option buttons
-        optionButton1.setVisible(false);
-        optionButton2.setVisible(false);
-        optionButton3.setVisible(false);
-
-        // Add option buttons to the stage
-        stage.addActor(optionButton1);
-        stage.addActor(optionButton2);
-        stage.addActor(optionButton3);
-
-        // Add click listeners to option buttons
-        addOptionButtonListeners();
-    }
-
-    private ImageButton createButton(String texturePath, Skin skin) {
-        Texture buttonTexture = new Texture(texturePath);
-        skin.add(texturePath, buttonTexture);
-        ImageButton button = new ImageButton(new ImageButton.ImageButtonStyle());
-        button.getStyle().imageUp = skin.getDrawable(texturePath);
-        button.setSize(40, 40); // Set button size
-        return button;
-    }
-
-    private void addOptionButtonListeners() {
-        optionButton1.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Option 1 clicked");
-                hideOptionButtons();
-            }
-        });
-
-        optionButton2.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Option 2 clicked");
-            }
-        });
-
-        optionButton3.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Option 3 clicked");
-            }
-        });
-    }
-
-    private void hideOptionButtons() {
-        optionButton1.setVisible(false);
-        optionButton2.setVisible(false);
-        optionButton3.setVisible(false);
-        showOptions = false;
-    }
-
-    private void toggleOptionButtons() {
-        optionButton1.setVisible(showOptions);
-        optionButton2.setVisible(showOptions);
-        optionButton3.setVisible(showOptions);
+        // Define the bounds of the pause button (used for click detection)
+        pauseButtonBounds = new Rectangle(20, 950, 100, 100);  // Position and size of the button
     }
 
     @Override
     public void render(float delta) {
-        // Clear screen
+        // Clear the screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Begin drawing the background and slingshot
+        // Update the viewport to handle resizing
+        viewport.apply();
+
+        // Set the SpriteBatch to draw within the viewport's bounds
+        batch.setProjectionMatrix(viewport.getCamera().combined);
+
+        // Begin drawing the background and elements
         batch.begin();
-        batch.draw(backGroundGameplayImage, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);  // Draw background stretched to viewport size
 
-        int slingshotWidth = 150;
-        int slingshotHeight = 200;
-        int slingshotX = 250;
-        int slingshotY = 100;
-        batch.draw(slingshot, slingshotX, slingshotY, slingshotWidth, slingshotHeight);
+        // Draw the RedBirds on the screen
+        redBird1.render();  // Render redBird1 at its current position
+        redBird2.render();  // Render redBird2 at its current position
 
-        // Draw the red bird on the screen
-        redBird.render();
-
-        // Set score image to the top-right corner
-        int scoreImageWidth = 90;
-        int scoreImageHeight = 45;
-        int scoreImageX = (int) (VIRTUAL_WIDTH - scoreImageWidth - 10);
-        int scoreImageY = (int) (VIRTUAL_HEIGHT - scoreImageHeight - 10);
-        batch.draw(scoreImage, scoreImageX, scoreImageY, scoreImageWidth, scoreImageHeight);
-
-        // Draw the score below the score image
-        String scoreText = "" + score;
-        scoreFont.draw(batch, scoreText, scoreImageX, scoreImageY - 10);
-
+        // Draw the pause button if the game is not paused, otherwise draw the play button
+        if (isPaused) {
+            batch.draw(playButton, pauseButtonBounds.x, pauseButtonBounds.y, pauseButtonBounds.width, pauseButtonBounds.height);
+        } else {
+            batch.draw(pauseButton, pauseButtonBounds.x, pauseButtonBounds.y, pauseButtonBounds.width, pauseButtonBounds.height);
+        }
         batch.end();
 
-        // Draw buttons and handle input
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
+        // Handle input for pause/play button
+        if (Gdx.input.isTouched()) {
+            Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+            viewport.unproject(touchPos);  // Convert screen coordinates to world coordinates
+
+            // Check if the pause/play button is clicked
+            if (pauseButtonBounds.contains(touchPos)) {
+                if (isPaused) {
+                    // If game is paused, clicking button will resume game
+                    resumeGame();
+                } else {
+                    // If game is playing, clicking button will pause the game
+                    pauseGame();
+                }
+            }
+        }
+    }
+
+    private void pauseGame() {
+        isPaused = true;
+        game.setScreen(new PauseScreen(game, this));  // Switch to pause screen
+    }
+
+    private void resumeGame() {
+        isPaused = false;
     }
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true); // Maintain aspect ratio
+        // Update the viewport size on window resize
+        viewport.update(width, height, true);
     }
 
     @Override
     public void dispose() {
         batch.dispose();
-        backGroundGameplayImage.dispose();
-        slingshot.dispose();
-        pauseButtonTexture.dispose();
-        stage.dispose();
-        scoreImage.dispose();
-        scoreFont.dispose();
-        redBird.dispose();
+        background.dispose();
+        redBird1.dispose();  // Dispose the RedBird textures
+        redBird2.dispose();  // Dispose the RedBird textures
+        pauseButton.dispose();
+        playButton.dispose();
     }
 }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -39,8 +40,8 @@ public class LevelsScreen extends ScreenAdapter {
     Viewport viewport;
 
     // Virtual width and height for the camera
-    private static final float VIRTUAL_WIDTH = 800;
-    private static final float VIRTUAL_HEIGHT = 600;
+    private static final float VIRTUAL_WIDTH = 1920;
+    private static final float VIRTUAL_HEIGHT = 1080;
 
     public LevelsScreen(AngryBirds game) {
         this.game = game;
@@ -49,7 +50,7 @@ public class LevelsScreen extends ScreenAdapter {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        backgroundImage = new Texture("bgLevel.png");
+        backgroundImage = new Texture("v.png");
         title = new Texture("selectLevel.png");
         level1 = new Texture("newlevel1.png");
         level1Hover = new Texture("level1Hover.png");
@@ -74,7 +75,7 @@ public class LevelsScreen extends ScreenAdapter {
 
         // Initialize OrthographicCamera and FitViewport
         camera = new OrthographicCamera();
-        viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+        viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
         viewport.apply();
 
         // Set camera to look at the center of the world
@@ -84,14 +85,14 @@ public class LevelsScreen extends ScreenAdapter {
         // Initialize buttons as world coordinates rectangles
         levelButtons = new Rectangle[15];
 
-        int buttonSpacing = 20;  // Spacing between buttons
-        int buttonWidth = 80;    // Width of the level button
-        int buttonHeight = 100;  // Height of the level button
+        int buttonSpacing = 55;  // Spacing between buttons
+        int buttonWidth = 180;    // Width of the level button
+        int buttonHeight = 180;  // Height of the level button
 
         // Calculate starting position (centering the grid)
         int totalGridWidth = 5 * buttonWidth + 4 * buttonSpacing; // 5 buttons per row, 4 spacings
         int startX = (int) (VIRTUAL_WIDTH - totalGridWidth) / 2; // Start X centered
-        int startY = 320; // Start Y for the first row (adjust as needed)
+        int startY = 550; // Start Y for the first row (adjust as needed)
 
         // Create 5x5 grid for level buttons
         for (int i = 0; i < levelButtons.length; i++) {
@@ -119,10 +120,10 @@ public class LevelsScreen extends ScreenAdapter {
         batch.draw(backgroundImage, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         // Draw title image at the top
-        float titleX = (VIRTUAL_WIDTH - 450) / 2;  // Center the title horizontally
-        float titleY = 440;       // Position title below the top edge
-        int titleWidth = 450;
-        int titleHeight = 150;
+        float titleX = 320;  // Center the title horizontally
+        float titleY = 740;       // Position title below the top edge
+        int titleWidth = 1350;
+        int titleHeight = 350;
         batch.draw(title, titleX, titleY, titleWidth, titleHeight);
         Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
         viewport.unproject(touchPos);
@@ -162,14 +163,14 @@ public class LevelsScreen extends ScreenAdapter {
         batch.draw(level9, levelButtons[14].x, levelButtons[14].y, levelButtons[14].width, levelButtons[14].height);
 
         // Draw extraImage1 at bottom-right corner
-        int extraImage1Width = 200;
-        int extraImage1Height = 300;
-        batch.draw(extraImage1, VIRTUAL_WIDTH - extraImage1Width, 0, extraImage1Width, extraImage1Height);
+        int extraImage1Width = 500;
+        int extraImage1Height = 700;
+        batch.draw(extraImage1, 1500, 0, extraImage1Width, extraImage1Height);
 
         // Draw extraImage2 at bottom-left corner
-        int extraImage2Width = 150;
-        int extraImage2Height = 200;
-        batch.draw(extraImage2, 0, 0, extraImage2Width, extraImage2Height);
+        int extraImage2Width = 300;
+        int extraImage2Height = 300;
+        batch.draw(extraImage2, 0, 60, extraImage2Width, extraImage2Height);
 
         batch.end();
 

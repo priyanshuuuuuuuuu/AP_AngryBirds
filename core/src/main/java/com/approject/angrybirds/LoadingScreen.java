@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -22,8 +23,8 @@ public class LoadingScreen extends ScreenAdapter {
     private Texture pressKeySpace;
 
     // Define the virtual width and height for the FitViewport
-    private static final float VIRTUAL_WIDTH = 800;
-    private static final float VIRTUAL_HEIGHT = 600;
+    private static final float VIRTUAL_WIDTH = 1920;
+    private static final float VIRTUAL_HEIGHT = 1080;
 
     // For animating the loading bar
     private float elapsedTime = 0f; // Time elapsed since loading started
@@ -43,7 +44,7 @@ public class LoadingScreen extends ScreenAdapter {
         // Create an orthographic camera
         camera = new OrthographicCamera();
         // Create a FitViewport with 800x600 dimensions
-        viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+        viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
         // Ensure the camera is centered
         camera.position.set(VIRTUAL_WIDTH / 2f, VIRTUAL_HEIGHT / 2f, 0);
         camera.update();
@@ -86,12 +87,12 @@ public class LoadingScreen extends ScreenAdapter {
 
         // Calculate the width of the loading bar as a percentage of elapsed time
         float loadingProgress = Math.min(elapsedTime / maxLoadingTime, 1f); // Ensure the progress doesn't exceed 1
-        float loadingBarWidth = 300 * loadingProgress; // Adjust width based on progress
-        float loadingBarHeight = 40;
+        float loadingBarWidth = 500 * loadingProgress; // Adjust width based on progress
+        float loadingBarHeight = 80;
 
         // Position the loading bar at the bottom center (horizontally start from the left)
-        float loadingBarX = (VIRTUAL_WIDTH - 300) / 2f;  // Fixed start position, bar will grow to the right
-        float loadingBarY = 50; // Set Y position near the bottom (adjust as needed)
+        float loadingBarX = 700;  // Fixed start position, bar will grow to the right
+        float loadingBarY = 40; // Set Y position near the bottom (adjust as needed)
 
         // If loading is not complete, draw the loading bar
         if (elapsedTime < maxLoadingTime) {
@@ -100,8 +101,8 @@ public class LoadingScreen extends ScreenAdapter {
 
         // If loading is complete, show the "Press space to continue" image where the loading bar was
         if (elapsedTime >= maxLoadingTime) {
-            float pressKeySpaceWidth = 300; // Adjust according to the size of the image
-            float pressKeySpaceHeight = 40; // Adjust according to the size of the image
+            float pressKeySpaceWidth = 580; // Adjust according to the size of the image
+            float pressKeySpaceHeight = 150; // Adjust according to the size of the image
             batch.draw(pressKeySpace, loadingBarX, loadingBarY, pressKeySpaceWidth, pressKeySpaceHeight);
         }
 

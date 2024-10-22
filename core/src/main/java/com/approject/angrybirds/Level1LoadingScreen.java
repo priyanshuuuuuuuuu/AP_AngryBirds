@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -20,8 +21,8 @@ public class Level1LoadingScreen extends ScreenAdapter {
     private Viewport viewport;
 
     // Define the virtual width and height for the StretchViewport
-    private static final float VIRTUAL_WIDTH = 800;
-    private static final float VIRTUAL_HEIGHT = 600;
+    private static final float VIRTUAL_WIDTH = 1920;
+    private static final float VIRTUAL_HEIGHT = 1080;
 
     public Level1LoadingScreen(AngryBirds game) {
         this.game = game;
@@ -36,7 +37,7 @@ public class Level1LoadingScreen extends ScreenAdapter {
         // Create an orthographic camera
         camera = new OrthographicCamera();
         // Create a StretchViewport with 800x600 dimensions
-        viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+        viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
         // Center the camera
         camera.position.set(VIRTUAL_WIDTH / 2f, VIRTUAL_HEIGHT / 2f, 0);
         camera.update();
@@ -66,7 +67,7 @@ public class Level1LoadingScreen extends ScreenAdapter {
         // Begin drawing
         batch.begin();
         batch.draw(backgroundImage, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        batch.draw(loading, 650, 20, 150, 40);
+        batch.draw(loading, 1400, 20, 550, 100);
         batch.end();
     }
 
