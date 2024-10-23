@@ -88,6 +88,13 @@ public class MainScreen extends ScreenAdapter {
 
         boolean isHovering = false;
 
+        if (settingsButton.contains(touchPos.x, touchPos.y)) {
+            batch.draw(settingsHover, settingsButton.x, settingsButton.y, settingsButton.width, settingsButton.height);
+            isHovering = true;
+        } else {
+            batch.draw(settings, settingsButton.x, settingsButton.y, settingsButton.width, settingsButton.height);
+        }
+        
         if (newGameButton.contains(touchPos.x, touchPos.y)) {
             batch.draw(newGameHover, newGameButton.x, newGameButton.y, newGameButton.width, newGameButton.height);
             isHovering = true;
@@ -95,25 +102,18 @@ public class MainScreen extends ScreenAdapter {
             batch.draw(newGame, newGameButton.x, newGameButton.y, newGameButton.width, newGameButton.height);
         }
 
-        if (loadGameButton.contains(touchPos.x, touchPos.y)) {
-            batch.draw(loadGameHover, loadGameButton.x, loadGameButton.y, loadGameButton.width, loadGameButton.height);
-            isHovering = true;
-        } else {
-            batch.draw(loadGame, loadGameButton.x, loadGameButton.y, loadGameButton.width, loadGameButton.height);
-        }
-
-        if (settingsButton.contains(touchPos.x, touchPos.y)) {
-            batch.draw(settingsHover, settingsButton.x, settingsButton.y, settingsButton.width, settingsButton.height);
-            isHovering = true;
-        } else {
-            batch.draw(settings, settingsButton.x, settingsButton.y, settingsButton.width, settingsButton.height);
-        }
-
         if (exitButton.contains(touchPos.x, touchPos.y)) {
             batch.draw(exitHover, exitButton.x, exitButton.y, exitButton.width, exitButton.height);
             isHovering = true;
         } else {
             batch.draw(exit, exitButton.x, exitButton.y, exitButton.width, exitButton.height);
+        }
+        
+        if (loadGameButton.contains(touchPos.x, touchPos.y)) {
+            batch.draw(loadGameHover, loadGameButton.x, loadGameButton.y, loadGameButton.width, loadGameButton.height);
+            isHovering = true;
+        } else {
+            batch.draw(loadGame, loadGameButton.x, loadGameButton.y, loadGameButton.width, loadGameButton.height);
         }
 
         batch.end();
@@ -146,16 +146,16 @@ public class MainScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        batch.dispose();
-        backgroundImage.dispose();
         newGame.dispose();
         newGameHover.dispose();
         loadGame.dispose();
-        loadGameHover.dispose();
         settings.dispose();
         settingsHover.dispose();
         exit.dispose();
+        batch.dispose();
+        loadGameHover.dispose();
         exitHover.dispose();
         title.dispose();
+        backgroundImage.dispose();
     }
 }
