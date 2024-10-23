@@ -88,7 +88,6 @@ public class MainScreen extends ScreenAdapter {
 
         boolean isHovering = false;
 
-        // Increase button size in drawing
         if (newGameButton.contains(touchPos.x, touchPos.y)) {
             batch.draw(newGameHover, newGameButton.x, newGameButton.y, newGameButton.width, newGameButton.height);
             isHovering = true;
