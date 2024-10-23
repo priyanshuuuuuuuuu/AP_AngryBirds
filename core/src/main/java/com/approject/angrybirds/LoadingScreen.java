@@ -21,14 +21,15 @@ public class LoadingScreen extends ScreenAdapter {
     private float xPos, yPos;
     private Texture loadingBar;
     private Texture pressKeySpace;
-
-    // Define the virtual width and height for the FitViewport
-    private static final float VIRTUAL_WIDTH = 1920;
-    private static final float VIRTUAL_HEIGHT = 1080;
-
+    
     // For animating the loading bar
     private float elapsedTime = 0f; // Time elapsed since loading started
     private float maxLoadingTime = 2f; // Total time for the loading bar to fill (2 seconds)
+
+        // Define the virtual width and height for the FitViewport
+    private static final float VIRTUAL_WIDTH = 1920;
+    private static final float VIRTUAL_HEIGHT = 1080;
+
 
     public LoadingScreen(AngryBirds game) {
         this.game = game;
@@ -94,17 +95,17 @@ public class LoadingScreen extends ScreenAdapter {
         float loadingBarX = 700;  // Fixed start position, bar will grow to the right
         float loadingBarY = 40; // Set Y position near the bottom (adjust as needed)
 
-        // If loading is not complete, draw the loading bar
-        if (elapsedTime < maxLoadingTime) {
-            batch.draw(loadingBar, loadingBarX, loadingBarY, loadingBarWidth, loadingBarHeight);
-        }
-
         // If loading is complete, show the "Press space to continue" image where the loading bar was
         if (elapsedTime >= maxLoadingTime) {
             float pressKeySpaceWidth = 580; // Adjust according to the size of the image
             float pressKeySpaceHeight = 150; // Adjust according to the size of the image
             batch.draw(pressKeySpace, loadingBarX, loadingBarY, pressKeySpaceWidth, pressKeySpaceHeight);
         }
+                // If loading is not complete, draw the loading bar
+        if (elapsedTime < maxLoadingTime) {
+            batch.draw(loadingBar, loadingBarX, loadingBarY, loadingBarWidth, loadingBarHeight);
+        }
+
 
         batch.end();
 
