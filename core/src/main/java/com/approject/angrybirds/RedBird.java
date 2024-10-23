@@ -6,8 +6,6 @@ import com.badlogic.gdx.math.Vector2;
 
 public class RedBird extends Bird {
 
-
-
     public RedBird(SpriteBatch batch, Vector2 position) {
         super(new Texture("redBird.png"), batch, position, new Vector2(0, 0));  // Default velocity set to 0 for now
     }

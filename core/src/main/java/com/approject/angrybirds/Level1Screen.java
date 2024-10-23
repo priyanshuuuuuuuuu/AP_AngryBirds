@@ -20,7 +20,11 @@ public class Level1Screen extends ScreenAdapter {
     private Texture pauseButton;
     private Texture playButton;
     private Rectangle pauseButtonBounds;  // For detecting click on pause/play button
-    private boolean isPaused;  // Track if the game is paused
+    private boolean isPaused;
+    private SlingShot slingShot;
+    private YellowBird yellowBird;
+    private MinionPigs minionPig;
+    private Texture scoreTextImage;
 
     // Constants for virtual width and height
     private static final float VIRTUAL_WIDTH = 1920;
@@ -37,17 +41,24 @@ public class Level1Screen extends ScreenAdapter {
         background = new Texture("gamePlay.png");
         pauseButton = new Texture("pauseButton.png");
         playButton = new Texture("play.png");
+        scoreTextImage = new Texture("score.png");
 
         // Initialize RedBird objects with their positions
-        redBird1 = new RedBird(batch, new Vector2(100, 50));  // Red bird at position (100, 50)
-        redBird2 = new RedBird(batch, new Vector2(200, 100)); // Another red bird at position (200, 100)
+        redBird1 = new RedBird(batch, new Vector2(120, 147));
+        redBird2 = new RedBird(batch, new Vector2(220, 147));
+
+        // Initialize SlingShot object and load its texture
+        slingShot = new SlingShot(batch, 300, 147);
+        slingShot.show();  // Load the texture for SlingShot
+        yellowBird = new YellowBird(batch, new Vector2(20, 147));
+        minionPig = new MinionPigs(batch, new Vector2(1600, 147));
 
         // Create a viewport with 1920x1080 dimensions
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        viewport.apply(true);  // Apply the viewport and center the camera
+        viewport.apply(true);
 
         // Define the bounds of the pause button (used for click detection)
-        pauseButtonBounds = new Rectangle(20, 950, 100, 100);  // Position and size of the button
+        pauseButtonBounds = new Rectangle(20, 950, 100, 100);
     }
 
     @Override
@@ -56,7 +67,6 @@ public class Level1Screen extends ScreenAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Update the viewport to handle resizing
         viewport.apply();
 
         // Set the SpriteBatch to draw within the viewport's bounds
@@ -64,11 +74,16 @@ public class Level1Screen extends ScreenAdapter {
 
         // Begin drawing the background and elements
         batch.begin();
-        batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);  // Draw background stretched to viewport size
-
+        batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        batch.draw(scoreTextImage, 1700, 1020, 200, 50);
         // Draw the RedBirds on the screen
-        redBird1.render();  // Render redBird1 at its current position
-        redBird2.render();  // Render redBird2 at its current position
+        redBird1.render();
+        redBird2.render();
+
+        // Draw the SlingShot on the screen
+        slingShot.render();
+        yellowBird.render();
+        minionPig.render();
 
         // Draw the pause button if the game is not paused, otherwise draw the play button
         if (isPaused) {
@@ -117,7 +132,9 @@ public class Level1Screen extends ScreenAdapter {
         background.dispose();
         redBird1.dispose();  // Dispose the RedBird textures
         redBird2.dispose();  // Dispose the RedBird textures
+        slingShot.dispose();  // Dispose the SlingShot textures
         pauseButton.dispose();
         playButton.dispose();
+        scoreTextImage.dispose();
     }
 }
