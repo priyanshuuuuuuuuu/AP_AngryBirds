@@ -19,9 +19,8 @@ public class RetryScoreScreen extends ScreenAdapter {
     private Viewport viewport;
     private Texture pigs;
     private Texture title;
-    Texture retryButton, retryHoverButton;
-    Rectangle retryButtonBound;
-
+    Texture retryButton, retryHoverButton, homeButton, homeHoverButton;
+    Rectangle retryButtonBound, homeButtonBound;
 
     public RetryScoreScreen(AngryBirds game) {
         this.game = game;
@@ -35,15 +34,23 @@ public class RetryScoreScreen extends ScreenAdapter {
         title = new Texture("wellTried.png");
         retryButton = new Texture("retryButton.png");
         retryHoverButton = new Texture("retryHover.png");
+        homeButton = new Texture("home.png");
+        homeHoverButton = new Texture("homeHover.png");
 
-        float buttonWidth = 420;
-        float buttonHeight = 100;
-        float centerX = 780;
-        retryButtonBound = new Rectangle(centerX, 100, buttonWidth, buttonHeight);
+        // Set retry button dimensions and position (centered)
+        float retryButtonWidth = 420;
+        float retryButtonHeight = 100;
+        float retryButtonX = (VIRTUAL_WIDTH - retryButtonWidth) / 2; // Center horizontally
+        float buttonY = 100; // Bottom alignment for both buttons
+        retryButtonBound = new Rectangle(retryButtonX, buttonY, retryButtonWidth, retryButtonHeight);
 
-        // Initialize the viewport with the virtual size of 1920x1080
+        // Set home button dimensions and position (100x100, aligned to left)
+        float homeButtonSize = 100;
+        float homeButtonX = 100;
+        homeButtonBound = new Rectangle(homeButtonX, buttonY, homeButtonSize, homeButtonSize);
+
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        viewport.apply(true);  // Ensure the viewport is centered
+        viewport.apply(true);
     }
 
     @Override
@@ -52,42 +59,44 @@ public class RetryScoreScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Apply the viewport to handle any resizing
+        // Apply the viewport and set projection matrix
         viewport.apply();
-
-        // Set the projection matrix of the batch to the viewport's camera combined matrix
         batch.setProjectionMatrix(viewport.getCamera().combined);
 
         batch.begin();
-        // Draw background and elements
-        batch.draw(backGroundImage, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);  // Stretch the background
+        // Draw background and other elements
+        batch.draw(backGroundImage, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         batch.draw(pigs, 550, 0, 900, 900);
         batch.draw(title, 360, 800, 1200, 200);
 
         Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
         viewport.unproject(touchPos);  // Convert screen coordinates to world coordinates
 
-        boolean isHovering = false;
-
-        // Resume button hover and action
+        // Retry button hover and action
         if (retryButtonBound.contains(touchPos.x, touchPos.y)) {
             batch.draw(retryHoverButton, retryButtonBound.x, retryButtonBound.y, retryButtonBound.width, retryButtonBound.height);
-            isHovering = true;
             if (Gdx.input.isTouched()) {
-                game.setScreen(new Level1Screen(game));  // Resume the game
+                game.setScreen(new Level1Screen(game));  // Retry the level
             }
         } else {
             batch.draw(retryButton, retryButtonBound.x, retryButtonBound.y, retryButtonBound.width, retryButtonBound.height);
         }
 
-
+        // Home button hover and action
+        if (homeButtonBound.contains(touchPos.x, touchPos.y)) {
+            batch.draw(homeHoverButton, homeButtonBound.x, homeButtonBound.y, homeButtonBound.width, homeButtonBound.height);
+            if (Gdx.input.isTouched()) {
+                game.setScreen(new MainScreen(game));  // Navigate to MainScreen
+            }
+        } else {
+            batch.draw(homeButton, homeButtonBound.x, homeButtonBound.y, homeButtonBound.width, homeButtonBound.height);
+        }
 
         batch.end();
     }
 
     @Override
     public void resize(int width, int height) {
-        // Update the viewport size based on new screen dimensions
         viewport.update(width, height, true);
     }
 
@@ -97,5 +106,9 @@ public class RetryScoreScreen extends ScreenAdapter {
         batch.dispose();
         pigs.dispose();
         title.dispose();
+        retryButton.dispose();
+        retryHoverButton.dispose();
+        homeButton.dispose();
+        homeHoverButton.dispose();
     }
 }

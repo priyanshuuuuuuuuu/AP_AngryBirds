@@ -4,10 +4,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
-public class SmallWoodBlock extends WoodBlocks{
+public class TriangleGlassBlock extends GlassBlock{
 
-    public SmallWoodBlock(SpriteBatch batch, Vector2 position) {
-        super(new Texture("woodSmallBlock.png"), batch, position, new Vector2(0, 0));
+    public TriangleGlassBlock(SpriteBatch batch, Vector2 position) {
+        super(new Texture("glassTriangleBlock.png"), batch, position, new Vector2(0, 0));
     }
 
     @Override

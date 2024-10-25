@@ -4,12 +4,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
-public abstract class StoneBlocks {
+public abstract class GlassBlock {
     protected SpriteBatch batch;
     protected Texture texture;
     protected Vector2 position;
 
-    public StoneBlocks(Texture texture, SpriteBatch batch, Vector2 position, Vector2 velocity) {
+    public GlassBlock(Texture texture, SpriteBatch batch, Vector2 position, Vector2 velocity) {
         this.texture = texture;
         this.batch = batch;
         this.position = position;

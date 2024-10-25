@@ -21,7 +21,7 @@ public class LoadingScreen extends ScreenAdapter {
     private float xPos, yPos;
     private Texture loadingBar;
     private Texture pressKeySpace;
-    
+
     // For animating the loading bar
     private float elapsedTime = 0f; // Time elapsed since loading started
     private float maxLoadingTime = 2f; // Total time for the loading bar to fill (2 seconds)

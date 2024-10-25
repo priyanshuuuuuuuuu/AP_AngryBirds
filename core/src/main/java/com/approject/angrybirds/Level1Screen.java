@@ -25,6 +25,14 @@ public class Level1Screen extends ScreenAdapter {
     private YellowBird yellowBird;
     private MinionPigs minionPig;
     private Texture scoreTextImage;
+    private WoodBlocks verticalWoodBlock1;
+    private WoodBlocks verticalWoodBlock2;
+    private WoodBlocks horizontalWoodBlock1;
+    private StoneBlocks stoneBlock1;
+    private StoneBlocks stoneBlock2;
+    private StoneBlocks stoneBlock3;
+    private GlassBlock triangleGlassBlock;
+
 
     // Constants for virtual width and height
     private static final float VIRTUAL_WIDTH = 1920;
@@ -46,12 +54,22 @@ public class Level1Screen extends ScreenAdapter {
         // Initialize RedBird objects with their positions
         redBird1 = new RedBird(batch, new Vector2(120, 147));
         redBird2 = new RedBird(batch, new Vector2(220, 147));
+        verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1700, 170));
+        verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1550, 170));
+        horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1545, 350));
+        stoneBlock1 = new MediumSizedStoneBlock(batch , new Vector2(1500, 147));
+        stoneBlock2 = new MediumSizedStoneBlock(batch , new Vector2(1584, 147));
+        stoneBlock3 = new MediumSizedStoneBlock(batch , new Vector2(1668, 147));
+        triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1600, 365));
 
         // Initialize SlingShot object and load its texture
         slingShot = new SlingShot(batch, 300, 147);
         slingShot.show();  // Load the texture for SlingShot
         yellowBird = new YellowBird(batch, new Vector2(20, 147));
-        minionPig = new MinionPigs(batch, new Vector2(1600, 147));
+        minionPig = new MinionPigs(batch, new Vector2(1600, 190));
+
+
+
 
         // Create a viewport with 1920x1080 dimensions
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
@@ -79,11 +97,20 @@ public class Level1Screen extends ScreenAdapter {
         // Draw the RedBirds on the screen
         redBird1.render();
         redBird2.render();
+        verticalWoodBlock1.render();
+        verticalWoodBlock2.render();
+        horizontalWoodBlock1.render();
+        stoneBlock1.render();
+        stoneBlock2.render();
+        triangleGlassBlock.render();
+        stoneBlock3.render();
+
 
         // Draw the SlingShot on the screen
         slingShot.render();
         yellowBird.render();
         minionPig.render();
+
 
         // Draw the pause button if the game is not paused, otherwise draw the play button
         if (isPaused) {

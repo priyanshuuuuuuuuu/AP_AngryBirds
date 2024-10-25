@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class VerticalWoodBlock extends WoodBlocks{
 
-    public VerticalWoodBlock(Texture texture, SpriteBatch batch, Vector2 position) {
+    public VerticalWoodBlock(SpriteBatch batch, Vector2 position) {
         super(new Texture("woodVerticalBlock.png"),batch, position, new Vector2(0, 0));
     }
     @Override
