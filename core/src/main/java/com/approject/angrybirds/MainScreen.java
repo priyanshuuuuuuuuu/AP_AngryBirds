@@ -48,11 +48,11 @@ public class MainScreen extends ScreenAdapter {
         exit = new Texture("exit.png");
         exitHover = new Texture("exitHover.png");
         title = new Texture("title.png");
-
         camera = new OrthographicCamera();
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
         camera.position.set(VIRTUAL_WIDTH / 2f, VIRTUAL_HEIGHT / 2f, 0);
         camera.update();
+        MusicControl.stopScoreMusic();
 
         int buttonSpacing = 35;  // Increased spacing between buttons
         float buttonWidth = 450;  // Increased button width
@@ -64,6 +64,10 @@ public class MainScreen extends ScreenAdapter {
         loadGameButton = new Rectangle(centerX, newGameButton.y - buttonHeight - buttonSpacing, buttonWidth, buttonHeight);
         settingsButton = new Rectangle(centerX, loadGameButton.y - buttonHeight - buttonSpacing, buttonWidth, buttonHeight);
         exitButton = new Rectangle(centerX, settingsButton.y - buttonHeight - buttonSpacing, buttonWidth, buttonHeight);
+
+        // Play background music when MainScreen is shown
+        MusicControl.stopGameplayMusic();
+        MusicControl.playBackgroundMusic();
     }
 
     @Override
@@ -94,7 +98,7 @@ public class MainScreen extends ScreenAdapter {
         } else {
             batch.draw(settings, settingsButton.x, settingsButton.y, settingsButton.width, settingsButton.height);
         }
-        
+
         if (newGameButton.contains(touchPos.x, touchPos.y)) {
             batch.draw(newGameHover, newGameButton.x, newGameButton.y, newGameButton.width, newGameButton.height);
             isHovering = true;
@@ -108,7 +112,7 @@ public class MainScreen extends ScreenAdapter {
         } else {
             batch.draw(exit, exitButton.x, exitButton.y, exitButton.width, exitButton.height);
         }
-        
+
         if (loadGameButton.contains(touchPos.x, touchPos.y)) {
             batch.draw(loadGameHover, loadGameButton.x, loadGameButton.y, loadGameButton.width, loadGameButton.height);
             isHovering = true;
@@ -146,6 +150,7 @@ public class MainScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
+        MusicControl.stopBackgroundMusic();  // Stop background music if explicitly needed
         newGame.dispose();
         newGameHover.dispose();
         loadGame.dispose();

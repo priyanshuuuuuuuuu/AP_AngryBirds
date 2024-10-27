@@ -50,6 +50,9 @@ public class Level1Screen extends ScreenAdapter {
         pauseButton = new Texture("pauseButton.png");
         playButton = new Texture("play.png");
         scoreTextImage = new Texture("score.png");
+        MusicControl.stopScoreMusic();
+        MusicControl.stopBackgroundMusic();
+        MusicControl.playGameplayMusic();
 
         // Initialize RedBird objects with their positions
         redBird1 = new RedBird(batch, new Vector2(120, 147));
@@ -163,5 +166,6 @@ public class Level1Screen extends ScreenAdapter {
         pauseButton.dispose();
         playButton.dispose();
         scoreTextImage.dispose();
+        MusicControl.stopBackgroundMusic();
     }
 }

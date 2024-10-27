@@ -2,6 +2,8 @@ package com.approject.angrybirds;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -13,13 +15,14 @@ public class Credits extends ScreenAdapter {
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
 
-    AngryBirds game;
-    SpriteBatch batch;
-    Texture background;
-    Texture creditsName;
-    Texture backButton;
-    Rectangle backButtonBounds;
-    Viewport viewport;
+    private final AngryBirds game;
+    private SpriteBatch batch;
+    private Texture background;
+    private Texture creditsName;
+    private Texture backButton;
+    private Rectangle backButtonBounds;
+    private Viewport viewport;
+    private OrthographicCamera camera;
 
     public Credits(AngryBirds game) {
         this.game = game;
@@ -28,13 +31,18 @@ public class Credits extends ScreenAdapter {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);  // Setting up the viewport with 1920x1080
+
+        // Set up the camera and viewport with the specified virtual width and height
+        camera = new OrthographicCamera();
+        viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+        camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
+        camera.update();
 
         background = new Texture("image.png");
         creditsName = new Texture("ew.png");
         backButton = new Texture("backButton.png");
 
-        // Define the rectangle area for the back button at the top-left corner
+        // Define the back button's area
         float backButtonWidth = 100;
         float backButtonHeight = 100;
         float backButtonX = 20;
@@ -44,12 +52,18 @@ public class Credits extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        viewport.apply();  // Apply the viewport
-        batch.setProjectionMatrix(viewport.getCamera().combined);  // Update the batch projection matrix
+        // Clear the screen to a black background
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // Apply the viewport and camera
+        viewport.apply();
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
 
-        // Draw the background
+        // Draw the background to fit the entire virtual screen size
         batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         // Center the creditsName image
@@ -64,21 +78,20 @@ public class Credits extends ScreenAdapter {
 
         batch.end();
 
-        // Handle single touch detection for back button
-        if (Gdx.input.justTouched()) {  // Detects a single tap
+        // Handle input for the back button
+        if (Gdx.input.justTouched()) {
             Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
-            viewport.unproject(touchPos);  // Convert to world coordinates in the viewport
+            viewport.unproject(touchPos);
 
-            // Check if the back button was touched
             if (backButtonBounds.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new Settings(game));  // Go to Settings screen
+                game.setScreen(new Settings(game));  // Navigate back to the Settings screen
             }
         }
     }
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height);  // Update the viewport on resize
+        viewport.update(width, height, true);  // Ensure viewport updates correctly on resize
     }
 
     @Override

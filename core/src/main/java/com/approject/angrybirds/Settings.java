@@ -67,7 +67,7 @@ public class Settings extends ScreenAdapter {
         crossButtonBounds = new Rectangle(1430, 780, buttonSize, buttonSize);
         musicButtonBounds = new Rectangle(350, 50, buttonSize, buttonSize);
         iButtonBounds = new Rectangle(500, 50, buttonSize, buttonSize);
-        termsAndPrivacyButtonBounds = new Rectangle(650, 50, buttonSize, buttonSize); // Position for Terms and Privacy button
+        termsAndPrivacyButtonBounds = new Rectangle(1500, 50, 300, 100); // Position for Terms and Privacy button
         newButtonBounds = new Rectangle(250, 50, buttonSize, buttonSize); // Position for the new button to the left of music button
     }
 
@@ -115,9 +115,18 @@ public class Settings extends ScreenAdapter {
 
         // Draw Music Button with hover effect
         if (musicButtonBounds.contains(touchPos.x, touchPos.y)) {
+            if(Gdx.input.isTouched()){
+                isMusicOn = !isMusicOn;
+                if(isMusicOn){
+                    MusicControl.playBackgroundMusic();
+                }else{
+                    MusicControl.stopBackgroundMusic();
+                }
+            }
             batch.draw(isMusicOn ? musicButton : noMusicButton, musicButtonBounds.x, musicButtonBounds.y, musicButtonBounds.width, musicButtonBounds.height);
             isHovering = true;
-        } else {
+        }
+        else {
             batch.draw(isMusicOn ? musicButton : noMusicButton, musicButtonBounds.x, musicButtonBounds.y, musicButtonBounds.width, musicButtonBounds.height);
         }
 

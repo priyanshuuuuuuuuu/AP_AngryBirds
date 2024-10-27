@@ -36,7 +36,8 @@ public class RetryScoreScreen extends ScreenAdapter {
         retryHoverButton = new Texture("retryHover.png");
         homeButton = new Texture("home.png");
         homeHoverButton = new Texture("homeHover.png");
-
+        MusicControl.stopGameplayMusic();
+        MusicControl.playScoreMusic();
         // Set retry button dimensions and position (centered)
         float retryButtonWidth = 420;
         float retryButtonHeight = 100;
@@ -110,5 +111,7 @@ public class RetryScoreScreen extends ScreenAdapter {
         retryHoverButton.dispose();
         homeButton.dispose();
         homeHoverButton.dispose();
+        MusicControl.dispose();
+        super.dispose();
     }
 }

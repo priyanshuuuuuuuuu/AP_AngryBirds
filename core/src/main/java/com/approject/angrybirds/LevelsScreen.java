@@ -35,9 +35,12 @@ public class LevelsScreen extends ScreenAdapter {
     Texture extraImage1;
     Texture extraImage2;
     Rectangle[] levelButtons;
+    private Rectangle backButtonBounds;
+
 
     OrthographicCamera camera;
     Viewport viewport;
+    private Texture backButton;
 
     // Virtual width and height for the camera
     private static final float VIRTUAL_WIDTH = 1920;
@@ -57,7 +60,7 @@ public class LevelsScreen extends ScreenAdapter {
         level2 = new Texture("2.png");
         level2Hover = new Texture("level2Hover.png");
         level3 = new Texture("3rd.png");
-        level3Hover = new Texture("level2Hover.png");
+        level3Hover = new Texture("level3Hover.png");
         level4 = new Texture("lock.png");
         level5 = new Texture("lock.png");
         level6 = new Texture("lock.png");
@@ -72,6 +75,13 @@ public class LevelsScreen extends ScreenAdapter {
         level15 = new Texture("lock.png");
         extraImage1 = new Texture("red.png");
         extraImage2 = new Texture("piggy.png");
+        backButton = new Texture("backButton.png");
+        float backButtonWidth = 100;
+        float backButtonHeight = 100;
+        float backButtonX = 20;
+        float backButtonY = VIRTUAL_HEIGHT - backButtonHeight - 20;  // Offset from the top edge
+        backButtonBounds = new Rectangle(backButtonX, backButtonY, backButtonWidth, backButtonHeight);
+
 
         // Initialize OrthographicCamera and FitViewport
         camera = new OrthographicCamera();
@@ -118,7 +128,16 @@ public class LevelsScreen extends ScreenAdapter {
         batch.begin();
         // Draw background
         batch.draw(backgroundImage, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        batch.draw(backButton, backButtonBounds.x, backButtonBounds.y, backButtonBounds.width, backButtonBounds.height);
 
+        if (Gdx.input.justTouched()) {
+            Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+            viewport.unproject(touchPos);
+
+            if (backButtonBounds.contains(touchPos.x, touchPos.y)) {
+                game.setScreen(new MainScreen(game));  // Navigate back to the Settings screen
+            }
+        }
         // Draw title image at the top
         float titleX = 320;  // Center the title horizontally
         float titleY = 740;       // Position title below the top edge
