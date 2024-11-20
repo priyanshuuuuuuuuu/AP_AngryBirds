@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.physics.box2d.World;
 
 public class Level1Screen extends ScreenAdapter {
     private AngryBirds game;
@@ -32,8 +33,6 @@ public class Level1Screen extends ScreenAdapter {
     private StoneBlocks stoneBlock2;
     private StoneBlocks stoneBlock3;
     private GlassBlock triangleGlassBlock;
-
-
     // Constants for virtual width and height
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
@@ -64,14 +63,10 @@ public class Level1Screen extends ScreenAdapter {
         stoneBlock2 = new MediumSizedStoneBlock(batch , new Vector2(1584, 147));
         stoneBlock3 = new MediumSizedStoneBlock(batch , new Vector2(1668, 147));
         triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1600, 365));
-
-        // Initialize SlingShot object and load its texture
         slingShot = new SlingShot(batch, 300, 147);
-        slingShot.show();  // Load the texture for SlingShot
+        slingShot.show();
         yellowBird = new YellowBird(batch, new Vector2(20, 147));
         minionPig = new MinionPigs(batch, new Vector2(1600, 190));
-
-
 
 
         // Create a viewport with 1920x1080 dimensions

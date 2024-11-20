@@ -28,4 +28,8 @@ public abstract class Bird {
     public void dispose() {
         texture.dispose();
     }
+
+    public void setPosition(float x, float y) {
+        position.set(x, y);
+    }
 }
