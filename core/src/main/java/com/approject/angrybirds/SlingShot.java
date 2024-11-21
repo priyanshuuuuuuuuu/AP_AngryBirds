@@ -2,6 +2,7 @@ package com.approject.angrybirds;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.physics.box2d.Body;
 
 public class SlingShot {
     protected SpriteBatch batch;
@@ -10,6 +11,7 @@ public class SlingShot {
     protected float yCoordinate;
     public static final float VIRTUAL_WIDTH = 100f;
     public static final float VIRTUAL_HEIGHT = 150f;
+    protected Body body;
 
     public SlingShot(SpriteBatch batch, float xCoordinate, float yCoordinate) {
         this.batch = batch;
