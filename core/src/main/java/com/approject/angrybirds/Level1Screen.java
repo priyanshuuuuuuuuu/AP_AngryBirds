@@ -63,19 +63,18 @@ public class Level1Screen extends ScreenAdapter {
         // Initialize RedBird objects with their positions
         redBird1 = new RedBird(batch, new Vector2(180 / 100f, 203 / 100f), world); // Position in Box2D units
         redBird2 = new RedBird(batch, new Vector2(280 / 100f, 300/ 100f), world);
-        verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1700, 170));
-        verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1550, 170));
-        horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1545, 350));
-        stoneBlock1 = new MediumSizedStoneBlock(batch , new Vector2(1500, 147));
-        stoneBlock2 = new MediumSizedStoneBlock(batch , new Vector2(1584, 147));
-        stoneBlock3 = new MediumSizedStoneBlock(batch , new Vector2(1668, 147));
-        triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1600, 365));
-
+        verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
+        verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700/100f, 250/100f), world);
+        horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1600/100f, 350/100f), world);
+        stoneBlock1 = new MediumSizedStoneBlock(batch , new Vector2(1530/100f, 158/100f), world);
+        stoneBlock2 = new MediumSizedStoneBlock(batch , new Vector2(1610/100f, 158/100f),world);
+        stoneBlock3 = new MediumSizedStoneBlock(batch , new Vector2(1690/100f, 158/100f),world);
+        triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1617 /100f, 395/100f), world);
         // Initialize SlingShot object and load its texture
         slingShot = new SlingShot(batch, 230, 147);
         slingShot.show();  // Load the texture for SlingShot
         yellowBird = new YellowBird(batch, new Vector2(80 / 100f, 203 / 100f), world);
-        minionPig = new MinionPigs(batch, new Vector2(1635 / 100f, 227/ 100f), world);
+        minionPig = new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world);
 
 
 
