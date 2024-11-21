@@ -61,8 +61,8 @@ public class Level1Screen extends ScreenAdapter {
         world = new World(new Vector2(0, -9.8f), true);
 
         // Initialize RedBird objects with their positions
-        redBird1 = new RedBird(batch, new Vector2(120 / 100f, 147 / 100f), world); // Position in Box2D units
-        redBird2 = new RedBird(batch, new Vector2(220 / 100f, 147 / 100f), world);
+        redBird1 = new RedBird(batch, new Vector2(180 / 100f, 203 / 100f), world); // Position in Box2D units
+        redBird2 = new RedBird(batch, new Vector2(280 / 100f, 300/ 100f), world);
         verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1700, 170));
         verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1550, 170));
         horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1545, 350));
@@ -72,10 +72,10 @@ public class Level1Screen extends ScreenAdapter {
         triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1600, 365));
 
         // Initialize SlingShot object and load its texture
-        slingShot = new SlingShot(batch, 300, 147);
+        slingShot = new SlingShot(batch, 230, 147);
         slingShot.show();  // Load the texture for SlingShot
-        yellowBird = new YellowBird(batch, new Vector2(20 / 100f, 147 / 100f), world);
-        minionPig = new MinionPigs(batch, new Vector2(1600 / 100f, 190 / 100f), world);
+        yellowBird = new YellowBird(batch, new Vector2(80 / 100f, 203 / 100f), world);
+        minionPig = new MinionPigs(batch, new Vector2(1635 / 100f, 227/ 100f), world);
 
 
 
