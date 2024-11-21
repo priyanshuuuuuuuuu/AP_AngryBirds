@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -32,6 +34,9 @@ public class Level1Screen extends ScreenAdapter {
     private StoneBlocks stoneBlock2;
     private StoneBlocks stoneBlock3;
     private GlassBlock triangleGlassBlock;
+    private World world;
+    private Body body;
+
 
 
     // Constants for virtual width and height
@@ -54,9 +59,11 @@ public class Level1Screen extends ScreenAdapter {
         MusicControl.stopBackgroundMusic();
         MusicControl.playGameplayMusic();
 
+        world = new World(new Vector2(0, -9.8f), true);
+
         // Initialize RedBird objects with their positions
-        redBird1 = new RedBird(batch, new Vector2(120, 147));
-        redBird2 = new RedBird(batch, new Vector2(220, 147));
+        redBird1 = new RedBird(batch, new Vector2(120 / 100f, 147 / 100f), world); // Position in Box2D units
+        redBird2 = new RedBird(batch, new Vector2(220 / 100f, 147 / 100f), world);
         verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1700, 170));
         verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1550, 170));
         horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1545, 350));
