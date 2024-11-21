@@ -1,16 +1,12 @@
 package com.approject.angrybirds;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -36,11 +32,6 @@ public class Level1Screen extends ScreenAdapter {
     private StoneBlocks stoneBlock2;
     private StoneBlocks stoneBlock3;
     private GlassBlock triangleGlassBlock;
-    private World world;
-    private boolean isDragging;
-    private Body body;
-    public Bird currentBird;
-
 
 
     // Constants for virtual width and height
@@ -49,8 +40,7 @@ public class Level1Screen extends ScreenAdapter {
 
     public Level1Screen(AngryBirds game) {
         this.game = game;
-        isPaused = false;
-        isDragging = false;
+        isPaused = false;  // Game starts in playing state
     }
 
     @Override
@@ -64,11 +54,9 @@ public class Level1Screen extends ScreenAdapter {
         MusicControl.stopBackgroundMusic();
         MusicControl.playGameplayMusic();
 
-        world = new World(new Vector2(0, -9.8f), true);
-
         // Initialize RedBird objects with their positions
-        redBird1 = new RedBird(batch, new Vector2(200 / 100f, 187 / 100f), world); // Position in Box2D units
-        redBird2 = new RedBird(batch, new Vector2(255 / 100f, 290 / 100f), world);
+        redBird1 = new RedBird(batch, new Vector2(120, 147));
+        redBird2 = new RedBird(batch, new Vector2(220, 147));
         verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1700, 170));
         verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1550, 170));
         horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1545, 350));
@@ -78,10 +66,11 @@ public class Level1Screen extends ScreenAdapter {
         triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1600, 365));
 
         // Initialize SlingShot object and load its texture
-        slingShot = new SlingShot(batch, 200, 147);
+        slingShot = new SlingShot(batch, 300, 147);
         slingShot.show();  // Load the texture for SlingShot
-        yellowBird = new YellowBird(batch, new Vector2(120 / 100f, 187 / 100f), world);
-        minionPig = new MinionPigs(batch, new Vector2(1635/100f, 227/100f),world);
+        yellowBird = new YellowBird(batch, new Vector2(20, 147));
+        minionPig = new MinionPigs(batch, new Vector2(1600, 190));
+
 
 
 
@@ -118,7 +107,9 @@ public class Level1Screen extends ScreenAdapter {
         stoneBlock2.render();
         triangleGlassBlock.render();
         stoneBlock3.render();
-//        System.out.println("x = "+ slingShot.body.getPosition().x + "y = "+ slingShot.body.getPosition().y);
+
+
+        // Draw the SlingShot on the screen
         slingShot.render();
         yellowBird.render();
         minionPig.render();
