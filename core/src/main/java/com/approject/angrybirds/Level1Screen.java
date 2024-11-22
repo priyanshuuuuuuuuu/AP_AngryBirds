@@ -320,7 +320,7 @@ public class Level1Screen extends ScreenAdapter {
         // Update the viewport size on window resize
         viewport.update(width, height, true);
     }
-
+    //
     @Override
     public void dispose() {
         batch.dispose();
