@@ -116,7 +116,7 @@ public class Level1Screen extends ScreenAdapter {
 
         world = new World(new Vector2(0, -9.8f), true);
 //        createScreenBoundaries();
-        slingStartPosition = new Vector2(230 / 100f, 147/ 100f);
+        slingStartPosition = new Vector2(2.3f, 2.0f);
         dragPosition = new Vector2(slingStartPosition);
         trajectoryPointTexture = new Texture("dots.png");
 
@@ -192,7 +192,7 @@ public class Level1Screen extends ScreenAdapter {
 
     private Vector2 calculateLaunchVelocity() {
         Vector2 launchVector = new Vector2(dragPosition).sub(slingStartPosition); // Direction and distance of drag
-        float power = launchVector.len() * 0.2f; // Scale power (adjust multiplier as needed)
+        float power = launchVector.len() * 0.1f;
         launchVector.nor().scl(power);
 //        float maxDragDistance = 2.0f; // Limit drag distance (adjust as needed)
 

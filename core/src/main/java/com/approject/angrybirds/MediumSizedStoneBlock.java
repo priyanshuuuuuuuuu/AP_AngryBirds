@@ -10,6 +10,7 @@ public class MediumSizedStoneBlock extends StoneBlocks{
     public MediumSizedStoneBlock(SpriteBatch batch, Vector2 position, World world) {
         super(new Texture("stoneSmallBlock.png"), batch, position, world);
     }
+    //
 
     @Override
     public void health() {
