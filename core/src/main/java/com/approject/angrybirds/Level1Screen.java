@@ -311,7 +311,7 @@ public class Level1Screen extends ScreenAdapter {
             if (isDragging) {
                 isDragging = false;
                 Vector2 launchVelocity = calculateLaunchVelocity();
-                redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);//this id dynamic
+                redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
                 redBird2.getBody().setLinearVelocity(launchVelocity);
             }
         }
