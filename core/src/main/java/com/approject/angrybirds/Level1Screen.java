@@ -4,11 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
+import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -36,6 +40,15 @@ public class Level1Screen extends ScreenAdapter {
     private GlassBlock triangleGlassBlock;
     private Body body;
     private World world;
+    private Body groundBody;
+    private MouseJoint mouseJoint;
+    private Vector2 slingStartPosition;
+    private Vector2 dragPosition;
+    private boolean isDragging = false;
+    private Texture trajectoryPointTexture;
+    private Box2DDebugRenderer debugRenderer;
+
+
 
 
     // Constants for virtual width and height
@@ -47,8 +60,50 @@ public class Level1Screen extends ScreenAdapter {
         isPaused = false;  // Game starts in playing state
     }
 
+    // Add screen boundaries
+    private void createScreenBoundaries() {
+        float screenWidth = VIRTUAL_WIDTH / 100f; // Convert to Box2D units
+        float screenHeight = VIRTUAL_HEIGHT / 100f;
+
+        // Left boundary
+        BodyDef leftBodyDef = new BodyDef();
+        leftBodyDef.type = BodyDef.BodyType.StaticBody;
+        leftBodyDef.position.set(0, 0);
+        Body leftBoundary = world.createBody(leftBodyDef);
+
+        EdgeShape leftEdge = new EdgeShape();
+        leftEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
+        leftBoundary.createFixture(leftEdge, 0);
+        leftEdge.dispose();
+
+        // Right boundary
+        BodyDef rightBodyDef = new BodyDef();
+        rightBodyDef.type = BodyDef.BodyType.StaticBody;
+        rightBodyDef.position.set(screenWidth, 0);
+        Body rightBoundary = world.createBody(rightBodyDef);
+
+        EdgeShape rightEdge = new EdgeShape();
+        rightEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
+        rightBoundary.createFixture(rightEdge, 0);
+        rightEdge.dispose();
+
+        // Top boundary
+        BodyDef topBodyDef = new BodyDef();
+        topBodyDef.type = BodyDef.BodyType.StaticBody;
+        topBodyDef.position.set(0, screenHeight);
+        Body topBoundary = world.createBody(topBodyDef);
+
+        EdgeShape topEdge = new EdgeShape();
+        topEdge.set(new Vector2(0, 0), new Vector2(screenWidth, 0));
+        topBoundary.createFixture(topEdge, 0);
+        topEdge.dispose();
+    }
+
+
+
     @Override
     public void show() {
+        debugRenderer = new Box2DDebugRenderer();
         batch = new SpriteBatch();
         background = new Texture("gamePlay.png");
         pauseButton = new Texture("pauseButton.png");
@@ -58,11 +113,18 @@ public class Level1Screen extends ScreenAdapter {
         MusicControl.stopBackgroundMusic();
         MusicControl.playGameplayMusic();
 
+
         world = new World(new Vector2(0, -9.8f), true);
+        createScreenBoundaries();
+        slingStartPosition = new Vector2(230 / 100f, 147/ 100f);
+        dragPosition = new Vector2(slingStartPosition);
+        trajectoryPointTexture = new Texture("dots.png");
+
 
         // Initialize RedBird objects with their positions
         redBird1 = new RedBird(batch, new Vector2(180 / 100f, 203 / 100f), world); // Position in Box2D units
         redBird2 = new RedBird(batch, new Vector2(280 / 100f, 300/ 100f), world);
+
         verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
         verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700/100f, 250/100f), world);
         horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1600/100f, 350/100f), world);
@@ -77,14 +139,62 @@ public class Level1Screen extends ScreenAdapter {
         minionPig = new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world);
 
 
+        // Define ground body
+        BodyDef groundBodyDef = new BodyDef();
+        groundBodyDef.type = BodyDef.BodyType.StaticBody;
+        groundBodyDef.position.set(0, 150 / 100f); // Set Y position for the ground (adjust as needed)
 
+        groundBody = world.createBody(groundBodyDef);
+
+
+        // Define the ground shape as an edge
+        EdgeShape groundShape = new EdgeShape();
+        groundShape.set(new Vector2(0, 0), new Vector2(VIRTUAL_WIDTH / 100f, 0)); // Edge from left to right
+
+        // Create fixture for ground
+        FixtureDef groundFixture = new FixtureDef();
+        groundFixture.shape = groundShape;
+        groundFixture.friction = 0.5f; // Add friction for realism
+        groundFixture.restitution = 0f; // Prevent bouncing
+
+        groundBody.createFixture(groundFixture);
+        groundShape.dispose();
 
         // Create a viewport with 1920x1080 dimensions
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         viewport.apply(true);
 
+
+
         // Define the bounds of the pause button (used for click detection)
         pauseButtonBounds = new Rectangle(20, 950, 100, 100);
+    }
+    private void renderTrajectory(Vector2 initialPosition, Vector2 launchVelocity) {
+        float timeStep = 0.1f;
+        float totalTime = 2f;
+        Vector2 gravity = world.getGravity();
+
+
+        for (float t = 0; t < totalTime; t += timeStep) {
+            float x = initialPosition.x + launchVelocity.x * t;
+            float y = initialPosition.y + launchVelocity.y * t + 0.5f * gravity.y * t * t;
+
+            // Only draw points above the ground level
+            if (y > 0) {
+                batch.draw(trajectoryPointTexture, x * 100, y * 100, 10, 10);
+            }
+        }
+
+    }
+
+
+    private Vector2 calculateLaunchVelocity() {
+        Vector2 launchVector = new Vector2(dragPosition).sub(slingStartPosition); // Direction and distance of drag
+        float power = launchVector.len() * 2.5f; // Scale power (adjust multiplier as needed)
+        launchVector.nor().scl(power);
+        float maxDragDistance = 2.0f; // Limit drag distance (adjust as needed)
+
+        return launchVector;
     }
 
     @Override
@@ -92,11 +202,21 @@ public class Level1Screen extends ScreenAdapter {
         // Clear the screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        world.step(delta, 6, 2);
         viewport.apply();
 
+        //setting the Trajectory
+        Array<Body> bodies = new Array<>();
+        world.getBodies(bodies);
+        for (Body body : bodies) {
+            if (body.getType() == BodyDef.BodyType.StaticBody) {
+                body.applyLinearImpulse(new Vector2(MathUtils.random(-0.2f, 0.2f), 0), body.getWorldCenter(), true);
+                body.setAngularDamping(5.0f);
+            }
+        }
         // Set the SpriteBatch to draw within the viewport's bounds
         batch.setProjectionMatrix(viewport.getCamera().combined);
+        debugRenderer.render(world, viewport.getCamera().combined);
 
         // Begin drawing the background and elements
         batch.begin();
@@ -112,22 +232,30 @@ public class Level1Screen extends ScreenAdapter {
         stoneBlock2.render();
         triangleGlassBlock.render();
         stoneBlock3.render();
-
+        renderTrajectory(redBird2.getBody().getPosition(), calculateLaunchVelocity());
 
         // Draw the SlingShot on the screen
         slingShot.render();
         yellowBird.render();
         minionPig.render();
 
-
-        // Draw the pause button if the game is not paused, otherwise draw the play button
+        if (isDragging) {
+            Vector2 launchVelocity = calculateLaunchVelocity();
+            renderTrajectory(redBird1.getBody().getPosition(), launchVelocity);
+        }
         if (isPaused) {
             batch.draw(playButton, pauseButtonBounds.x, pauseButtonBounds.y, pauseButtonBounds.width, pauseButtonBounds.height);
         } else {
             batch.draw(pauseButton, pauseButtonBounds.x, pauseButtonBounds.y, pauseButtonBounds.width, pauseButtonBounds.height);
         }
         batch.end();
+        handleInput();
+        Gdx.app.log("Debug", "RedBird1 Position: " + redBird1.getBody().getPosition());
+        Gdx.app.log("Debug", "VerticalWoodBlock1 Position: " + verticalWoodBlock1.getBody().getPosition());
+        Gdx.app.log("Debug", "MinionPig Position: " + minionPig.getBody().getPosition());
 
+
+//
         // Handle input for pause/play button
         if (Gdx.input.isTouched()) {
             Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
@@ -145,6 +273,32 @@ public class Level1Screen extends ScreenAdapter {
             }
         }
     }
+
+    private void handleInput() {
+        if (Gdx.input.isTouched()) {
+            Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+            viewport.unproject(touchPos);
+
+            if (!isDragging) {
+                // Start dragging if touch is within bird's bounds
+                if (redBird2.getBounds().contains(touchPos.x, touchPos.y)) {
+                    isDragging = true;
+                    dragPosition.set(touchPos);
+                }
+            } else {
+                // Update drag position while dragging
+                dragPosition.set(touchPos);
+            }
+        } else {
+            // Release and launch when touch is lifted
+            if (isDragging) {
+                isDragging = false;
+                Vector2 launchVelocity = calculateLaunchVelocity();
+                redBird2.getBody().setLinearVelocity(launchVelocity);
+            }
+        }
+    }
+
 
     private void pauseGame() {
         isPaused = true;
@@ -171,6 +325,7 @@ public class Level1Screen extends ScreenAdapter {
         pauseButton.dispose();
         playButton.dispose();
         scoreTextImage.dispose();
+        debugRenderer.dispose();
         MusicControl.stopBackgroundMusic();
     }
 }

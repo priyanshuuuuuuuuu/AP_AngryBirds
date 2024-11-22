@@ -41,7 +41,9 @@ public abstract class WoodBlocks {
 
         batch.draw(texture,body.getPosition().x * 100f - texture.getWidth() / 2f, body.getPosition().y * 100f - texture.getHeight() / 2f);
     }
-
+    public Body getBody() {
+        return body;
+    }
     public void dispose(){
         texture.dispose();
     }

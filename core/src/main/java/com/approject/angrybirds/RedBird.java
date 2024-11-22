@@ -17,5 +17,8 @@ public class RedBird extends Bird {
         // RedBird doesn't have any special ability
         System.out.println("Red Bird has no special ability.");
     }
+    public void launch(Vector2 velocity) {
+        body.setLinearVelocity(velocity);
+    }
 
 }

@@ -49,6 +49,9 @@ public abstract class Pigs {
         }
         batch.draw(texture, position.x, position.y, PIG_WIDTH, PIG_HEIGHT);
     }
+    public Body getBody() {
+        return body;
+    }
 
     public void dispose(){
         texture.dispose();
