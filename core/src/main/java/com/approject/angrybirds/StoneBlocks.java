@@ -24,7 +24,7 @@ public abstract class StoneBlocks {
     public abstract void health();
     public void initializeBody(){
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.type = BodyDef.BodyType.StaticBody;
         bodyDef.position.set(position);
         body = world.createBody(bodyDef);
 

@@ -190,9 +190,9 @@ public class Level1Screen extends ScreenAdapter {
 
     private Vector2 calculateLaunchVelocity() {
         Vector2 launchVector = new Vector2(dragPosition).sub(slingStartPosition); // Direction and distance of drag
-        float power = launchVector.len() * 2.5f; // Scale power (adjust multiplier as needed)
+        float power = launchVector.len() * 0.2f; // Scale power (adjust multiplier as needed)
         launchVector.nor().scl(power);
-        float maxDragDistance = 2.0f; // Limit drag distance (adjust as needed)
+//        float maxDragDistance = 2.0f; // Limit drag distance (adjust as needed)
 
         return launchVector;
     }
@@ -206,14 +206,14 @@ public class Level1Screen extends ScreenAdapter {
         viewport.apply();
 
         //setting the Trajectory
-        Array<Body> bodies = new Array<>();
-        world.getBodies(bodies);
-        for (Body body : bodies) {
-            if (body.getType() == BodyDef.BodyType.StaticBody) {
-                body.applyLinearImpulse(new Vector2(MathUtils.random(-0.2f, 0.2f), 0), body.getWorldCenter(), true);
-                body.setAngularDamping(5.0f);
-            }
-        }
+//        Array<Body> bodies = new Array<>();
+//        world.getBodies(bodies);
+//        for (Body body : bodies) {
+//            if (body.getType() == BodyDef.BodyType.StaticBody) {
+//                body.applyLinearImpulse(new Vector2(MathUtils.random(-0.2f, 0.2f), 0), body.getWorldCenter(), true);
+//                body.setAngularDamping(5.0f);
+//            }
+//        }
         // Set the SpriteBatch to draw within the viewport's bounds
         batch.setProjectionMatrix(viewport.getCamera().combined);
         debugRenderer.render(world, viewport.getCamera().combined);
@@ -232,6 +232,9 @@ public class Level1Screen extends ScreenAdapter {
         stoneBlock2.render();
         triangleGlassBlock.render();
         stoneBlock3.render();
+        slingShot.render();
+        yellowBird.render();
+        minionPig.render();
         renderTrajectory(redBird2.getBody().getPosition(), calculateLaunchVelocity());
 
         // Draw the SlingShot on the screen
