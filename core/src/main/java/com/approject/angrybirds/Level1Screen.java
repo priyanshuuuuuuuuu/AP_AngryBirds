@@ -311,7 +311,7 @@ public class Level1Screen extends ScreenAdapter {
             if (isDragging) {
                 isDragging = false;
                 Vector2 launchVelocity = calculateLaunchVelocity();
-                redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
+                redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);//this id dynamic
                 redBird2.getBody().setLinearVelocity(launchVelocity);
             }
         }
@@ -333,7 +333,7 @@ public class Level1Screen extends ScreenAdapter {
         // Update the viewport size on window resize
         viewport.update(width, height, true);
     }
-
+    //
     @Override
     public void dispose() {
         batch.dispose();
