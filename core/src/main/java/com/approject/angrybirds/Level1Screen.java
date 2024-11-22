@@ -61,43 +61,43 @@ public class Level1Screen extends ScreenAdapter {
     }
 
     // Add screen boundaries
-    private void createScreenBoundaries() {
-        float screenWidth = VIRTUAL_WIDTH / 100f; // Convert to Box2D units
-        float screenHeight = VIRTUAL_HEIGHT / 100f;
-
-        // Left boundary
-        BodyDef leftBodyDef = new BodyDef();
-        leftBodyDef.type = BodyDef.BodyType.StaticBody;
-        leftBodyDef.position.set(0, 0);
-        Body leftBoundary = world.createBody(leftBodyDef);
-
-        EdgeShape leftEdge = new EdgeShape();
-        leftEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
-        leftBoundary.createFixture(leftEdge, 0);
-        leftEdge.dispose();
-
-        // Right boundary
-        BodyDef rightBodyDef = new BodyDef();
-        rightBodyDef.type = BodyDef.BodyType.StaticBody;
-        rightBodyDef.position.set(screenWidth, 0);
-        Body rightBoundary = world.createBody(rightBodyDef);
-
-        EdgeShape rightEdge = new EdgeShape();
-        rightEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
-        rightBoundary.createFixture(rightEdge, 0);
-        rightEdge.dispose();
-
-        // Top boundary
-        BodyDef topBodyDef = new BodyDef();
-        topBodyDef.type = BodyDef.BodyType.StaticBody;
-        topBodyDef.position.set(0, screenHeight);
-        Body topBoundary = world.createBody(topBodyDef);
-
-        EdgeShape topEdge = new EdgeShape();
-        topEdge.set(new Vector2(0, 0), new Vector2(screenWidth, 0));
-        topBoundary.createFixture(topEdge, 0);
-        topEdge.dispose();
-    }
+//    private void createScreenBoundaries() {
+//        float screenWidth = VIRTUAL_WIDTH / 100f; // Convert to Box2D units
+//        float screenHeight = VIRTUAL_HEIGHT / 100f;
+//
+//        // Left boundary
+//        BodyDef leftBodyDef = new BodyDef();
+//        leftBodyDef.type = BodyDef.BodyType.StaticBody;
+//        leftBodyDef.position.set(0, 0);
+//        Body leftBoundary = world.createBody(leftBodyDef);
+//
+//        EdgeShape leftEdge = new EdgeShape();
+//        leftEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
+//        leftBoundary.createFixture(leftEdge, 0);
+//        leftEdge.dispose();
+//
+//        // Right boundary
+//        BodyDef rightBodyDef = new BodyDef();
+//        rightBodyDef.type = BodyDef.BodyType.StaticBody;
+//        rightBodyDef.position.set(screenWidth, 0);
+//        Body rightBoundary = world.createBody(rightBodyDef);
+//
+//        EdgeShape rightEdge = new EdgeShape();
+//        rightEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
+//        rightBoundary.createFixture(rightEdge, 0);
+//        rightEdge.dispose();
+//
+//        // Top boundary
+//        BodyDef topBodyDef = new BodyDef();
+//        topBodyDef.type = BodyDef.BodyType.StaticBody;
+//        topBodyDef.position.set(0, screenHeight);
+//        Body topBoundary = world.createBody(topBodyDef);
+//
+//        EdgeShape topEdge = new EdgeShape();
+//        topEdge.set(new Vector2(0, 0), new Vector2(screenWidth, 0));
+//        topBoundary.createFixture(topEdge, 0);
+//        topEdge.dispose();
+//    }
 
 
 
@@ -115,7 +115,7 @@ public class Level1Screen extends ScreenAdapter {
 
 
         world = new World(new Vector2(0, -9.8f), true);
-        createScreenBoundaries();
+//        createScreenBoundaries();
         slingStartPosition = new Vector2(230 / 100f, 147/ 100f);
         dragPosition = new Vector2(slingStartPosition);
         trajectoryPointTexture = new Texture("dots.png");
@@ -123,7 +123,9 @@ public class Level1Screen extends ScreenAdapter {
 
         // Initialize RedBird objects with their positions
         redBird1 = new RedBird(batch, new Vector2(180 / 100f, 203 / 100f), world); // Position in Box2D units
-        redBird2 = new RedBird(batch, new Vector2(280 / 100f, 300/ 100f), world);
+        redBird2 = new RedBird(batch, slingStartPosition, world);
+        // Set the bird's body type to static initially
+        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
 
         verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
         verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700/100f, 250/100f), world);
@@ -140,25 +142,25 @@ public class Level1Screen extends ScreenAdapter {
 
 
         // Define ground body
-        BodyDef groundBodyDef = new BodyDef();
-        groundBodyDef.type = BodyDef.BodyType.StaticBody;
-        groundBodyDef.position.set(0, 150 / 100f); // Set Y position for the ground (adjust as needed)
-
-        groundBody = world.createBody(groundBodyDef);
-
-
-        // Define the ground shape as an edge
-        EdgeShape groundShape = new EdgeShape();
-        groundShape.set(new Vector2(0, 0), new Vector2(VIRTUAL_WIDTH / 100f, 0)); // Edge from left to right
-
-        // Create fixture for ground
-        FixtureDef groundFixture = new FixtureDef();
-        groundFixture.shape = groundShape;
-        groundFixture.friction = 0.5f; // Add friction for realism
-        groundFixture.restitution = 0f; // Prevent bouncing
-
-        groundBody.createFixture(groundFixture);
-        groundShape.dispose();
+//        BodyDef groundBodyDef = new BodyDef();
+//        groundBodyDef.type = BodyDef.BodyType.StaticBody;
+//        groundBodyDef.position.set(0, 150 / 100f); // Set Y position for the ground (adjust as needed)
+//
+//        groundBody = world.createBody(groundBodyDef);
+//
+//
+//        // Define the ground shape as an edge
+//        EdgeShape groundShape = new EdgeShape();
+//        groundShape.set(new Vector2(0, 0), new Vector2(VIRTUAL_WIDTH / 100f, 0)); // Edge from left to right
+//
+//        // Create fixture for ground
+//        FixtureDef groundFixture = new FixtureDef();
+//        groundFixture.shape = groundShape;
+//        groundFixture.friction = 0.5f; // Add friction for realism
+//        groundFixture.restitution = 0f; // Prevent bouncing
+//
+//        groundBody.createFixture(groundFixture);
+//        groundShape.dispose();
 
         // Create a viewport with 1920x1080 dimensions
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
@@ -297,6 +299,7 @@ public class Level1Screen extends ScreenAdapter {
             if (isDragging) {
                 isDragging = false;
                 Vector2 launchVelocity = calculateLaunchVelocity();
+                redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
                 redBird2.getBody().setLinearVelocity(launchVelocity);
             }
         }
