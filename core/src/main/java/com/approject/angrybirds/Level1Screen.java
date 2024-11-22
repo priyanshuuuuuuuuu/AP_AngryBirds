@@ -48,7 +48,7 @@ public class Level1Screen extends ScreenAdapter {
     private Texture trajectoryPointTexture;
     private Box2DDebugRenderer debugRenderer;
 
-
+    private static final float MAX_DRAG_DISTANCE = 2.0F;
 
 
     // Constants for virtual width and height
@@ -183,7 +183,7 @@ public class Level1Screen extends ScreenAdapter {
 
             // Only draw points above the ground level
             if (y > 0) {
-                batch.draw(trajectoryPointTexture, x * 100, y * 100, 10, 10);
+                batch.draw(trajectoryPointTexture, x * 100f - 5f, y * 100f - 5f, 10f, 10f);
             }
         }
 
@@ -246,8 +246,12 @@ public class Level1Screen extends ScreenAdapter {
 
         if (isDragging) {
             Vector2 launchVelocity = calculateLaunchVelocity();
-            renderTrajectory(redBird1.getBody().getPosition(), launchVelocity);
+            renderTrajectory(redBird2.getBody().getPosition(), launchVelocity);
         }
+//        if (isDragging) {
+//            redBird2.setPosition(dragPosition.x * 100f - RedBird.BIRD_WIDTH / 2, dragPosition.y * 100f - RedBird.BIRD_HEIGHT / 2);
+//        }
+
         if (isPaused) {
             batch.draw(playButton, pauseButtonBounds.x, pauseButtonBounds.y, pauseButtonBounds.width, pauseButtonBounds.height);
         } else {
@@ -282,7 +286,7 @@ public class Level1Screen extends ScreenAdapter {
     private void handleInput() {
         if (Gdx.input.isTouched()) {
             Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
-            viewport.unproject(touchPos);
+            viewport.unproject(touchPos); // Convert screen coordinates to world coordinates
 
             if (!isDragging) {
                 // Start dragging if touch is within bird's bounds
@@ -293,6 +297,14 @@ public class Level1Screen extends ScreenAdapter {
             } else {
                 // Update drag position while dragging
                 dragPosition.set(touchPos);
+
+                // Limit drag distance
+                float maxDragDistance = 2.0f; // Adjust this value as needed
+                if (dragPosition.dst(slingStartPosition) > maxDragDistance) {
+                    dragPosition.set(slingStartPosition).add(
+                        dragPosition.sub(slingStartPosition).nor().scl(maxDragDistance)
+                    );
+                }
             }
         } else {
             // Release and launch when touch is lifted
@@ -304,6 +316,7 @@ public class Level1Screen extends ScreenAdapter {
             }
         }
     }
+
 
 
     private void pauseGame() {
