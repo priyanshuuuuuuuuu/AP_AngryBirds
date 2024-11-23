@@ -19,12 +19,13 @@ public abstract class GlassBlock {
         this.position = position;
         this.world = world;
         initializeBody();
+        body.setUserData(this);
     }
 
     public abstract void health();
     public void initializeBody(){
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.type = BodyDef.BodyType.KinematicBody;
         bodyDef.position.set(position);
         body = world.createBody(bodyDef);
 

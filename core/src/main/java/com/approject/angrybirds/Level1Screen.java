@@ -21,6 +21,7 @@ import static java.lang.Math.min;
 public class Level1Screen extends ScreenAdapter {
     private AngryBirds game;
     private SpriteBatch batch;
+    private int score = 0;
     private Texture background;
     private Viewport viewport;
     private RedBird redBird1;  // First RedBird
@@ -65,7 +66,19 @@ public class Level1Screen extends ScreenAdapter {
         isPaused = false;  // Game starts in playing state
     }
 
-//    Add screen boundaries
+
+    private void addScore(int points) {
+        score += points;
+        System.out.println("Score: " + score);
+    }
+
+    private void removeBlock(WoodBlocks block) {
+        world.destroyBody(block.getBody());
+        block.dispose();
+    }
+
+
+    //    Add screen boundaries
     private void createScreenBoundaries() {
         float screenWidth = VIRTUAL_WIDTH / 100f; // Convert to Box2D units
         float screenHeight = VIRTUAL_HEIGHT / 100f;
@@ -96,6 +109,7 @@ public class Level1Screen extends ScreenAdapter {
         BodyDef topBodyDef = new BodyDef();
         topBodyDef.type = BodyDef.BodyType.StaticBody;
         topBodyDef.position.set(0, screenHeight);
+
         Body topBoundary = world.createBody(topBodyDef);
 
         EdgeShape topEdge = new EdgeShape();
@@ -200,7 +214,7 @@ public class Level1Screen extends ScreenAdapter {
         // Create fixture for ground
         FixtureDef groundFixture = new FixtureDef();
         groundFixture.shape = groundShape;
-        groundFixture.friction = 10f; // Add friction for realism
+        groundFixture.friction = 1f; // Add friction for realism
         groundFixture.restitution = 0f; // Prevent bouncing
 
         groundBody.createFixture(groundFixture);
@@ -208,7 +222,8 @@ public class Level1Screen extends ScreenAdapter {
 
         // Create a viewport with 1920x1080 dimensions
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        viewport.apply(true);
+        viewport.apply(true);  // Center the camera at the start
+        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 
 
