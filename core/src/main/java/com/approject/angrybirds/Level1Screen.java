@@ -78,6 +78,15 @@ public class Level1Screen extends ScreenAdapter {
         world.destroyBody(block.getBody());
         block.dispose();
     }
+    private void resetBirdIfStopped() {
+        if (redBird2.getBody().getLinearVelocity().len() < 0.1f && redBird2.getBody().getType() == BodyDef.BodyType.DynamicBody) {
+            // Bird has stopped moving; reset it for dragging
+            redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
+            redBird2.getBody().setTransform(slingStartPosition, 0); // Move bird back to sling position
+            isDragging = false; // Reset dragging state
+        }
+    }
+
 
 
     //    Add screen boundaries
@@ -204,28 +213,28 @@ public class Level1Screen extends ScreenAdapter {
         yellowBird = new YellowBird(batch, new Vector2(80 / 100f, 203 / 100f), world);
         minionPig = new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world);
 
-        world.setContactListener(new ContactListener() {
-            @Override
-            public void beginContact(Contact contact) {
-                Fixture fixtureA = contact.getFixtureA();
-                Fixture fixtureB = contact.getFixtureB();
-
-                if (fixtureA.getBody().getUserData() instanceof RedBird && fixtureB.getBody().getUserData() instanceof MediumSizedStoneBlock) {
-                    ((MediumSizedStoneBlock) fixtureB.getBody().getUserData()).takeDamage(500);
-                } else if (fixtureB.getBody().getUserData() instanceof RedBird && fixtureA.getBody().getUserData() instanceof MediumSizedStoneBlock) {
-                    ((MediumSizedStoneBlock) fixtureA.getBody().getUserData()).takeDamage(500);
-                }
-            }
-
-            @Override
-            public void endContact(Contact contact) {}
-
-            @Override
-            public void preSolve(Contact contact, Manifold oldManifold) {}
-
-            @Override
-            public void postSolve(Contact contact, ContactImpulse impulse) {}
-        });
+//        world.setContactListener(new ContactListener() {
+//            @Override
+//            public void beginContact(Contact contact) {
+//                Fixture fixtureA = contact.getFixtureA();
+//                Fixture fixtureB = contact.getFixtureB();
+//
+//                if (fixtureA.getBody().getUserData() instanceof RedBird && fixtureB.getBody().getUserData() instanceof MediumSizedStoneBlock) {
+//                    ((MediumSizedStoneBlock) fixtureB.getBody().getUserData()).takeDamage(500);
+//                } else if (fixtureB.getBody().getUserData() instanceof RedBird && fixtureA.getBody().getUserData() instanceof MediumSizedStoneBlock) {
+//                    ((MediumSizedStoneBlock) fixtureA.getBody().getUserData()).takeDamage(500);
+//                }
+//            }
+//
+//            @Override
+//            public void endContact(Contact contact) {}
+//
+//            @Override
+//            public void preSolve(Contact contact, Manifold oldManifold) {}
+//
+//            @Override
+//            public void postSolve(Contact contact, ContactImpulse impulse) {}
+//        });
 
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
@@ -306,13 +315,13 @@ public class Level1Screen extends ScreenAdapter {
 //    }
     private void launchObject(Vector2 dragVector) {
         // Set the bird's body to StaticBody to prevent physics interactions during the trajectory calculation
-        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
-
+//        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
+        redBird2.getBody().applyLinearImpulse(dragVector.scl(1), redBird2.getBody().getWorldCenter(), true);
         // Calculate the drag vector and use it for launching
-        redBird2.getBody().applyLinearImpulse(dragVector.scl(-1), redBird2.getBody().getWorldCenter(), true);
+//        redBird2.getBody().applyLinearImpulse(dragVector.scl(-1), redBird2.getBody().getWorldCenter(), true);
 
         // After launching, reset the body to DynamicBody so it can interact with the physics world again
-        redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
+//        redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
 
         System.out.println("Launching object with vector: " + dragVector);
     }
@@ -339,11 +348,11 @@ public class Level1Screen extends ScreenAdapter {
 
     private Vector2 calculateLaunchVelocity() {
         Vector2 launchVector = new Vector2(dragPosition).sub(slingStartPosition); // Direction and distance of drag
-        float power = launchVector.len() * 2; // Adjust power as needed
-        launchVector.nor().scl(power);
+        float power = launchVector.len() * 10;
+//        launchVector.nor().scl(power);
 //        float maxDragDistance = 2.0f; // Limit drag distance (adjust as needed)
-//        launchVector.x = max(-2, min(2, launchVector.x));
-//        launchVector.y = max(-2, min(2, launchVector.y));
+        launchVector.x = max(-2, min(2, launchVector.x));
+        launchVector.y = max(-2, min(2, launchVector.y));
         return launchVector;
     }
 
@@ -387,7 +396,7 @@ public class Level1Screen extends ScreenAdapter {
         slingShot.render();
         yellowBird.render();
         minionPig.render();
-        renderTrajectory(redBird2.getBody().getPosition(), calculateLaunchVelocity());
+//        renderTrajectory(redBird2.getBody().getPosition(), calculateLaunchVelocity());
 
         if (isDragging) {
             Vector2 launchVelocity = calculateLaunchVelocity();
@@ -436,20 +445,20 @@ public class Level1Screen extends ScreenAdapter {
             viewport.unproject(touchPos); // Convert screen coordinates to world coordinates
 
             if (!isDragging) {
-                // Start dragging if touch is within bird's bounds
-                if (redBird2.getBounds().contains(touchPos.x, touchPos.y)) {
+                // Start dragging only if the bird is in StaticBody mode
+                if (redBird2.getBody().getType() == BodyDef.BodyType.StaticBody &&
+                    redBird2.getBounds().contains(touchPos.x, touchPos.y)) {
                     isDragging = true;
                     dragPosition.set(touchPos);
-                    redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
                 }
             } else {
                 // Update drag position while dragging
                 dragPosition.set(touchPos);
+
                 // Limit drag distance
-                float maxDragDistance = 2.0f; // Adjust this value as needed
-                if (dragPosition.dst(slingStartPosition) > maxDragDistance) {
+                if (dragPosition.dst(slingStartPosition) > MAX_DRAG_DISTANCE) {
                     dragPosition.set(slingStartPosition).add(
-                        dragPosition.sub(slingStartPosition).nor().scl(maxDragDistance)
+                        dragPosition.sub(slingStartPosition).nor().scl(MAX_DRAG_DISTANCE)
                     );
                 }
             }
@@ -458,11 +467,14 @@ public class Level1Screen extends ScreenAdapter {
             if (isDragging) {
                 isDragging = false;
                 Vector2 launchVelocity = calculateLaunchVelocity();
+
+                // Set the bird to DynamicBody for launch
                 redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
                 redBird2.getBody().setLinearVelocity(launchVelocity);
             }
         }
     }
+
 
 
 
