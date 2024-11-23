@@ -40,8 +40,8 @@ public abstract class Bird {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.5f;
-        fixtureDef.restitution = 0.7f;
+        fixtureDef.friction = 1f;
+        fixtureDef.restitution = 0.1f;
         body.createFixture(fixtureDef);
 
         shape.dispose();
@@ -56,7 +56,7 @@ public abstract class Bird {
         if(body != null){
             position.set(body.getPosition().x*100f- BIRD_WIDTH/2, body.getPosition().y*100f- BIRD_HEIGHT/2);
         }
-        batch.draw(texture, position.x, position.y, BIRD_WIDTH, BIRD_HEIGHT);
+        batch.draw(texture, position.x, position.y, BIRD_WIDTH, BIRD_HEIGHT);;
     }
 
     public void dispose() {
