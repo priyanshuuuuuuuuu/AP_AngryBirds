@@ -1,6 +1,7 @@
 package com.approject.angrybirds;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -53,7 +55,7 @@ public class Level1Screen extends ScreenAdapter {
     private Vector2 dragStart = new Vector2();  // Start point of the drag
     private Vector2 dragEnd = new Vector2();    // End point of the drag
     private boolean dragging = false;          // To track dragging state
-
+    private BitmapFont font;
 
     // Constants for virtual width and height
     private static final float VIRTUAL_WIDTH = 1920;
@@ -67,7 +69,7 @@ public class Level1Screen extends ScreenAdapter {
     }
 
 
-    private void addScore(int points) {
+    void addScore(int points) {
         score += points;
         System.out.println("Score: " + score);
     }
@@ -161,6 +163,8 @@ public class Level1Screen extends ScreenAdapter {
         sitonsling = new Vector2();
         dragPosition = new Vector2(slingStartPosition);
         trajectoryPointTexture = new Texture("dot.png");
+        font = new BitmapFont();
+        font.setColor(Color.WHITE);
 
         BodyDef slingBodyDef = new BodyDef();
         slingBodyDef.type = BodyDef.BodyType.StaticBody;
@@ -200,6 +204,28 @@ public class Level1Screen extends ScreenAdapter {
         yellowBird = new YellowBird(batch, new Vector2(80 / 100f, 203 / 100f), world);
         minionPig = new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world);
 
+        world.setContactListener(new ContactListener() {
+            @Override
+            public void beginContact(Contact contact) {
+                Fixture fixtureA = contact.getFixtureA();
+                Fixture fixtureB = contact.getFixtureB();
+
+                if (fixtureA.getBody().getUserData() instanceof RedBird && fixtureB.getBody().getUserData() instanceof MediumSizedStoneBlock) {
+                    ((MediumSizedStoneBlock) fixtureB.getBody().getUserData()).takeDamage(500);
+                } else if (fixtureB.getBody().getUserData() instanceof RedBird && fixtureA.getBody().getUserData() instanceof MediumSizedStoneBlock) {
+                    ((MediumSizedStoneBlock) fixtureA.getBody().getUserData()).takeDamage(500);
+                }
+            }
+
+            @Override
+            public void endContact(Contact contact) {}
+
+            @Override
+            public void preSolve(Contact contact, Manifold oldManifold) {}
+
+            @Override
+            public void postSolve(Contact contact, ContactImpulse impulse) {}
+        });
 
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
