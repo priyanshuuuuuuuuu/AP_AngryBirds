@@ -142,25 +142,25 @@ public class Level1Screen extends ScreenAdapter {
 
 
         // Define ground body
-//        BodyDef groundBodyDef = new BodyDef();
-//        groundBodyDef.type = BodyDef.BodyType.StaticBody;
-//        groundBodyDef.position.set(0, 150 / 100f); // Set Y position for the ground (adjust as needed)
-//
-//        groundBody = world.createBody(groundBodyDef);
-//
-//
-//        // Define the ground shape as an edge
-//        EdgeShape groundShape = new EdgeShape();
-//        groundShape.set(new Vector2(0, 0), new Vector2(VIRTUAL_WIDTH / 100f, 0)); // Edge from left to right
-//
-//        // Create fixture for ground
-//        FixtureDef groundFixture = new FixtureDef();
-//        groundFixture.shape = groundShape;
-//        groundFixture.friction = 0.5f; // Add friction for realism
-//        groundFixture.restitution = 0f; // Prevent bouncing
-//
-//        groundBody.createFixture(groundFixture);
-//        groundShape.dispose();
+        BodyDef groundBodyDef = new BodyDef();
+        groundBodyDef.type = BodyDef.BodyType.StaticBody;
+        groundBodyDef.position.set(0, 150 / 100f); // Set Y position for the ground (adjust as needed)
+
+        groundBody = world.createBody(groundBodyDef);
+
+
+        // Define the ground shape as an edge
+        EdgeShape groundShape = new EdgeShape();
+        groundShape.set(new Vector2(0, 0), new Vector2(VIRTUAL_WIDTH / 100f, 0)); // Edge from left to right
+
+        // Create fixture for ground
+        FixtureDef groundFixture = new FixtureDef();
+        groundFixture.shape = groundShape;
+        groundFixture.friction = 0.5f; // Add friction for realism
+        groundFixture.restitution = 0f; // Prevent bouncing
+
+        groundBody.createFixture(groundFixture);
+        groundShape.dispose();
 
         // Create a viewport with 1920x1080 dimensions
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
@@ -238,11 +238,6 @@ public class Level1Screen extends ScreenAdapter {
         yellowBird.render();
         minionPig.render();
         renderTrajectory(redBird2.getBody().getPosition(), calculateLaunchVelocity());
-
-        // Draw the SlingShot on the screen
-        slingShot.render();
-        yellowBird.render();
-        minionPig.render();
 
         if (isDragging) {
             Vector2 launchVelocity = calculateLaunchVelocity();
