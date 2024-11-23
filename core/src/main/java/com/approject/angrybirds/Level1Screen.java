@@ -44,7 +44,7 @@ public class Level1Screen extends ScreenAdapter {
     private World world;
     private Body groundBody;
     private MouseJoint mouseJoint;
-    private Vector2 slingStartPosition;
+    private Vector2 slingStartPosition, sitonsling;
     private Vector2 dragPosition;
     private boolean isDragging = false;
     private Texture trajectoryPointTexture;
@@ -53,12 +53,12 @@ public class Level1Screen extends ScreenAdapter {
     private Vector2 dragEnd = new Vector2();    // End point of the drag
     private boolean dragging = false;          // To track dragging state
 
-    private static final float MAX_DRAG_DISTANCE = 2.0F;
-
 
     // Constants for virtual width and height
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
+    private static final float MAX_DRAG_DISTANCE = 2.0F;
+    private static final float DRAG_MULTIPLIER = 5.0f;
 
     public Level1Screen(AngryBirds game) {
         this.game = game;
@@ -70,39 +70,62 @@ public class Level1Screen extends ScreenAdapter {
         float screenWidth = VIRTUAL_WIDTH / 100f; // Convert to Box2D units
         float screenHeight = VIRTUAL_HEIGHT / 100f;
 
-        // Left boundary
-        BodyDef leftBodyDef = new BodyDef();
-        leftBodyDef.type = BodyDef.BodyType.StaticBody;
-        leftBodyDef.position.set(0, 0);
-        Body leftBoundary = world.createBody(leftBodyDef);
-
-        EdgeShape leftEdge = new EdgeShape();
-        leftEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
-        leftBoundary.createFixture(leftEdge, 0);
-        leftEdge.dispose();
-
-        // Right boundary
-        BodyDef rightBodyDef = new BodyDef();
-        rightBodyDef.type = BodyDef.BodyType.StaticBody;
-        rightBodyDef.position.set(screenWidth, 0);
-        Body rightBoundary = world.createBody(rightBodyDef);
-
-        EdgeShape rightEdge = new EdgeShape();
-        rightEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
-        rightBoundary.createFixture(rightEdge, 0);
-        rightEdge.dispose();
-
-        // Top boundary
-        BodyDef topBodyDef = new BodyDef();
-        topBodyDef.type = BodyDef.BodyType.StaticBody;
-        topBodyDef.position.set(0, screenHeight);
-        Body topBoundary = world.createBody(topBodyDef);
-
-        EdgeShape topEdge = new EdgeShape();
-        topEdge.set(new Vector2(0, 0), new Vector2(screenWidth, 0));
-        topBoundary.createFixture(topEdge, 0);
-        topEdge.dispose();
+        createEdgeBoundary(0,0,0,screenHeight);
+        createEdgeBoundary(0,screenHeight,screenWidth,screenHeight);
+        createEdgeBoundary(screenWidth,screenHeight,screenWidth,0);
+        createEdgeBoundary(screenWidth,0,0,0);
     }
+    private void createEdgeBoundary(float x1, float y1, float x2, float y2) {
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(0, 0);
+        body = world.createBody(bodyDef);
+
+        EdgeShape edgeShape = new EdgeShape();
+        edgeShape.set(new Vector2(x1, y1), new Vector2(x2, y2));
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = edgeShape;
+        fixtureDef.friction = 0.5f;
+        fixtureDef.restitution = 0.3f;
+
+        body.createFixture(fixtureDef);
+        edgeShape.dispose();
+    }
+
+        // Left boundary
+//        BodyDef leftBodyDef = new BodyDef();
+//        leftBodyDef.type = BodyDef.BodyType.StaticBody;
+//        leftBodyDef.position.set(0, 0);
+//        Body leftBoundary = world.createBody(leftBodyDef);
+//
+//        EdgeShape leftEdge = new EdgeShape();
+//        leftEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
+//        leftBoundary.createFixture(leftEdge, 0);
+//        leftEdge.dispose();
+//
+//        // Right boundary
+//        BodyDef rightBodyDef = new BodyDef();
+//        rightBodyDef.type = BodyDef.BodyType.StaticBody;
+//        rightBodyDef.position.set(screenWidth, 0);
+//        Body rightBoundary = world.createBody(rightBodyDef);
+//
+//        EdgeShape rightEdge = new EdgeShape();
+//        rightEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
+//        rightBoundary.createFixture(rightEdge, 0);
+//        rightEdge.dispose();
+//
+//        // Top boundary
+//        BodyDef topBodyDef = new BodyDef();
+//        topBodyDef.type = BodyDef.BodyType.StaticBody;
+//        topBodyDef.position.set(0, screenHeight);
+//        Body topBoundary = world.createBody(topBodyDef);
+//
+//        EdgeShape topEdge = new EdgeShape();
+//        topEdge.set(new Vector2(0, 0), new Vector2(screenWidth, 0));
+//        topBoundary.createFixture(topEdge, 0);
+//        topEdge.dispose();
+//    }
 
 
 
@@ -121,9 +144,26 @@ public class Level1Screen extends ScreenAdapter {
 
         world = new World(new Vector2(0, -9.8f), true);
         createScreenBoundaries();
-        slingStartPosition = new Vector2(2.3f, 2.0f);
+        slingStartPosition = new Vector2(2.7f, 3.0f);
+        sitonsling = new Vector2();
         dragPosition = new Vector2(slingStartPosition);
         trajectoryPointTexture = new Texture("dot.png");
+
+        BodyDef slingBodyDef = new BodyDef();
+        slingBodyDef.type = BodyDef.BodyType.StaticBody;
+        slingBodyDef.position.set(slingStartPosition);
+        Body slingBody = world.createBody(slingBodyDef);
+
+        PolygonShape slingShape = new PolygonShape();
+        slingShape.setAsBox(0.1f, 0.1f); // Adjust size as needed
+
+        FixtureDef slingFixtureDef = new FixtureDef();
+        slingFixtureDef.shape = slingShape;
+        slingFixtureDef.density = 1.0f;
+        slingFixtureDef.friction = 0.5f;
+        slingFixtureDef.restitution = 0.1f;
+        slingBody.createFixture(slingFixtureDef);
+        slingShape.dispose();
 
 
         // Initialize RedBird objects with their positions
@@ -132,6 +172,7 @@ public class Level1Screen extends ScreenAdapter {
         redBird2 = new RedBird(batch, slingStartPosition, world);
         // Set the bird's body type to static initially
         redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
+        redBird2.getBody().setTransform(slingStartPosition, 0);
 
         verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
         verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700/100f, 250/100f), world);
@@ -145,6 +186,8 @@ public class Level1Screen extends ScreenAdapter {
         slingShot.show();  // Load the texture for SlingShot
         yellowBird = new YellowBird(batch, new Vector2(80 / 100f, 203 / 100f), world);
         minionPig = new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world);
+
+
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
@@ -215,12 +258,26 @@ public class Level1Screen extends ScreenAdapter {
         // Define the bounds of the pause button (used for click detection)
         pauseButtonBounds = new Rectangle(20, 950, 100, 100);
     }
+//    private void launchObject(Vector2 dragVector) {
+//        // Example: Apply the drag vector to an object's velocity or impulse
+//        // body.applyLinearImpulse(dragVector.scl(-strength), body.getWorldCenter(), true);
+//        redBird2.getBody().applyLinearImpulse(dragVector.scl(-1), redBird2.getBody().getWorldCenter(), true);
+//        System.out.println("Launching object with vector: " + dragVector);
+//    }
     private void launchObject(Vector2 dragVector) {
-        // Example: Apply the drag vector to an object's velocity or impulse
-        // body.applyLinearImpulse(dragVector.scl(-strength), body.getWorldCenter(), true);
-        redBird2.getBody().applyLinearImpulse(dragVector.scl(1), redBird2.getBody().getWorldCenter(), true);
+        // Set the bird's body to StaticBody to prevent physics interactions during the trajectory calculation
+        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
+
+        // Calculate the drag vector and use it for launching
+        redBird2.getBody().applyLinearImpulse(dragVector.scl(-1), redBird2.getBody().getWorldCenter(), true);
+
+        // After launching, reset the body to DynamicBody so it can interact with the physics world again
+        redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
+
         System.out.println("Launching object with vector: " + dragVector);
     }
+
+
     private void renderTrajectory(Vector2 initialPosition, Vector2 launchVelocity) {
         float timeStep = 0.1f;
         float totalTime = 2f;
@@ -233,7 +290,7 @@ public class Level1Screen extends ScreenAdapter {
 
             // Only draw points above the ground level
             if (y > 0) {
-                batch.draw(trajectoryPointTexture, x * 100f - 5f, y * 100f - 5f, 10f, 10f);
+                batch.draw(trajectoryPointTexture, x * 100f - 5f, y * 100f - 5f, 10, 10);
             }
         }
 
@@ -242,11 +299,11 @@ public class Level1Screen extends ScreenAdapter {
 
     private Vector2 calculateLaunchVelocity() {
         Vector2 launchVector = new Vector2(dragPosition).sub(slingStartPosition); // Direction and distance of drag
-        float power = launchVector.len() * 10; // Adjust power as needed
+        float power = launchVector.len() * 2; // Adjust power as needed
         launchVector.nor().scl(power);
 //        float maxDragDistance = 2.0f; // Limit drag distance (adjust as needed)
-        launchVector.x = max(-2, min(2, launchVector.x));
-        launchVector.y = max(-2, min(2, launchVector.y));
+//        launchVector.x = max(-2, min(2, launchVector.x));
+//        launchVector.y = max(-2, min(2, launchVector.y));
         return launchVector;
     }
 
@@ -343,11 +400,11 @@ public class Level1Screen extends ScreenAdapter {
                 if (redBird2.getBounds().contains(touchPos.x, touchPos.y)) {
                     isDragging = true;
                     dragPosition.set(touchPos);
+                    redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
                 }
             } else {
                 // Update drag position while dragging
                 dragPosition.set(touchPos);
-
                 // Limit drag distance
                 float maxDragDistance = 2.0f; // Adjust this value as needed
                 if (dragPosition.dst(slingStartPosition) > maxDragDistance) {
@@ -362,8 +419,7 @@ public class Level1Screen extends ScreenAdapter {
                 isDragging = false;
                 Vector2 launchVelocity = calculateLaunchVelocity();
                 redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
-//                redBird2.getBody().setLinearVelocity(launchVelocity);
-//                redBird2.getBody().applyLinearImpulse(launchVelocity.scl(10), redBird2.getBody().getWorldCenter(), true);
+                redBird2.getBody().setLinearVelocity(launchVelocity);
             }
         }
     }
