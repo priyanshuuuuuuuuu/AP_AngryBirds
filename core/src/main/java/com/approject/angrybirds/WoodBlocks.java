@@ -27,12 +27,12 @@ public abstract class WoodBlocks {
 
     public void initializeBody(){
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.KinematicBody;
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(position);
         body = world.createBody(bodyDef);
 
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(texture.getWidth() / 2/100f, texture.getHeight() / 2/100f);
+        shape.setAsBox(texture.getWidth() /2 /100f, texture.getHeight() /2 /100f);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
@@ -42,7 +42,8 @@ public abstract class WoodBlocks {
     }
     public void render(){
 
-        batch.draw(texture,body.getPosition().x * 100f - texture.getWidth() / 2f, body.getPosition().y * 100f - texture.getHeight() / 2f);
+        batch.draw(texture,body.getPosition().x * 100f - texture.getWidth()/2f, body.getPosition().y * 100f - texture.getHeight() /2f);
+//        batch.draw(texture, 1000, 147);
     }
     public Body getBody() {
         return body;

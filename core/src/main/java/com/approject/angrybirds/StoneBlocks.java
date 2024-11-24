@@ -76,7 +76,7 @@ public abstract class StoneBlocks {
     public abstract void health();
     public void initializeBody(){
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.KinematicBody;
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(position);
         body = world.createBody(bodyDef);
 

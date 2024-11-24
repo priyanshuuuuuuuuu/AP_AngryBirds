@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -16,6 +18,11 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.LinkedList;
+//import java.util.Timer;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -39,6 +46,7 @@ public class Level1Screen extends ScreenAdapter {
     private WoodBlocks verticalWoodBlock1;
     private WoodBlocks verticalWoodBlock2;
     private WoodBlocks horizontalWoodBlock1;
+    private ShapeRenderer shapeRenderer;
     private StoneBlocks stoneBlock1;
     private StoneBlocks stoneBlock2;
     private StoneBlocks stoneBlock3;
@@ -56,12 +64,21 @@ public class Level1Screen extends ScreenAdapter {
     private Vector2 dragEnd = new Vector2();    // End point of the drag
     private boolean dragging = false;          // To track dragging state
     private BitmapFont font;
+    private final int NUM_TRAJECTORY_POINTS = 50;  // Number of points to show
+    private Array<Vector2> trajectoryPoints;
+    private final Vector2 gravity = new Vector2(0, -9.8f);  // Gravity vector
+    private LinkedList<Bird> birdQueue;
+// Array to store trajectory points
+
 
     // Constants for virtual width and height
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
     private static final float MAX_DRAG_DISTANCE = 2.0F;
     private static final float DRAG_MULTIPLIER = 5.0f;
+    private final float TIME_STEP = 0.1f;
+    private int currentBirdIndex = 0;
+
 
     public Level1Screen(AngryBirds game) {
         this.game = game;
@@ -97,8 +114,7 @@ public class Level1Screen extends ScreenAdapter {
         createEdgeBoundary(0,0,0,screenHeight);
         createEdgeBoundary(0,screenHeight,screenWidth,screenHeight);
         createEdgeBoundary(screenWidth,screenHeight,screenWidth,0);
-        createEdgeBoundary(screenWidth,0,0,0);
-    }
+        createEdgeBoundary(screenWidth,0,0,0);    }
     private void createEdgeBoundary(float x1, float y1, float x2, float y2) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody;
@@ -116,6 +132,7 @@ public class Level1Screen extends ScreenAdapter {
         body.createFixture(fixtureDef);
         edgeShape.dispose();
     }
+
 
         // Left boundary
 //        BodyDef leftBodyDef = new BodyDef();
@@ -164,6 +181,8 @@ public class Level1Screen extends ScreenAdapter {
         MusicControl.stopScoreMusic();
         MusicControl.stopBackgroundMusic();
         MusicControl.playGameplayMusic();
+        shapeRenderer = new ShapeRenderer();
+
 
 
         world = new World(new Vector2(0, -9.8f), true);
@@ -186,56 +205,43 @@ public class Level1Screen extends ScreenAdapter {
         FixtureDef slingFixtureDef = new FixtureDef();
         slingFixtureDef.shape = slingShape;
         slingFixtureDef.density = 1.0f;
-        slingFixtureDef.friction = 0.5f;
+        slingFixtureDef.friction = 1;
         slingFixtureDef.restitution = 0.1f;
         slingFixtureDef.isSensor = true;
         slingBody.createFixture(slingFixtureDef);
         slingShape.dispose();
 
+        birdQueue = new LinkedList<>();
+        birdQueue.add(new RedBird(batch, slingStartPosition, world));  // Bird 1
+        birdQueue.add(new YellowBird(batch, new Vector2(200/100f,200/100f), world));  // Bird 2
+        birdQueue.add(new RedBird(batch, new Vector2(150/100f,150/100f), world));
+
+        redBird2 = (RedBird) birdQueue.poll();
+        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
+        redBird2.getBody().setTransform(slingStartPosition, 0);
 
         // Initialize RedBird objects with their positions
-        redBird1 = new RedBird(batch, new Vector2(180 / 100f, 203 / 100f), world); // Position in Box2D units
+//        redBird1 = new RedBird(batch, new Vector2(180 / 100f, 203 / 100f), world); // Position in Box2D units
 //        redBird1.body.applyLinearImpulse(new Vector2(0.5f, 0), redBird1.body.getWorldCenter(), true);
-        redBird2 = new RedBird(batch, slingStartPosition, world);
+//        redBird2 = new RedBird(batch, slingStartPosition, world);
         // Set the bird's body type to static initially
-        redBird2.getBody().setType(BodyDef.BodyType.KinematicBody);
-        redBird2.getBody().setTransform(slingStartPosition, 0);
+//        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
+//        redBird2.getBody().setTransform(slingStartPosition, 0);
 
         verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
         verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700/100f, 250/100f), world);
-        horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1600/100f, 350/100f), world);
+//        horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1600/100f, 350/100f), world);
         stoneBlock1 = new MediumSizedStoneBlock(batch , new Vector2(1530/100f, 158/100f), world);
         stoneBlock2 = new MediumSizedStoneBlock(batch , new Vector2(1610/100f, 158/100f),world);
         stoneBlock3 = new MediumSizedStoneBlock(batch , new Vector2(1690/100f, 158/100f),world);
-        triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1617 /100f, 395/100f), world);
+//        triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1617 /100f, 395/100f), world);
         // Initialize SlingShot object and load its texture
         slingShot = new SlingShot(batch, 230, 147);
         slingShot.show();  // Load the texture for SlingShot
-        yellowBird = new YellowBird(batch, new Vector2(80 / 100f, 203 / 100f), world);
+//        yellowBird = new YellowBird(batch, new Vector2(80 / 100f, 203 / 100f), world);
         minionPig = new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world);
 
-//        world.setContactListener(new ContactListener() {
-//            @Override
-//            public void beginContact(Contact contact) {
-//                Fixture fixtureA = contact.getFixtureA();
-//                Fixture fixtureB = contact.getFixtureB();
-//
-//                if (fixtureA.getBody().getUserData() instanceof RedBird && fixtureB.getBody().getUserData() instanceof MediumSizedStoneBlock) {
-//                    ((MediumSizedStoneBlock) fixtureB.getBody().getUserData()).takeDamage(500);
-//                } else if (fixtureB.getBody().getUserData() instanceof RedBird && fixtureA.getBody().getUserData() instanceof MediumSizedStoneBlock) {
-//                    ((MediumSizedStoneBlock) fixtureA.getBody().getUserData()).takeDamage(500);
-//                }
-//            }
-//
-//            @Override
-//            public void endContact(Contact contact) {}
-//
-//            @Override
-//            public void preSolve(Contact contact, Manifold oldManifold) {}
-//
-//            @Override
-//            public void postSolve(Contact contact, ContactImpulse impulse) {}
-//        });
+        trajectoryPoints = new Array<>(NUM_TRAJECTORY_POINTS);
 
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
@@ -277,6 +283,7 @@ public class Level1Screen extends ScreenAdapter {
                 return false;
             }
         });
+
         // Define ground body
         BodyDef groundBodyDef = new BodyDef();
         groundBodyDef.type = BodyDef.BodyType.StaticBody;
@@ -308,50 +315,109 @@ public class Level1Screen extends ScreenAdapter {
         // Define the bounds of the pause button (used for click detection)
         pauseButtonBounds = new Rectangle(20, 950, 100, 100);
     }
-//    private void launchObject(Vector2 dragVector) {
-//        // Example: Apply the drag vector to an object's velocity or impulse
-//        // body.applyLinearImpulse(dragVector.scl(-strength), body.getWorldCenter(), true);
-//        redBird2.getBody().applyLinearImpulse(dragVector.scl(-1), redBird2.getBody().getWorldCenter(), true);
-//        System.out.println("Launching object with vector: " + dragVector);
-//    }
 
-//    private void launchObject(Vector2 dragVector) {
-//        // Set the bird's body to StaticBody to prevent physics interactions during the trajectory calculation
-////        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
-//        redBird2.getBody().applyLinearImpulse(dragVector.scl(1), redBird2.getBody().getWorldCenter(), true);
-//        // Calculate the drag vector and use it for launching
-////        redBird2.getBody().applyLinearImpulse(dragVector.scl(-1), redBird2.getBody().getWorldCenter(), true);
-//
-//        // After launching, reset the body to DynamicBody so it can interact with the physics world again
-////        redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
-//
-//        System.out.println("Launching object with vector: " + dragVector);
-//    }
+    private void updateTrajectoryPoints(Vector2 startPos, Vector2 launchVelocity) {
+        trajectoryPoints.clear();
 
-    private void launchObject(Vector2 dragVector) {
-        redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
-        redBird2.getBody().applyLinearImpulse(dragVector.scl(1), redBird2.getBody().getWorldCenter(), true);
-        System.out.println("Launching object with vector: " + dragVector);
+        // Start position and velocity
+        float x = startPos.x;
+        float y = startPos.y;
+        float vx = launchVelocity.x;
+        float vy = launchVelocity.y;
+
+        // Calculate points
+        for (int i = 0; i < NUM_TRAJECTORY_POINTS; i++) {
+            // Time at this point
+            float t = i * TIME_STEP;
+
+            // Physics equations for projectile motion
+            float newX = x + vx * t;
+            float newY = y + vy * t + 0.5f * gravity.y * t * t;
+
+            // Don't add points that would be below ground
+            if (newY < 1.5f) {  // Adjust this value based on your ground height
+                break;
+            }
+
+            trajectoryPoints.add(new Vector2(newX, newY));
+        }
     }
+private void launchObject(Vector2 dragVector) {
+    // Reverse the x and y components of the drag vector manually
+    float launchX = dragVector.x * 0.2f; // Negate X direction
+    float launchY = -dragVector.y * 0.2f; // Negate Y direction
+    Vector2 launchVector = new Vector2(launchX, launchY);
 
+    System.out.println("Drag vector: " + dragVector + ", Launch vector: " + launchVector);
 
-    private void renderTrajectory(Vector2 initialPosition, Vector2 launchVelocity) {
-        float timeStep = 0.1f;
-        float totalTime = 2f;
-        Vector2 gravity = world.getGravity();
-
-
-        for (float t = 0; t < totalTime; t += timeStep) {
-            float x = initialPosition.x + launchVelocity.x * t;
-            float y = initialPosition.y + launchVelocity.y * t + 0.5f * gravity.y * t * t;
-
-            // Only draw points above the ground level
-            if (y > 0) {
-                batch.draw(trajectoryPointTexture, x * 100f - 5f, y * 100f - 5f, 10, 10);
+    // Apply the calculated impulse
+    redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
+    redBird2.getBody().applyLinearImpulse(launchVector, redBird2.getBody().getWorldCenter(), true);
+    Timer.schedule(new Timer.Task() {
+        @Override
+        public void run() {
+            // Check if the current bird has stopped moving
+            if (redBird2.getBody().getLinearVelocity().len() < 0.1f) {
+                // Prepare the next bird if available
+                if (!birdQueue.isEmpty()) {
+                    redBird2 = (RedBird) birdQueue.poll();  // Get the next bird
+                    redBird2.getBody().setType(BodyDef.BodyType.StaticBody);  // Make it static for the slingshot
+                    redBird2.getBody().setTransform(slingStartPosition, 0);
+                }
             }
         }
+    }, 3);
 
+
+
+}
+
+    private void renderTrajectory() {
+        if (dragging) {  // Only show trajectory while dragging
+            // Calculate launch velocity based on drag
+            Vector2 dragVector = new Vector2(dragEnd).sub(dragStart);
+            dragVector.scl(-0.2f);  // Use the same scaling factor as your launch method
+
+            // Update trajectory points
+            updateTrajectoryPoints(redBird2.getBody().getPosition(), dragVector);
+
+            // Render the points
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(1, 1, 1, 0.5f);  // White with some transparency
+
+            for (Vector2 point : trajectoryPoints) {
+                // Convert physics coordinates to screen coordinates
+                shapeRenderer.circle(
+                    point.x * 100,  // Convert to screen coordinates
+                    point.y * 100,  // Convert to screen coordinates
+                    5  // Radius of the dots
+                );
+            }
+
+            shapeRenderer.end();
+        }
     }
+    private void renderRubberEffect() {
+        if (isDragging) {
+            // Set the projection matrix to match the viewport's camera
+            shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
+
+            // Start rendering the rubber bands
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(Color.BROWN);
+
+            // Left rubber band (to the bird)
+            shapeRenderer.rectLine(slingStartPosition.x - 0.1f, slingStartPosition.y,
+                dragPosition.x, dragPosition.y, 5);
+
+            // Right rubber band (to the bird)
+            shapeRenderer.rectLine(slingStartPosition.x+ 0.1f, slingStartPosition.y,
+                dragPosition.x, dragPosition.y, 5);
+
+            shapeRenderer.end();
+        }
+    }
+
 
 
     private Vector2 calculateLaunchVelocity() {
@@ -359,12 +425,12 @@ public class Level1Screen extends ScreenAdapter {
         float power = launchVector.len() * 10;
 //        launchVector.nor().scl(power);
 //        float maxDragDistance = 2.0f; // Limit drag distance (adjust as needed)
-        launchVector.x = max(10, min(5, launchVector.x));
-        launchVector.y = max(10, min(5, launchVector.y));
+        launchVector.x = max(4, min(5, launchVector.x));
+        launchVector.y = max(4, min(5, launchVector.y));
         return launchVector;
     }
 
-            @Override
+    @Override
     public void render(float delta) {
         // Clear the screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -372,16 +438,9 @@ public class Level1Screen extends ScreenAdapter {
         world.step(delta, 6, 2);
         viewport.apply();
 
-        //setting the Trajectory
-//        Array<Body> bodies = new Array<>();
-//        world.getBodies(bodies);
-//        for (Body body : bodies) {
-//            if (body.getType() == BodyDef.BodyType.StaticBody) {
-//                body.applyLinearImpulse(new Vector2(MathUtils.random(-0.2f, 0.2f), 0), body.getWorldCenter(), true);
-//                body.setAngularDamping(5.0f);
-//            }
-//        }
-        // Set the SpriteBatch to draw within the viewport's bounds
+
+        // Set the SpriteBatch to draw within the viewport's
+
         batch.setProjectionMatrix(viewport.getCamera().combined);
         debugRenderer.render(world, viewport.getCamera().combined);
 
@@ -390,29 +449,25 @@ public class Level1Screen extends ScreenAdapter {
         batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         batch.draw(scoreTextImage, 1700, 1020, 200, 50);
         // Draw the RedBirds on the screen
-        redBird1.render();
+//        redBird1.render();
 //        redBird1.sprite.setRotation(redBird1.getBody().getAngle());
         redBird2.render();
 //        redBird2.sprite.setRotation(redBird2.getBody().getAngle());
         verticalWoodBlock1.render();
         verticalWoodBlock2.render();
-        horizontalWoodBlock1.render();
+//        horizontalWoodBlock1.render();
         stoneBlock1.render();
         stoneBlock2.render();
-        triangleGlassBlock.render();
+//        triangleGlassBlock.render();
         stoneBlock3.render();
         slingShot.render();
-        yellowBird.render();
+//        yellowBird.render();
         minionPig.render();
-//        renderTrajectory(redBird2.getBody().getPosition(), calculateLaunchVelocity());
-
-        if (isDragging) {
-            Vector2 launchVelocity = calculateLaunchVelocity();
-            renderTrajectory(redBird2.getBody().getPosition(), launchVelocity);
+        for (Bird bird : birdQueue) {
+            bird.render();
         }
-//        if (isDragging) {
-//            redBird2.setPosition(dragPosition.x * 100f - RedBird.BIRD_WIDTH / 2, dragPosition.y * 100f - RedBird.BIRD_HEIGHT / 2);
-//        }
+
+
 
         if (isPaused) {
             batch.draw(playButton, pauseButtonBounds.x, pauseButtonBounds.y, pauseButtonBounds.width, pauseButtonBounds.height);
@@ -420,15 +475,20 @@ public class Level1Screen extends ScreenAdapter {
             batch.draw(pauseButton, pauseButtonBounds.x, pauseButtonBounds.y, pauseButtonBounds.width, pauseButtonBounds.height);
         }
         batch.end();
-        handleInput();
+        renderTrajectory();
+//        handleInput();
 //        resetBirdIfStopped();
-        Gdx.app.log("Debug", "RedBird1 Position: " + redBird1.getBody().getPosition());
+        renderRubberEffect();
+//        Gdx.app.log("Debug", "RedBird1 Position: " + redBird1.getBody().getPosition());
         Gdx.app.log("Debug", "VerticalWoodBlock1 Position: " + verticalWoodBlock1.getBody().getPosition());
         Gdx.app.log("Debug", "MinionPig Position: " + minionPig.getBody().getPosition());
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.B)){
             redBird2.getBody().applyLinearImpulse(new Vector2(100, 50), redBird2.getBody().getWorldCenter(), true);
         }
+
+
+
 //
         // Handle input for pause/play button
         if (Gdx.input.isTouched()) {
@@ -447,46 +507,6 @@ public class Level1Screen extends ScreenAdapter {
             }
         }
     }
-
-    private void handleInput() {
-        if (Gdx.input.isTouched()) {
-            Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
-            viewport.unproject(touchPos); // Convert screen coordinates to world coordinates
-
-            if (!isDragging) {
-                // Start dragging only if the bird is in StaticBody mode
-                if (redBird2.getBody().getType() == BodyDef.BodyType.StaticBody &&
-                    redBird2.getBounds().contains(touchPos.x, touchPos.y)) {
-                    isDragging = true;
-                    dragPosition.set(touchPos);
-                }
-            } else {
-                // Update drag position while dragging
-                dragPosition.set(touchPos);
-
-                // Limit drag distance
-                if (dragPosition.dst(slingStartPosition) > MAX_DRAG_DISTANCE) {
-                    dragPosition.set(slingStartPosition).add(
-                        dragPosition.sub(slingStartPosition).nor().scl(MAX_DRAG_DISTANCE)
-                    );
-                }
-//                redBird2.getBody().setTransform(dragPosition, 0);
-            }
-        } else {
-            // Release and launch when touch is lifted
-            if (isDragging) {
-                isDragging = false;
-                Vector2 launchVelocity = calculateLaunchVelocity();
-
-                // Set the bird to DynamicBody for launch
-                redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
-                redBird2.getBody().setLinearVelocity(launchVelocity);
-            }
-        }
-    }
-
-
-
 
     private void pauseGame() {
         isPaused = true;
@@ -515,5 +535,7 @@ public class Level1Screen extends ScreenAdapter {
         scoreTextImage.dispose();
         debugRenderer.dispose();
         MusicControl.stopBackgroundMusic();
+        shapeRenderer.dispose();
+
     }
 }
