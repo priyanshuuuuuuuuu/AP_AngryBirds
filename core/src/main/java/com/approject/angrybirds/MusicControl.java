@@ -7,6 +7,7 @@ public class MusicControl {
     private static Music backGroundMusic;
     private static Music gamePlayMusic;
     private static Music scoreMusic;
+    private static Music successMusic;
 
     static void playBackgroundMusic(){
         if(backGroundMusic == null){
@@ -35,6 +36,21 @@ public class MusicControl {
     static void stopGameplayMusic(){
         if(gamePlayMusic != null && gamePlayMusic.isPlaying()){
             gamePlayMusic.stop();
+        }
+    }
+
+    static void playSuccessMusic(){
+        if (successMusic == null) {
+            successMusic = Gdx.audio.newMusic(Gdx.files.internal("levelUp.mp3"));
+            successMusic.setLooping(true);
+        }
+        if (!successMusic.isPlaying()) {
+            successMusic.play();
+        }
+    }
+    static void stopSuccessMusic(){
+        if(successMusic != null && successMusic.isPlaying()){
+            successMusic.stop();
         }
     }
 

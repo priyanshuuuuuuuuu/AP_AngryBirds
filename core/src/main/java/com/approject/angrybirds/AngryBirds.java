@@ -17,8 +17,10 @@ public class AngryBirds extends Game {
     public void create () {
         batch = new SpriteBatch();
         stage = new Stage();
-        setScreen(new Level1Screen(this));
+//        setScreen(new Level1Screen(this));
 //        setScreen((Screen) new LoadingScreen(this));
+        setScreen(new LevelComplete(this));
+
     }
     @Override
     public void dispose () {
