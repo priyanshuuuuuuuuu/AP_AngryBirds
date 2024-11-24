@@ -134,39 +134,6 @@ public class Level1Screen extends ScreenAdapter {
     }
 
 
-        // Left boundary
-//        BodyDef leftBodyDef = new BodyDef();
-//        leftBodyDef.type = BodyDef.BodyType.StaticBody;
-//        leftBodyDef.position.set(0, 0);
-//        Body leftBoundary = world.createBody(leftBodyDef);
-//
-//        EdgeShape leftEdge = new EdgeShape();
-//        leftEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
-//        leftBoundary.createFixture(leftEdge, 0);
-//        leftEdge.dispose();
-//
-//        // Right boundary
-//        BodyDef rightBodyDef = new BodyDef();
-//        rightBodyDef.type = BodyDef.BodyType.StaticBody;
-//        rightBodyDef.position.set(screenWidth, 0);
-//        Body rightBoundary = world.createBody(rightBodyDef);
-//
-//        EdgeShape rightEdge = new EdgeShape();
-//        rightEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
-//        rightBoundary.createFixture(rightEdge, 0);
-//        rightEdge.dispose();
-//
-//        // Top boundary
-//        BodyDef topBodyDef = new BodyDef();
-//        topBodyDef.type = BodyDef.BodyType.StaticBody;
-//        topBodyDef.position.set(0, screenHeight);
-//        Body topBoundary = world.createBody(topBodyDef);
-//
-//        EdgeShape topEdge = new EdgeShape();
-//        topEdge.set(new Vector2(0, 0), new Vector2(screenWidth, 0));
-//        topBoundary.createFixture(topEdge, 0);
-//        topEdge.dispose();
-//    }
 
 
 
@@ -367,9 +334,6 @@ private void launchObject(Vector2 dragVector) {
             }
         }
     }, 3);
-
-
-
 }
 
     private void renderTrajectory() {
@@ -466,8 +430,6 @@ private void launchObject(Vector2 dragVector) {
         for (Bird bird : birdQueue) {
             bird.render();
         }
-
-
 
         if (isPaused) {
             batch.draw(playButton, pauseButtonBounds.x, pauseButtonBounds.y, pauseButtonBounds.width, pauseButtonBounds.height);
