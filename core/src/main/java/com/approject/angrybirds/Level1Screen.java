@@ -369,7 +369,6 @@ private void launchObject(Vector2 dragVector) {
     }, 3);
 
 
-
 }
 
     private void renderTrajectory() {
