@@ -179,15 +179,16 @@ public class Level1Screen extends ScreenAdapter {
         slingBodyDef.type = BodyDef.BodyType.StaticBody;
         slingBodyDef.position.set(slingStartPosition);
         Body slingBody = world.createBody(slingBodyDef);
-
+//
         PolygonShape slingShape = new PolygonShape();
-        slingShape.setAsBox(0.1f, 0.1f); // Adjust size as needed
+        slingShape.setAsBox(0.1f, 0.1f);
 
         FixtureDef slingFixtureDef = new FixtureDef();
         slingFixtureDef.shape = slingShape;
         slingFixtureDef.density = 1.0f;
         slingFixtureDef.friction = 0.5f;
         slingFixtureDef.restitution = 0.1f;
+        slingFixtureDef.isSensor = true;
         slingBody.createFixture(slingFixtureDef);
         slingShape.dispose();
 
@@ -197,7 +198,7 @@ public class Level1Screen extends ScreenAdapter {
 //        redBird1.body.applyLinearImpulse(new Vector2(0.5f, 0), redBird1.body.getWorldCenter(), true);
         redBird2 = new RedBird(batch, slingStartPosition, world);
         // Set the bird's body type to static initially
-        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
+        redBird2.getBody().setType(BodyDef.BodyType.KinematicBody);
         redBird2.getBody().setTransform(slingStartPosition, 0);
 
         verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
@@ -313,16 +314,23 @@ public class Level1Screen extends ScreenAdapter {
 //        redBird2.getBody().applyLinearImpulse(dragVector.scl(-1), redBird2.getBody().getWorldCenter(), true);
 //        System.out.println("Launching object with vector: " + dragVector);
 //    }
+
+//    private void launchObject(Vector2 dragVector) {
+//        // Set the bird's body to StaticBody to prevent physics interactions during the trajectory calculation
+////        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
+//        redBird2.getBody().applyLinearImpulse(dragVector.scl(1), redBird2.getBody().getWorldCenter(), true);
+//        // Calculate the drag vector and use it for launching
+////        redBird2.getBody().applyLinearImpulse(dragVector.scl(-1), redBird2.getBody().getWorldCenter(), true);
+//
+//        // After launching, reset the body to DynamicBody so it can interact with the physics world again
+////        redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
+//
+//        System.out.println("Launching object with vector: " + dragVector);
+//    }
+
     private void launchObject(Vector2 dragVector) {
-        // Set the bird's body to StaticBody to prevent physics interactions during the trajectory calculation
-//        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
+        redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
         redBird2.getBody().applyLinearImpulse(dragVector.scl(1), redBird2.getBody().getWorldCenter(), true);
-        // Calculate the drag vector and use it for launching
-//        redBird2.getBody().applyLinearImpulse(dragVector.scl(-1), redBird2.getBody().getWorldCenter(), true);
-
-        // After launching, reset the body to DynamicBody so it can interact with the physics world again
-//        redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
-
         System.out.println("Launching object with vector: " + dragVector);
     }
 
@@ -351,12 +359,12 @@ public class Level1Screen extends ScreenAdapter {
         float power = launchVector.len() * 10;
 //        launchVector.nor().scl(power);
 //        float maxDragDistance = 2.0f; // Limit drag distance (adjust as needed)
-        launchVector.x = max(-2, min(2, launchVector.x));
-        launchVector.y = max(-2, min(2, launchVector.y));
+        launchVector.x = max(10, min(5, launchVector.x));
+        launchVector.y = max(10, min(5, launchVector.y));
         return launchVector;
     }
 
-    @Override
+            @Override
     public void render(float delta) {
         // Clear the screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -413,6 +421,7 @@ public class Level1Screen extends ScreenAdapter {
         }
         batch.end();
         handleInput();
+//        resetBirdIfStopped();
         Gdx.app.log("Debug", "RedBird1 Position: " + redBird1.getBody().getPosition());
         Gdx.app.log("Debug", "VerticalWoodBlock1 Position: " + verticalWoodBlock1.getBody().getPosition());
         Gdx.app.log("Debug", "MinionPig Position: " + minionPig.getBody().getPosition());
@@ -461,6 +470,7 @@ public class Level1Screen extends ScreenAdapter {
                         dragPosition.sub(slingStartPosition).nor().scl(MAX_DRAG_DISTANCE)
                     );
                 }
+//                redBird2.getBody().setTransform(dragPosition, 0);
             }
         } else {
             // Release and launch when touch is lifted
