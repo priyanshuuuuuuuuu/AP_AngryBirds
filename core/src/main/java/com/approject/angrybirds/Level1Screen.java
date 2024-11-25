@@ -67,7 +67,8 @@ public class Level1Screen extends ScreenAdapter {
     private final int NUM_TRAJECTORY_POINTS = 50;  // Number of points to show
     private Array<Vector2> trajectoryPoints;
     private final Vector2 gravity = new Vector2(0, -9.8f);  // Gravity vector
-    private LinkedList<Bird> birdQueue;
+    private ArrayList<Bird> birdList;
+    private Bird currentBird;
 // Array to store trajectory points
 
 
@@ -96,10 +97,10 @@ public class Level1Screen extends ScreenAdapter {
         block.dispose();
     }
     private void resetBirdIfStopped() {
-        if (redBird2.getBody().getLinearVelocity().len() < 0.1f && redBird2.getBody().getType() == BodyDef.BodyType.DynamicBody) {
+        if (currentBird.getBody().getLinearVelocity().len() < 0.1f && currentBird.getBody().getType() == BodyDef.BodyType.DynamicBody) {
             // Bird has stopped moving; reset it for dragging
-            redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
-            redBird2.getBody().setTransform(slingStartPosition, 0); // Move bird back to sling position
+            currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
+            currentBird.getBody().setTransform(slingStartPosition, 0); // Move bird back to sling position
             isDragging = false; // Reset dragging state
         }
     }
@@ -190,7 +191,7 @@ public class Level1Screen extends ScreenAdapter {
         slingStartPosition = new Vector2(2.7f, 3.0f);
         sitonsling = new Vector2();
         dragPosition = new Vector2(slingStartPosition);
-        trajectoryPointTexture = new Texture("dot.png");
+//        trajectoryPointTexture = new Texture("dot.png");
         font = new BitmapFont();
         font.setColor(Color.WHITE);
 
@@ -211,14 +212,14 @@ public class Level1Screen extends ScreenAdapter {
         slingBody.createFixture(slingFixtureDef);
         slingShape.dispose();
 
-        birdQueue = new LinkedList<>();
-        birdQueue.add(new RedBird(batch, slingStartPosition, world));  // Bird 1
-        birdQueue.add(new YellowBird(batch, new Vector2(200/100f,200/100f), world));  // Bird 2
-        birdQueue.add(new RedBird(batch, new Vector2(150/100f,150/100f), world));
+        birdList = new ArrayList<>();
+        birdList.add(new RedBird(batch, slingStartPosition, world));  // Bird 1
+        birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 2
+        birdList.add(new RedBird(batch, slingStartPosition, world));
 
-        redBird2 = (RedBird) birdQueue.poll();
-        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
-        redBird2.getBody().setTransform(slingStartPosition, 0);
+        currentBird = birdList.get(currentBirdIndex);
+        currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
+        currentBird.getBody().setTransform(slingStartPosition, 0);
 
         // Initialize RedBird objects with their positions
 //        redBird1 = new RedBird(batch, new Vector2(180 / 100f, 203 / 100f), world); // Position in Box2D units
@@ -351,22 +352,22 @@ private void launchObject(Vector2 dragVector) {
     System.out.println("Drag vector: " + dragVector + ", Launch vector: " + launchVector);
 
     // Apply the calculated impulse
-    redBird2.getBody().setType(BodyDef.BodyType.DynamicBody);
-    redBird2.getBody().applyLinearImpulse(launchVector, redBird2.getBody().getWorldCenter(), true);
-    Timer.schedule(new Timer.Task() {
-        @Override
-        public void run() {
-            // Check if the current bird has stopped moving
-            if (redBird2.getBody().getLinearVelocity().len() < 0.1f) {
-                // Prepare the next bird if available
-                if (!birdQueue.isEmpty()) {
-                    redBird2 = (RedBird) birdQueue.poll();  // Get the next bird
-                    redBird2.getBody().setType(BodyDef.BodyType.StaticBody);  // Make it static for the slingshot
-                    redBird2.getBody().setTransform(slingStartPosition, 0);
-                }
-            }
-        }
-    }, 3);
+    currentBird.getBody().setType(BodyDef.BodyType.DynamicBody);
+    currentBird.getBody().applyLinearImpulse(launchVector, currentBird.getBody().getWorldCenter(), true);
+//    Timer.schedule(new Timer.Task() {
+//        @Override
+//        public void run() {
+//            // Check if the current bird has stopped moving
+//            if (redBird2.getBody().getLinearVelocity().len() < 0.1f) {
+//                // Prepare the next bird if available
+//                if (!birdQueue.isEmpty()) {
+//                    redBird2 = (RedBird) birdQueue.poll();  // Get the next bird
+//                    redBird2.getBody().setType(BodyDef.BodyType.StaticBody);  // Make it static for the slingshot
+//                    redBird2.getBody().setTransform(slingStartPosition, 0);
+//                }
+//            }
+//        }
+//    }, 3);
 
 
 }
@@ -378,7 +379,7 @@ private void launchObject(Vector2 dragVector) {
             dragVector.scl(-0.2f);  // Use the same scaling factor as your launch method
 
             // Update trajectory points
-            updateTrajectoryPoints(redBird2.getBody().getPosition(), dragVector);
+            updateTrajectoryPoints(currentBird.getBody().getPosition(), dragVector);
 
             // Render the points
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -450,7 +451,7 @@ private void launchObject(Vector2 dragVector) {
         // Draw the RedBirds on the screen
 //        redBird1.render();
 //        redBird1.sprite.setRotation(redBird1.getBody().getAngle());
-        redBird2.render();
+//        redBird2.render();
 //        redBird2.sprite.setRotation(redBird2.getBody().getAngle());
         verticalWoodBlock1.render();
         verticalWoodBlock2.render();
@@ -462,7 +463,7 @@ private void launchObject(Vector2 dragVector) {
         slingShot.render();
 //        yellowBird.render();
         minionPig.render();
-        for (Bird bird : birdQueue) {
+        for (Bird bird : birdList) {
             bird.render();
         }
 
@@ -483,7 +484,7 @@ private void launchObject(Vector2 dragVector) {
         Gdx.app.log("Debug", "MinionPig Position: " + minionPig.getBody().getPosition());
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.B)){
-            redBird2.getBody().applyLinearImpulse(new Vector2(100, 50), redBird2.getBody().getWorldCenter(), true);
+            currentBird.getBody().applyLinearImpulse(new Vector2(100, 50), currentBird.getBody().getWorldCenter(), true);
         }
 
 
