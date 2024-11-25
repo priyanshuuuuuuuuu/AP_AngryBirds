@@ -374,25 +374,88 @@ private void launchObject(Vector2 dragVector) {
     // Apply the calculated impulse
     currentBird.getBody().setType(BodyDef.BodyType.DynamicBody);
     currentBird.getBody().applyLinearImpulse(launchVector, currentBird.getBody().getWorldCenter(), true);
-    Timer.schedule(new Timer.Task() {
-        @Override
-        public void run() {
-            // Check if the current bird has stopped moving
-            if (currentBird.getBody().getLinearVelocity().len() < 0.1f) {
-                // Prepare the next bird if available
-                if (!birdList.isEmpty()) {
-//                    redBird2 = (RedBird) birdList.poll();  // Get the next bird
-                    currentBirdIndex++;
-                    currentBird.getBody().setType(BodyDef.BodyType.StaticBody);  // Make it static for the slingshot
-                    currentBird.getBody().setTransform(slingStartPosition, 0);
-                }
-            }
-        }
-    }, 1);
-
+    currentBirdIndex++;
+    try{
+        currentBird = birdList.get(currentBirdIndex);
+    }catch (IndexOutOfBoundsException e){
+        System.out.println("No more birds left");
+    }
+    dragging = false;
+    isDragging = false;
+//    Timer.schedule(new Timer.Task() {
+//        @Override
+//        public void run() {
+//            // Check if the current bird has stopped moving
+//            if (currentBirdIndex < birdList.size() - 1 && (currentBird.getBody().getLinearVelocity().len() < 0.1f || !isBodyActive(currentBird.getBody()))) {
+//                currentBirdIndex++;
+//                currentBird = birdList.get(currentBirdIndex);
+//                currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
+//                currentBird.getBody().setTransform(slingStartPosition, 0);
+//
+//                isDragging = false;
+//                dragging = false;
+//                // Prepare the next bird if available
+////                if (!birdList.isEmpty()) {
+//////                    redBird2 = (RedBird) birdList.poll();  // Get the next bird
+////                    currentBirdIndex++;
+////                    currentBird.getBody().setType(BodyDef.BodyType.StaticBody);  // Make it static for the slingshot
+////                    currentBird.getBody().setTransform(slingStartPosition, 0);
+////                }
+//            }
+//        }
+//    }, 2f);
 
 }
 
+    private void checkPigCollision() {
+        for (Bird bird : birdList) {
+            if (isPigHit(bird, minionPig)) {
+                System.out.println("Pig hit!");
+
+                // Introduce a 1-second delay before transitioning to the next screen
+                Timer.schedule(new Timer.Task() {
+                    @Override
+                    public void run() {
+                        System.out.println("Changing the screen to Level Complete.");
+                        game.setScreen(new LevelComplete(game, gameState));
+                    }
+                }, 1); // Delay of 1 second
+
+                return;
+            }
+        }
+    }
+
+    private boolean isPigHit(Bird bird, MinionPigs pig) {
+        // Get positions of bird and pig
+        Vector2 birdPos = bird.getBody().getPosition();
+        Vector2 pigPos = pig.getBody().getPosition();
+
+        // Approximate bird's radius as the distance from the center to a vertex
+        float birdRadius = Bird.BIRD_WIDTH / 2 / 100f;  // For a hexagon, it's the circumcircle radius
+
+        // Approximate pig's radius as half the diagonal of the rectangle
+        float pigHalfWidth = MinionPigs.PIG_WIDTH / 2 / 100f;
+        float pigHalfHeight = MinionPigs.PIG_HEIGHT / 2 / 100f;
+        float pigRadius = (float) Math.sqrt(pigHalfWidth * pigHalfWidth + pigHalfHeight * pigHalfHeight);
+
+        // Collision threshold as the sum of these radii
+        float collisionThreshold = birdRadius + pigRadius;
+
+        // Calculate distance between centers
+        float distance = Vector2.dst(birdPos.x, birdPos.y, pigPos.x, pigPos.y);
+
+        // Check if the distance is less than the threshold
+        return distance < collisionThreshold;
+    }
+
+
+
+
+    private boolean isBodyActive(Body body) {
+        return body.isActive() &&
+            body.getType() == BodyDef.BodyType.DynamicBody;
+    }
     private void renderTrajectory() {
         if (dragging) {  // Only show trajectory while dragging
             // Calculate launch velocity based on drag
@@ -503,12 +566,13 @@ private void launchObject(Vector2 dragVector) {
 //        resetBirdIfStopped();
         renderRubberEffect();
 //        Gdx.app.log("Debug", "RedBird1 Position: " + redBird1.getBody().getPosition());
-        Gdx.app.log("Debug", "VerticalWoodBlock1 Position: " + verticalWoodBlock1.getBody().getPosition());
-        Gdx.app.log("Debug", "MinionPig Position: " + minionPig.getBody().getPosition());
+//        Gdx.app.log("Debug", "VerticalWoodBlock1 Position: " + verticalWoodBlock1.getBody().getPosition());
+//        Gdx.app.log("Debug", "MinionPig Position: " + minionPig.getBody().getPosition());
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.B)){
             currentBird.getBody().applyLinearImpulse(new Vector2(100, 50), currentBird.getBody().getWorldCenter(), true);
         }
+        checkPigCollision();
 
 
 
@@ -617,8 +681,8 @@ private void launchObject(Vector2 dragVector) {
     public void dispose() {
         batch.dispose();
         background.dispose();
-        redBird1.dispose();  // Dispose the RedBird textures
-        redBird2.dispose();  // Dispose the RedBird textures
+//        redBird1.dispose();  // Dispose the RedBird textures
+//        redBird2.dispose();  // Dispose the RedBird textures
         slingShot.dispose();  // Dispose the SlingShot textures
         pauseButton.dispose();
         playButton.dispose();
