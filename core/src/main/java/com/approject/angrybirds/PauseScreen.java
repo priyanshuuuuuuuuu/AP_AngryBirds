@@ -147,6 +147,11 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
     }
 
     private void saveGame() {
+
+//        if (level1Screen == null) {
+//            System.out.println("Cannot save game: level1Screen is null!");
+//            return;
+//        }
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.ser"))) {
             GameState gameState = new GameState(level1Screen.getScore(), level1Screen.getLevel(), level1Screen.getBirdPosition());
             oos.writeObject(gameState); // Serialize the game state
@@ -160,16 +165,16 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
         }
     }
 
-    private void loadGame() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
-            GameState gameState = (GameState) ois.readObject(); // Deserialize the game state
-            game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
-            System.out.println("Game loaded successfully!");
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("Failed to load game!");
-        }
-    }
+//    private void loadGame() {
+//        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
+//            GameState gameState = (GameState) ois.readObject(); // Deserialize the game state
+//            game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
+//            System.out.println("Game loaded successfully!");
+//        } catch (IOException | ClassNotFoundException e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to load game!");
+//        }
+//    }
 
 
     @Override

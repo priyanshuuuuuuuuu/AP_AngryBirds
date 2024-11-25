@@ -74,6 +74,7 @@ public class Level1Screen extends ScreenAdapter  {
     private GameState gameState;
     private Texture saveButton;
     private Rectangle saveButtonBounds; // For detecting click on save button
+    private int level;
 
 
     // Constants for virtual width and height
@@ -648,19 +649,21 @@ private void launchObject(Vector2 dragVector) {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
             gameState = (GameState) ois.readObject(); // Deserialize the game state
             System.out.println("Game loaded successfully!");
+//            initializeLevel(gameState);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             System.out.println("Failed to load game!");
         }
     }
-//    private void saveGame() {
-//        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.ser"))) {
-//            oos.writeObject(gameState); // Serialize the game state
-//            System.out.println("Game saved successfully!");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            System.out.println("Failed to save game!");
+//    private void initializeLevel(GameState gameState) {
+//        this.score = gameState.getScore();
+//        this.level = gameState.getLevel();
+//        if (this.currentBird == null) {
+//            slingStartPosition = new Vector2(2.7f, 3.0f);
+//            this.currentBird = new RedBird(batch, slingStartPosition, world); // Initialize currentBird if it is null
 //        }
+//        this.currentBird.getBody().setTransform(gameState.getBirdPosition(), 0);
+//        // Add any additional initialization logic here
 //    }
     private void saveGame() {
         // Update gameState with current game state
