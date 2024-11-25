@@ -541,7 +541,7 @@ private void launchObject(Vector2 dragVector) {
 //        redBird2.sprite.setRotation(redBird2.getBody().getAngle());
         verticalWoodBlock1.render();
         verticalWoodBlock2.render();
-//        horizontalWoodBlock1.render();
+//        horizontalWoodBlock1.render();//
         stoneBlock1.render();
         stoneBlock2.render();
 //        triangleGlassBlock.render();
