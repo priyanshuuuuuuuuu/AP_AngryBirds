@@ -201,6 +201,7 @@ public class Level1Screen extends ScreenAdapter  {
         MusicControl.stopScoreMusic();
         MusicControl.stopBackgroundMusic();
         MusicControl.playGameplayMusic();
+        MusicControl.stopSuccessMusic();
         shapeRenderer = new ShapeRenderer();
 
 
@@ -233,12 +234,12 @@ public class Level1Screen extends ScreenAdapter  {
 
         birdList = new ArrayList<>();
         birdList.add(new RedBird(batch, slingStartPosition, world));  // Bird 1
-        birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 2
-        birdList.add(new RedBird(batch, slingStartPosition, world));
+        birdList.add(new YellowBird(batch, new Vector2(200/100f, 200/100f), world));  // Bird 2
+        birdList.add(new RedBird(batch, new Vector2(100/100f, 200/100f), world));
 
         currentBird = birdList.get(currentBirdIndex);
-        currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
-        currentBird.getBody().setTransform(slingStartPosition, 0);
+//        currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
+//        currentBird.getBody().setTransform(slingStartPosition, 0);
 
         // Initialize RedBird objects with their positions
 //        redBird1 = new RedBird(batch, new Vector2(180 / 100f, 203 / 100f), world); // Position in Box2D units
@@ -338,7 +339,7 @@ public class Level1Screen extends ScreenAdapter  {
     }
 
     private void updateTrajectoryPoints(Vector2 slingStartPosition, Vector2 launchVelocity) {
-        trajectoryPoints.clear();
+        trajectoryPoints.clear();  // Reset previous trajectory
 
         // Start position and velocity
         float x = slingStartPosition.x;
@@ -348,22 +349,23 @@ public class Level1Screen extends ScreenAdapter  {
 
         // Calculate points
         for (int i = 0; i < NUM_TRAJECTORY_POINTS; i++) {
-            // Time at this point
-            float t = i * TIME_STEP;
+            float t = i * TIME_STEP;  // Time for this point
 
-            // Physics equations for projectile motion
-            float newX =x + vx * t;
-            float newY = y + vy * t + 0.5f * gravity.y * t * t;
+            // Calculate new position
+            float newX = x + vx * t;  // Horizontal displacement
+            float newY = y + vy * t + gravity.y * t * t / 2;  // Vertical displacement under gravity
 
-            // Don't add points that would be below ground
-            if (newY < 0) {  // Adjust this value based on your ground height
+            // Stop if the point is below ground
+            if (newY < 0) {  // Adjust ground height if needed
                 break;
             }
 
             trajectoryPoints.add(new Vector2(newX, newY));
         }
     }
-private void launchObject(Vector2 dragVector) {
+
+    private void
+    launchObject(Vector2 dragVector) {
     // Reverse the x and y components of the drag vector manually
     float launchX = dragVector.x * 0.2f; // Negate X direction
     float launchY = -dragVector.y * 0.2f; // Negate Y direction
@@ -377,33 +379,24 @@ private void launchObject(Vector2 dragVector) {
     currentBirdIndex++;
     try{
         currentBird = birdList.get(currentBirdIndex);
+        currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
+
+
+
     }catch (IndexOutOfBoundsException e){
         System.out.println("No more birds left");
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                game.setScreen(new LevelFailScreen(game, gameState));
+            }
+        }, 1);
     }
+//    currentBird.getBody().setTransform(slingStartPosition, 0);
+    System.out.println("Next bird placed at sling position.");
     dragging = false;
     isDragging = false;
-//    Timer.schedule(new Timer.Task() {
-//        @Override
-//        public void run() {
-//            // Check if the current bird has stopped moving
-//            if (currentBirdIndex < birdList.size() - 1 && (currentBird.getBody().getLinearVelocity().len() < 0.1f || !isBodyActive(currentBird.getBody()))) {
-//                currentBirdIndex++;
-//                currentBird = birdList.get(currentBirdIndex);
-//                currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
-//                currentBird.getBody().setTransform(slingStartPosition, 0);
-//
-//                isDragging = false;
-//                dragging = false;
-//                // Prepare the next bird if available
-////                if (!birdList.isEmpty()) {
-//////                    redBird2 = (RedBird) birdList.poll();  // Get the next bird
-////                    currentBirdIndex++;
-////                    currentBird.getBody().setType(BodyDef.BodyType.StaticBody);  // Make it static for the slingshot
-////                    currentBird.getBody().setTransform(slingStartPosition, 0);
-////                }
-//            }
-//        }
-//    }, 2f);
+
 
 }
 
@@ -465,7 +458,8 @@ private void launchObject(Vector2 dragVector) {
             float launchY = -dragVector.y * 0.2f; // Negate Y direction
             Vector2 launchVector = new Vector2(launchX, launchY);
             // Update trajectory points
-            updateTrajectoryPoints(currentBird.getBody().getPosition(), launchVector);
+            Vector2 initialPosition = slingStartPosition.cpy();
+            updateTrajectoryPoints(initialPosition, launchVector);
 
             // Render the points
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -532,7 +526,7 @@ private void launchObject(Vector2 dragVector) {
 
         // Begin drawing the background and elements
         batch.begin();
-        batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+//        batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         batch.draw(scoreTextImage, 1700, 1020, 200, 50);
         // Draw the RedBirds on the screen
 //        redBird1.render();
@@ -546,7 +540,7 @@ private void launchObject(Vector2 dragVector) {
         stoneBlock2.render();
 //        triangleGlassBlock.render();
         stoneBlock3.render();
-        slingShot.render();
+//        slingShot.render();
 //        yellowBird.render();
         minionPig.render();
         for (Bird bird : birdList) {
