@@ -23,25 +23,29 @@ public abstract class Pigs {
         this.velocity = velocity;
         sprite = new Sprite(texture);
     }
-    public void initializeBody(World world){
+
+    public void initializeBody(World world) {
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.type = BodyDef.BodyType.DynamicBody;  // Dynamic body for physical interaction
         bodyDef.position.set(position);
         bodyDef.linearVelocity.set(velocity);
         body = world.createBody(bodyDef);
 
-        CircleShape shape = new CircleShape();
-        shape.setRadius(PIG_WIDTH/2/100f);
+        // Define a rectangular shape
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(PIG_WIDTH / 2 / 100f, PIG_HEIGHT / 2 / 100f);  // Half-width and half-height in Box2D units
 
+        // Fixture definition
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        fixtureDef.density = 1.0f;
-        fixtureDef.friction = 1f;
-        fixtureDef.restitution = 0.7f;
+        fixtureDef.density = 1.0f;  // Adjust density as needed
+        fixtureDef.friction = 1f;   // Adjust friction for realism
+        fixtureDef.restitution = 0.7f;  // Elasticity for bouncing effect
         body.createFixture(fixtureDef);
 
-        shape.dispose();
+        shape.dispose();  // Clean up the shape
     }
+
 
     public void render(){
         if(body != null){

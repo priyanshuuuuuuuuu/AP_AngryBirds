@@ -28,7 +28,8 @@ import java.util.LinkedList;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class Level1Screen extends ScreenAdapter implements Serializable {
+
+public class Level1Screen extends ScreenAdapter  {
     private AngryBirds game;
     private SpriteBatch batch;
     private int score = 0;
@@ -143,7 +144,7 @@ public class Level1Screen extends ScreenAdapter implements Serializable {
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = edgeShape;
-        fixtureDef.friction = 0.5f;
+        fixtureDef.friction = 1f;
         fixtureDef.restitution = 0.3f;
 
         body.createFixture(fixtureDef);
@@ -319,7 +320,7 @@ public class Level1Screen extends ScreenAdapter implements Serializable {
         // Create fixture for ground
         FixtureDef groundFixture = new FixtureDef();
         groundFixture.shape = groundShape;
-        groundFixture.friction = 1f; // Add friction for realism
+        groundFixture.friction = 1; // Add friction for realism
         groundFixture.restitution = 0f; // Prevent bouncing
 
         groundBody.createFixture(groundFixture);
@@ -336,12 +337,12 @@ public class Level1Screen extends ScreenAdapter implements Serializable {
         pauseButtonBounds = new Rectangle(20, 950, 100, 100);
     }
 
-    private void updateTrajectoryPoints(Vector2 startPos, Vector2 launchVelocity) {
+    private void updateTrajectoryPoints(Vector2 slingStartPosition, Vector2 launchVelocity) {
         trajectoryPoints.clear();
 
         // Start position and velocity
-        float x = startPos.x;
-        float y = startPos.y;
+        float x = slingStartPosition.x;
+        float y = slingStartPosition.y;
         float vx = launchVelocity.x;
         float vy = launchVelocity.y;
 
@@ -351,11 +352,11 @@ public class Level1Screen extends ScreenAdapter implements Serializable {
             float t = i * TIME_STEP;
 
             // Physics equations for projectile motion
-            float newX = x + vx * t;
+            float newX =x + vx * t;
             float newY = y + vy * t + 0.5f * gravity.y * t * t;
 
             // Don't add points that would be below ground
-            if (newY < 1.5f) {  // Adjust this value based on your ground height
+            if (newY < 0) {  // Adjust this value based on your ground height
                 break;
             }
 
@@ -373,20 +374,21 @@ private void launchObject(Vector2 dragVector) {
     // Apply the calculated impulse
     currentBird.getBody().setType(BodyDef.BodyType.DynamicBody);
     currentBird.getBody().applyLinearImpulse(launchVector, currentBird.getBody().getWorldCenter(), true);
-//    Timer.schedule(new Timer.Task() {
-//        @Override
-//        public void run() {
-//            // Check if the current bird has stopped moving
-//            if (redBird2.getBody().getLinearVelocity().len() < 0.1f) {
-//                // Prepare the next bird if available
-//                if (!birdQueue.isEmpty()) {
-//                    redBird2 = (RedBird) birdQueue.poll();  // Get the next bird
-//                    redBird2.getBody().setType(BodyDef.BodyType.StaticBody);  // Make it static for the slingshot
-//                    redBird2.getBody().setTransform(slingStartPosition, 0);
-//                }
-//            }
-//        }
-//    }, 3);
+    Timer.schedule(new Timer.Task() {
+        @Override
+        public void run() {
+            // Check if the current bird has stopped moving
+            if (currentBird.getBody().getLinearVelocity().len() < 0.1f) {
+                // Prepare the next bird if available
+                if (!birdList.isEmpty()) {
+//                    redBird2 = (RedBird) birdList.poll();  // Get the next bird
+                    currentBirdIndex++;
+                    currentBird.getBody().setType(BodyDef.BodyType.StaticBody);  // Make it static for the slingshot
+                    currentBird.getBody().setTransform(slingStartPosition, 0);
+                }
+            }
+        }
+    }, 1);
 
 
 }
@@ -395,10 +397,12 @@ private void launchObject(Vector2 dragVector) {
         if (dragging) {  // Only show trajectory while dragging
             // Calculate launch velocity based on drag
             Vector2 dragVector = new Vector2(dragEnd).sub(dragStart);
-            dragVector.scl(-0.2f);  // Use the same scaling factor as your launch method
-
+//            dragVector.scl(0.2f);  // Use the same scaling factor as your launch method
+            float launchX = dragVector.x * 0.2f; // Negate X direction
+            float launchY = -dragVector.y * 0.2f; // Negate Y direction
+            Vector2 launchVector = new Vector2(launchX, launchY);
             // Update trajectory points
-            updateTrajectoryPoints(currentBird.getBody().getPosition(), dragVector);
+            updateTrajectoryPoints(currentBird.getBody().getPosition(), launchVector);
 
             // Render the points
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);

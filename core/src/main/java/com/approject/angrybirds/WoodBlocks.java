@@ -37,6 +37,7 @@ public abstract class WoodBlocks {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1.0f;
+        fixtureDef.friction = 1f;
         body.createFixture(fixtureDef);
         shape.dispose();
     }
