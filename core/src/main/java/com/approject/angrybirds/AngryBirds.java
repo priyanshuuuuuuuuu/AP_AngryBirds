@@ -20,6 +20,7 @@ public class AngryBirds extends Game {
         setScreen(new Level1Screen(this));
 //        setScreen((Screen) new LoadingScreen(this));
 //        setScreen(new LevelComplete(this));
+//        setScreen(new LoadGameScreen(this));
 
     }
     @Override

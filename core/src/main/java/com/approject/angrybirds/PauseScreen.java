@@ -10,25 +10,26 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class PauseScreen extends ScreenAdapter {
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+public class PauseScreen extends ScreenAdapter implements Serializable {
     private AngryBirds game;
-    private Level1Screen level1Screen;  // Reference to the level screen
+    private Level1Screen level1Screen; // Reference to the level screen
     private SpriteBatch batch;
     private Texture background;
     private Texture resumeButton, resumeHoverButton;
     private Texture restartButton, restartHoverButton;
-    private Texture muteButton, muteHoverButton;
-    private Texture unmuteButton, unmuteHoverButton;
+    private Texture saveGameButton, saveGameHoverButton; // Save game textures
     private Texture quitButton, quitHoverButton;
-    private Rectangle resumeButtonBounds, restartButtonBounds, muteButtonBounds, unmuteButtonBounds, quitButtonBounds;
-    private Viewport viewport;  // Viewport for handling screen resizing
+    private Rectangle resumeButtonBounds, restartButtonBounds, saveGameButtonBounds, quitButtonBounds;
+    private Viewport viewport; // Viewport for handling screen resizing
     private Texture gamePause;
 
     // Constants for virtual width and height
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
-
-    private boolean isMuted = false;  // A flag to track mute state
 
     public PauseScreen(AngryBirds game, Level1Screen level1Screen) {
         this.game = game;
@@ -46,16 +47,14 @@ public class PauseScreen extends ScreenAdapter {
         resumeHoverButton = new Texture("resumeHover.png");
         restartButton = new Texture("restartButton.png");
         restartHoverButton = new Texture("restartHover.png");
-        muteButton = new Texture("muteButton.png");
-        muteHoverButton = new Texture("muteHover.png");
-        unmuteButton = new Texture("unmuteButton.png");
-        unmuteHoverButton = new Texture("unmuteHover.png");
+        saveGameButton = new Texture("savegame.png"); // Save game button texture
+        saveGameHoverButton = new Texture("savegamehover.png"); // Hover texture
         quitButton = new Texture("quitGame.png");
         quitHoverButton = new Texture("quitHover.png");
 
         // Set up the viewport with the virtual size of 1920x1080
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        viewport.apply(true);  // Ensure the viewport is centered
+        viewport.apply(true); // Ensure the viewport is centered
 
         // Define the position and size of the buttons
         int buttonSpacing = 35;
@@ -65,8 +64,8 @@ public class PauseScreen extends ScreenAdapter {
 
         resumeButtonBounds = new Rectangle(centerX, 570, buttonWidth, buttonHeight);
         restartButtonBounds = new Rectangle(centerX, resumeButtonBounds.y - buttonHeight - buttonSpacing, buttonWidth, buttonHeight);
-        muteButtonBounds = new Rectangle(centerX, restartButtonBounds.y - buttonHeight - buttonSpacing, buttonWidth, buttonHeight);
-        quitButtonBounds = new Rectangle(centerX, muteButtonBounds.y - buttonHeight - buttonSpacing, buttonWidth, buttonHeight);
+        saveGameButtonBounds = new Rectangle(centerX, restartButtonBounds.y - buttonHeight - buttonSpacing, buttonWidth, buttonHeight);
+        quitButtonBounds = new Rectangle(centerX, saveGameButtonBounds.y - buttonHeight - buttonSpacing, buttonWidth, buttonHeight);
     }
 
     @Override
@@ -83,12 +82,12 @@ public class PauseScreen extends ScreenAdapter {
 
         // Begin drawing the background and elements
         batch.begin();
-        batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);  // Draw the pause screen background
-        batch.draw(gamePause, 500, 800, 1000, 200);  // Draw the pause title
+        batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT); // Draw the pause screen background
+        batch.draw(gamePause, 500, 800, 1000, 200); // Draw the pause title
 
         // Get touch position and unproject to world coordinates
         Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
-        viewport.unproject(touchPos);  // Convert screen coordinates to world coordinates
+        viewport.unproject(touchPos); // Convert screen coordinates to world coordinates
 
         boolean isHovering = false;
 
@@ -97,7 +96,7 @@ public class PauseScreen extends ScreenAdapter {
             batch.draw(resumeHoverButton, resumeButtonBounds.x, resumeButtonBounds.y, resumeButtonBounds.width, resumeButtonBounds.height);
             isHovering = true;
             if (Gdx.input.isTouched()) {
-                game.setScreen(level1Screen);  // Resume the game
+                game.setScreen(level1Screen); // Resume the game
             }
         } else {
             batch.draw(resumeButton, resumeButtonBounds.x, resumeButtonBounds.y, resumeButtonBounds.width, resumeButtonBounds.height);
@@ -109,29 +108,21 @@ public class PauseScreen extends ScreenAdapter {
             isHovering = true;
             if (Gdx.input.isTouched()) {
                 // Logic to restart the game (re-initialize the level)
-                game.setScreen(new Level1Screen(game));  // Restart the level
+                game.setScreen(new Level1Screen(game)); // Restart the level
             }
         } else {
             batch.draw(restartButton, restartButtonBounds.x, restartButtonBounds.y, restartButtonBounds.width, restartButtonBounds.height);
         }
 
-        // Mute/unmute button hover and action
-        if (muteButtonBounds.contains(touchPos.x, touchPos.y)) {
-            if (isMuted) {
-                batch.draw(unmuteHoverButton, muteButtonBounds.x, muteButtonBounds.y, muteButtonBounds.width, muteButtonBounds.height);
-            } else {
-                batch.draw(muteHoverButton, muteButtonBounds.x, muteButtonBounds.y, muteButtonBounds.width, muteButtonBounds.height);
-            }
+        // Save game button hover and action
+        if (saveGameButtonBounds.contains(touchPos.x, touchPos.y)) {
+            batch.draw(saveGameHoverButton, saveGameButtonBounds.x, saveGameButtonBounds.y, saveGameButtonBounds.width, saveGameButtonBounds.height);
             isHovering = true;
             if (Gdx.input.isTouched()) {
-                isMuted = !isMuted;
+                saveGame(); // Save the game state
             }
         } else {
-            if (isMuted) {
-                batch.draw(unmuteButton, muteButtonBounds.x, muteButtonBounds.y, muteButtonBounds.width, muteButtonBounds.height);
-            } else {
-                batch.draw(muteButton, muteButtonBounds.x, muteButtonBounds.y, muteButtonBounds.width, muteButtonBounds.height);
-            }
+            batch.draw(saveGameButton, saveGameButtonBounds.x, saveGameButtonBounds.y, saveGameButtonBounds.width, saveGameButtonBounds.height);
         }
 
         // Quit button hover and action
@@ -139,7 +130,7 @@ public class PauseScreen extends ScreenAdapter {
             batch.draw(quitHoverButton, quitButtonBounds.x, quitButtonBounds.y, quitButtonBounds.width, quitButtonBounds.height);
             isHovering = true;
             if (Gdx.input.isTouched()) {
-                game.setScreen(new RetryScoreScreen(game));
+                game.setScreen(new LoadGameScreen(game)); // Navigate to load game screen
             }
         } else {
             batch.draw(quitButton, quitButtonBounds.x, quitButtonBounds.y, quitButtonBounds.width, quitButtonBounds.height);
@@ -155,6 +146,17 @@ public class PauseScreen extends ScreenAdapter {
         }
     }
 
+    private void saveGame() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.ser"))) {
+            oos.writeObject(level1Screen); // Serialize the current level state
+            System.out.println("Game saved successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Failed to save game!");
+        }
+    }
+
+
     @Override
     public void resize(int width, int height) {
         // Update the viewport size on window resize
@@ -169,10 +171,8 @@ public class PauseScreen extends ScreenAdapter {
         resumeHoverButton.dispose();
         restartButton.dispose();
         restartHoverButton.dispose();
-        muteButton.dispose();
-        muteHoverButton.dispose();
-        unmuteButton.dispose();
-        unmuteHoverButton.dispose();
+        saveGameButton.dispose();
+        saveGameHoverButton.dispose();
         quitButton.dispose();
         quitHoverButton.dispose();
         gamePause.dispose();

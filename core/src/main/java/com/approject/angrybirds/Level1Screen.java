@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
+import java.io.Serializable;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -27,7 +28,7 @@ import java.util.LinkedList;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class Level1Screen extends ScreenAdapter {
+public class Level1Screen extends ScreenAdapter implements Serializable {
     private AngryBirds game;
     private SpriteBatch batch;
     private int score = 0;
