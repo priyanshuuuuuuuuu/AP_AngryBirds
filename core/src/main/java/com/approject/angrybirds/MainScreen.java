@@ -12,6 +12,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 public class MainScreen extends ScreenAdapter {
     SpriteBatch batch;
     Texture backgroundImage;
@@ -22,6 +26,7 @@ public class MainScreen extends ScreenAdapter {
     Texture title;
     AngryBirds game;
     Rectangle newGameButton, loadGameButton, settingsButton, exitButton;
+    private GameState gameState;
 
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
@@ -29,8 +34,9 @@ public class MainScreen extends ScreenAdapter {
     OrthographicCamera camera;
     Viewport viewport;
 
-    public MainScreen(AngryBirds game) {
+    public MainScreen(AngryBirds game, GameState gameState) {
         this.game = game;
+        this.gameState = gameState;
     }
 
     @Override
@@ -116,6 +122,10 @@ public class MainScreen extends ScreenAdapter {
         if (loadGameButton.contains(touchPos.x, touchPos.y)) {
             batch.draw(loadGameHover, loadGameButton.x, loadGameButton.y, loadGameButton.width, loadGameButton.height);
             isHovering = true;
+            if(Gdx.input.isTouched()){
+//                game.setScreen(new LoadGameScreen(game, gameState));
+                loadGame();
+            }
         } else {
             batch.draw(loadGame, loadGameButton.x, loadGameButton.y, loadGameButton.width, loadGameButton.height);
         }
@@ -125,11 +135,12 @@ public class MainScreen extends ScreenAdapter {
         // Button actions
         if (Gdx.input.isTouched()) {
             if (newGameButton.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new LevelsScreen(game));
+                game.setScreen(new LevelsScreen(game, gameState));
             } else if (loadGameButton.contains(touchPos.x, touchPos.y)) {
-                System.out.println("Load Game clicked!");
+                loadGame();
+                System.out.println("Load Game");
             } else if (settingsButton.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new Settings(game));
+                game.setScreen(new Settings(game, gameState));
             } else if (exitButton.contains(touchPos.x, touchPos.y)) {
                 Gdx.app.exit();
             }
@@ -140,6 +151,16 @@ public class MainScreen extends ScreenAdapter {
             Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
         } else {
             Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+        }
+    }
+    private void loadGame() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
+            gameState = (GameState) ois.readObject(); // Deserialize the game state
+            game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
+            System.out.println("Game loaded successfully!");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Failed to load game!");
         }
     }
 

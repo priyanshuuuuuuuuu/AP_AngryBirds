@@ -14,6 +14,7 @@ public class SettingMM extends ScreenAdapter {
     Texture backButton;
     AngryBirds game;
     Rectangle backButtonBounds;
+    private GameState gamestate;
 
     public SettingMM(AngryBirds game) {
         this.game = game;
@@ -45,7 +46,7 @@ public class SettingMM extends ScreenAdapter {
         if (Gdx.input.isTouched()) {
             Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
             if (backButtonBounds.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new MainScreen(game));
+                game.setScreen(new MainScreen(game, gamestate));
             }
         }
     }

@@ -23,9 +23,11 @@ public class Credits extends ScreenAdapter {
     private Rectangle backButtonBounds;
     private Viewport viewport;
     private OrthographicCamera camera;
+    private GameState gameState;
 
-    public Credits(AngryBirds game) {
+    public Credits(AngryBirds game, GameState gameState) {
         this.game = game;
+        this.gameState = gameState;
     }
 
     @Override
@@ -84,7 +86,7 @@ public class Credits extends ScreenAdapter {
             viewport.unproject(touchPos);
 
             if (backButtonBounds.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new Settings(game));  // Navigate back to the Settings screen
+                game.setScreen(new Settings(game, gameState));  // Navigate back to the Settings screen
             }
         }
     }

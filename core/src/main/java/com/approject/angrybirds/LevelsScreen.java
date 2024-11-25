@@ -36,6 +36,7 @@ public class LevelsScreen extends ScreenAdapter {
     Texture extraImage2;
     Rectangle[] levelButtons;
     private Rectangle backButtonBounds;
+    private GameState  gameState;
 
 
     OrthographicCamera camera;
@@ -46,8 +47,9 @@ public class LevelsScreen extends ScreenAdapter {
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
 
-    public LevelsScreen(AngryBirds game) {
+    public LevelsScreen(AngryBirds game, GameState gameState) {
         this.game = game;
+        this.gameState = gameState;
     }
 
     @Override
@@ -135,7 +137,7 @@ public class LevelsScreen extends ScreenAdapter {
             viewport.unproject(touchPos);
 
             if (backButtonBounds.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new MainScreen(game));  // Navigate back to the Settings screen
+                game.setScreen(new MainScreen(game, gameState));  // Navigate back to the Settings screen
             }
         }
         // Draw title image at the top
@@ -199,7 +201,7 @@ public class LevelsScreen extends ScreenAdapter {
 
             // Check if a button was clicked
             if (levelButtons[0].contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new Level1LoadingScreen(game));
+                game.setScreen(new Level1LoadingScreen(game, gameState));
             } else if (levelButtons[1].contains(touchPos.x, touchPos.y)) {
                 // game.setScreen(new Level2Screen(game));
             } else if (levelButtons[2].contains(touchPos.x, touchPos.y)) {

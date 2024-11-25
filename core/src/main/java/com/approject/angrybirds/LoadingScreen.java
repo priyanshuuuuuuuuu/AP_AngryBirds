@@ -21,6 +21,7 @@ public class LoadingScreen extends ScreenAdapter {
     private float xPos, yPos;
     private Texture loadingBar;
     private Texture pressKeySpace;
+    private GameState gamestate;
 
     // For animating the loading bar
     private float elapsedTime = 0f; // Time elapsed since loading started
@@ -31,8 +32,9 @@ public class LoadingScreen extends ScreenAdapter {
     private static final float VIRTUAL_HEIGHT = 1080;
 
 
-    public LoadingScreen(AngryBirds game) {
+    public LoadingScreen(AngryBirds game, GameState gamestate) {
         this.game = game;
+        this.gamestate = gamestate;
     }
 
     @Override
@@ -60,7 +62,7 @@ public class LoadingScreen extends ScreenAdapter {
             public boolean keyDown(int keycode) {
                 // If spacebar is pressed, switch to MainScreen
                 if (keycode == Input.Keys.SPACE) {
-                    game.setScreen(new MainScreen(game));
+                    game.setScreen(new MainScreen(game, GameState.MAIN_MENU));
                 }
                 return true;
             }
@@ -111,7 +113,7 @@ public class LoadingScreen extends ScreenAdapter {
 
         // Check if spacebar is pressed, then switch to MainScreen
         if (elapsedTime >= maxLoadingTime && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            game.setScreen(new MainScreen(game));
+            game.setScreen(new MainScreen(game, gamestate));
         }
     }
 

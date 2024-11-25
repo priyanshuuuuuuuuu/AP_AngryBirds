@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -17,10 +18,8 @@ public class AngryBirds extends Game {
     public void create () {
         batch = new SpriteBatch();
         stage = new Stage();
-        setScreen(new Level1Screen(this));
-//        setScreen((Screen) new LoadingScreen(this));
-//        setScreen(new LevelComplete(this));
-//        setScreen(new LoadGameScreen(this));
+        GameState gameState = new GameState(0,1, new Vector2(0,0));
+        setScreen(new Level1Screen(this, gameState));
 
     }
     @Override

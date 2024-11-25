@@ -21,9 +21,11 @@ public class RetryScoreScreen extends ScreenAdapter {
     private Texture title;
     Texture retryButton, retryHoverButton, homeButton, homeHoverButton;
     Rectangle retryButtonBound, homeButtonBound;
+    private GameState gameState;
 
-    public RetryScoreScreen(AngryBirds game) {
+    public RetryScoreScreen(AngryBirds game, GameState gameState) {
         this.game = game;
+        this.gameState = gameState;
     }
 
     @Override
@@ -77,7 +79,7 @@ public class RetryScoreScreen extends ScreenAdapter {
         if (retryButtonBound.contains(touchPos.x, touchPos.y)) {
             batch.draw(retryHoverButton, retryButtonBound.x, retryButtonBound.y, retryButtonBound.width, retryButtonBound.height);
             if (Gdx.input.isTouched()) {
-                game.setScreen(new Level1Screen(game));  // Retry the level
+                game.setScreen(new Level1Screen(game, gameState));  // Retry the level
             }
         } else {
             batch.draw(retryButton, retryButtonBound.x, retryButtonBound.y, retryButtonBound.width, retryButtonBound.height);
@@ -87,7 +89,7 @@ public class RetryScoreScreen extends ScreenAdapter {
         if (homeButtonBound.contains(touchPos.x, touchPos.y)) {
             batch.draw(homeHoverButton, homeButtonBound.x, homeButtonBound.y, homeButtonBound.width, homeButtonBound.height);
             if (Gdx.input.isTouched()) {
-                game.setScreen(new MainScreen(game));  // Navigate to MainScreen
+                game.setScreen(new MainScreen(game, gameState));  // Navigate to MainScreen
             }
         } else {
             batch.draw(homeButton, homeButtonBound.x, homeButtonBound.y, homeButtonBound.width, homeButtonBound.height);

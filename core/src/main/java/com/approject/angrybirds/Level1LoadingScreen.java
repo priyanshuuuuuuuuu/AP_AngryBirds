@@ -20,7 +20,7 @@ public class Level1LoadingScreen extends ScreenAdapter {
     private OrthographicCamera camera;
     private Viewport viewport;
     private BitmapFont font;  // Font for displaying countdown
-
+    private GameState gameState;
     // Define the virtual width and height for the FitViewport
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
@@ -28,8 +28,9 @@ public class Level1LoadingScreen extends ScreenAdapter {
     // Time tracking variable for the 5-second loading delay
     private float elapsedTime = 0;
 
-    public Level1LoadingScreen(AngryBirds game) {
+    public Level1LoadingScreen(AngryBirds game, GameState gameState) {
         this.game = game;
+        this.gameState = gameState;
     }
 
     @Override
@@ -50,7 +51,7 @@ public class Level1LoadingScreen extends ScreenAdapter {
             public boolean keyDown(int keycode) {
                 // If spacebar is pressed, switch to Level1Screen immediately
                 if (keycode == Input.Keys.SPACE) {
-                    game.setScreen(new Level1Screen(game));
+                    game.setScreen(new Level1Screen(game, gameState));
                 }
                 return true;
             }
@@ -67,7 +68,7 @@ public class Level1LoadingScreen extends ScreenAdapter {
 
         // Check if 5 seconds have passed
         if (remainingTime <= 0) {
-            game.setScreen(new Level1Screen(game));
+            game.setScreen(new Level1Screen(game, gameState));
             return;  // Exit the render method early to avoid additional drawing
         }
 

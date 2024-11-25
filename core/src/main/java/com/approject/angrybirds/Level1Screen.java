@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
-import java.io.Serializable;
+import java.io.*;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -70,7 +70,9 @@ public class Level1Screen extends ScreenAdapter implements Serializable {
     private final Vector2 gravity = new Vector2(0, -9.8f);  // Gravity vector
     private ArrayList<Bird> birdList;
     private Bird currentBird;
-// Array to store trajectory points
+    private GameState gameState;
+    private Texture saveButton;
+    private Rectangle saveButtonBounds; // For detecting click on save button
 
 
     // Constants for virtual width and height
@@ -82,9 +84,22 @@ public class Level1Screen extends ScreenAdapter implements Serializable {
     private int currentBirdIndex = 0;
 
 
-    public Level1Screen(AngryBirds game) {
+    public Level1Screen(AngryBirds game, GameState gameState) {
         this.game = game;
         isPaused = false;  // Game starts in playing state
+        this.gameState = gameState;
+    }
+
+    public int getScore() {
+        return gameState.getScore();
+    }
+
+    public int getLevel() {
+        return gameState.getLevel();
+    }
+
+    public Vector2 getBirdPosition() {
+        return gameState.getBirdPosition();
     }
 
 
@@ -174,12 +189,14 @@ public class Level1Screen extends ScreenAdapter implements Serializable {
 
     @Override
     public void show() {
+        loadGame();
         debugRenderer = new Box2DDebugRenderer();
         batch = new SpriteBatch();
         background = new Texture("gamePlay.png");
         pauseButton = new Texture("pauseButton.png");
         playButton = new Texture("play.png");
         scoreTextImage = new Texture("score.png");
+        saveButton = new Texture("savegame.png");
         MusicControl.stopScoreMusic();
         MusicControl.stopBackgroundMusic();
         MusicControl.playGameplayMusic();
@@ -242,6 +259,7 @@ public class Level1Screen extends ScreenAdapter implements Serializable {
         slingShot.show();  // Load the texture for SlingShot
 //        yellowBird = new YellowBird(batch, new Vector2(80 / 100f, 203 / 100f), world);
         minionPig = new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world);
+        saveButtonBounds = new Rectangle(140, 950, 100, 100);
 
         trajectoryPoints = new Array<>(NUM_TRAJECTORY_POINTS);
 
@@ -497,21 +515,30 @@ private void launchObject(Vector2 dragVector) {
             viewport.unproject(touchPos);  // Convert screen coordinates to world coordinates
 
             // Check if the pause/play button is clicked
+//            if (pauseButtonBounds.contains(touchPos)) {
+//                if (isPaused) {
+//                    // If game is paused, clicking button will resume game
+//                    resumeGame();
+//                } else {
+//                    // If game is playing, clicking button will pause the game
+//                    pauseGame();
+//                }
+//            }
             if (pauseButtonBounds.contains(touchPos)) {
                 if (isPaused) {
-                    // If game is paused, clicking button will resume game
                     resumeGame();
                 } else {
-                    // If game is playing, clicking button will pause the game
                     pauseGame();
                 }
+            } else if (saveButtonBounds.contains(touchPos)) {
+                saveGame();
             }
         }
     }
 
     private void pauseGame() {
         isPaused = true;
-        game.setScreen(new PauseScreen(game, this));  // Switch to pause screen
+        game.setScreen(new PauseScreen(game, this, gameState));  // Switch to pause screen
     }
 
     private void resumeGame() {
@@ -523,7 +550,65 @@ private void launchObject(Vector2 dragVector) {
         // Update the viewport size on window resize
         viewport.update(width, height, true);
     }
-    //
+//    private void loadGame() {
+//        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
+//            GameState gameState = (GameState) ois.readObject(); // Deserialize the game state
+//            game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
+//            System.out.println("Game loaded successfully!");
+//        } catch (IOException | ClassNotFoundException e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to load game!");
+//        }
+//    }
+
+//    private void loadGame() {
+//        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
+//            gameState = (GameState) ois.readObject(); // Deserialize the game state
+//            System.out.println("Game loaded successfully!");
+//        } catch (IOException | ClassNotFoundException e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to load game!");
+//        }
+//    }
+
+    private void loadGame() {
+        File saveFile = new File("savegame.ser");
+        if (!saveFile.exists() || !saveFile.canRead()) {
+            System.out.println("Save file does not exist or is not readable!");
+            return;
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
+            gameState = (GameState) ois.readObject(); // Deserialize the game state
+            System.out.println("Game loaded successfully!");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Failed to load game!");
+        }
+    }
+//    private void saveGame() {
+//        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.ser"))) {
+//            oos.writeObject(gameState); // Serialize the game state
+//            System.out.println("Game saved successfully!");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to save game!");
+//        }
+//    }
+    private void saveGame() {
+        // Update gameState with current game state
+        gameState.setScore(score);
+        gameState.setLevel(1); // Assuming level 1 for this example
+        gameState.setBirdPosition(currentBird.getBody().getPosition());
+
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.ser"))) {
+            oos.writeObject(gameState); // Serialize the game state
+            System.out.println("Game saved successfully!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Failed to save game!");
+        }
+    }
+
     @Override
     public void dispose() {
         batch.dispose();

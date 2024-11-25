@@ -10,9 +10,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 
 public class PauseScreen extends ScreenAdapter implements Serializable {
     private AngryBirds game;
@@ -26,14 +24,16 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
     private Rectangle resumeButtonBounds, restartButtonBounds, saveGameButtonBounds, quitButtonBounds;
     private Viewport viewport; // Viewport for handling screen resizing
     private Texture gamePause;
+    private GameState gamestate;
 
     // Constants for virtual width and height
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
 
-    public PauseScreen(AngryBirds game, Level1Screen level1Screen) {
+    public PauseScreen(AngryBirds game,Level1Screen level1Screen, GameState gamestate) {
         this.game = game;
         this.level1Screen = level1Screen;
+        this.gamestate = gamestate;
     }
 
     @Override
@@ -108,7 +108,7 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
             isHovering = true;
             if (Gdx.input.isTouched()) {
                 // Logic to restart the game (re-initialize the level)
-                game.setScreen(new Level1Screen(game)); // Restart the level
+                game.setScreen(new Level1Screen(game, gamestate)); // Restart the level
             }
         } else {
             batch.draw(restartButton, restartButtonBounds.x, restartButtonBounds.y, restartButtonBounds.width, restartButtonBounds.height);
@@ -130,7 +130,7 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
             batch.draw(quitHoverButton, quitButtonBounds.x, quitButtonBounds.y, quitButtonBounds.width, quitButtonBounds.height);
             isHovering = true;
             if (Gdx.input.isTouched()) {
-                game.setScreen(new LoadGameScreen(game)); // Navigate to load game screen
+                game.setScreen(new LoadGameScreen(game, gamestate)); // Navigate to load game screen
             }
         } else {
             batch.draw(quitButton, quitButtonBounds.x, quitButtonBounds.y, quitButtonBounds.width, quitButtonBounds.height);
@@ -148,11 +148,26 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
 
     private void saveGame() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.ser"))) {
-            oos.writeObject(level1Screen); // Serialize the current level state
+            GameState gameState = new GameState(level1Screen.getScore(), level1Screen.getLevel(), level1Screen.getBirdPosition());
+            oos.writeObject(gameState); // Serialize the game state
             System.out.println("Game saved successfully!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Failed to save game due to an I/O error!");
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Failed to save game!");
+            System.out.println("Failed to save game due to an unexpected error!");
+        }
+    }
+
+    private void loadGame() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
+            GameState gameState = (GameState) ois.readObject(); // Deserialize the game state
+            game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
+            System.out.println("Game loaded successfully!");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Failed to load game!");
         }
     }
 

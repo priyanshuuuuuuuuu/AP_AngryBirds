@@ -32,14 +32,16 @@ public class Settings extends ScreenAdapter {
     Rectangle iButtonBounds;
     Rectangle termsAndPrivacyButtonBounds; // Bounds for Terms and Privacy button
     Rectangle newButtonBounds; // Bounds for the new button
+    private GameState gameState;
 
     boolean isMusicOn = true;
 
     OrthographicCamera camera;
     Viewport viewport;
 
-    public Settings(AngryBirds game) {
+    public Settings(AngryBirds game, GameState gameState) {
         this.game = game;
+        this.gameState = gameState;
     }
 
     @Override
@@ -151,13 +153,13 @@ public class Settings extends ScreenAdapter {
         // Handle input for button actions
         if (Gdx.input.justTouched()) {
             if (crossButtonBounds.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new MainScreen(game));
+                game.setScreen(new MainScreen(game, gameState));
             }
             if (musicButtonBounds.contains(touchPos.x, touchPos.y)) {
                 isMusicOn = !isMusicOn;  // Toggle music on/off
             }
             if (iButtonBounds.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new Credits(game));
+                game.setScreen(new Credits(game, gameState));  // Navigate to Credits screen
             }
             if (newButtonBounds.contains(touchPos.x, touchPos.y)) {
                 // Add action for new button here (e.g., navigate to another screen)
