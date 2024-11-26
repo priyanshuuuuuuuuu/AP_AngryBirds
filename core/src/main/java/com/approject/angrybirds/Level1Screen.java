@@ -20,10 +20,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 import java.io.*;
-import java.sql.Time;
 import java.util.ArrayList;
-import java.util.LinkedList;
-//import java.util.Timer;
+
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -75,6 +73,7 @@ public class Level1Screen extends ScreenAdapter  {
     private Texture saveButton;
     private Rectangle saveButtonBounds; // For detecting click on save button
     private int level;
+    private ProjectileMotion projectileMotion;
 
 
     // Constants for virtual width and height
@@ -90,6 +89,7 @@ public class Level1Screen extends ScreenAdapter  {
         this.game = game;
         isPaused = false;  // Game starts in playing state
         this.gameState = gameState;
+        projectileMotion = new ProjectileMotion();
     }
 
     public int getScore() {
@@ -153,42 +153,6 @@ public class Level1Screen extends ScreenAdapter  {
     }
 
 
-        // Left boundary
-//        BodyDef leftBodyDef = new BodyDef();
-//        leftBodyDef.type = BodyDef.BodyType.StaticBody;
-//        leftBodyDef.position.set(0, 0);
-//        Body leftBoundary = world.createBody(leftBodyDef);
-//
-//        EdgeShape leftEdge = new EdgeShape();
-//        leftEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
-//        leftBoundary.createFixture(leftEdge, 0);
-//        leftEdge.dispose();
-//
-//        // Right boundary
-//        BodyDef rightBodyDef = new BodyDef();
-//        rightBodyDef.type = BodyDef.BodyType.StaticBody;
-//        rightBodyDef.position.set(screenWidth, 0);
-//        Body rightBoundary = world.createBody(rightBodyDef);
-//
-//        EdgeShape rightEdge = new EdgeShape();
-//        rightEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
-//        rightBoundary.createFixture(rightEdge, 0);
-//        rightEdge.dispose();
-//
-//        // Top boundary
-//        BodyDef topBodyDef = new BodyDef();
-//        topBodyDef.type = BodyDef.BodyType.StaticBody;
-//        topBodyDef.position.set(0, screenHeight);
-//        Body topBoundary = world.createBody(topBodyDef);
-//
-//        EdgeShape topEdge = new EdgeShape();
-//        topEdge.set(new Vector2(0, 0), new Vector2(screenWidth, 0));
-//        topBoundary.createFixture(topEdge, 0);
-//        topEdge.dispose();
-//    }
-
-
-
     @Override
     public void show() {
         loadGame();
@@ -241,13 +205,6 @@ public class Level1Screen extends ScreenAdapter  {
         currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
         currentBird.getBody().setTransform(slingStartPosition, 0);
 
-        // Initialize RedBird objects with their positions
-//        redBird1 = new RedBird(batch, new Vector2(180 / 100f, 203 / 100f), world); // Position in Box2D units
-//        redBird1.body.applyLinearImpulse(new Vector2(0.5f, 0), redBird1.body.getWorldCenter(), true);
-//        redBird2 = new RedBird(batch, slingStartPosition, world);
-        // Set the bird's body type to static initially
-//        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
-//        redBird2.getBody().setTransform(slingStartPosition, 0);
 
         verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
         verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700/100f, 250/100f), world);
@@ -375,6 +332,7 @@ private void launchObject(Vector2 dragVector) {
     // Apply the calculated impulse
     currentBird.getBody().setType(BodyDef.BodyType.DynamicBody);
     currentBird.getBody().applyLinearImpulse(launchVector, currentBird.getBody().getWorldCenter(), true);
+
     currentBirdIndex++;
     try{
         currentBird = birdList.get(currentBirdIndex);
@@ -392,28 +350,7 @@ private void launchObject(Vector2 dragVector) {
     }
     dragging = false;
     isDragging = false;
-//    Timer.schedule(new Timer.Task() {
-//        @Override
-//        public void run() {
-//            // Check if the current bird has stopped moving
-//            if (currentBirdIndex < birdList.size() - 1 && (currentBird.getBody().getLinearVelocity().len() < 0.1f || !isBodyActive(currentBird.getBody()))) {
-//                currentBirdIndex++;
-//                currentBird = birdList.get(currentBirdIndex);
-//                currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
-//                currentBird.getBody().setTransform(slingStartPosition, 0);
-//
-//                isDragging = false;
-//                dragging = false;
-//                // Prepare the next bird if available
-////                if (!birdList.isEmpty()) {
-//////                    redBird2 = (RedBird) birdList.poll();  // Get the next bird
-////                    currentBirdIndex++;
-////                    currentBird.getBody().setType(BodyDef.BodyType.StaticBody);  // Make it static for the slingshot
-////                    currentBird.getBody().setTransform(slingStartPosition, 0);
-////                }
-//            }
-//        }
-//    }, 2f);
+
 
 }
 
@@ -446,7 +383,6 @@ private void launchObject(Vector2 dragVector) {
         Vector2 birdPos = bird.getBody().getPosition();
         Vector2 pigPos = pig.getBody().getPosition();
 
-        // Approximate bird's radius as the distance from the center to a vertex
         float birdRadius = Bird.BIRD_WIDTH / 2 / 100f;  // For a hexagon, it's the circumcircle radius
 
         // Approximate pig's radius as half the diagonal of the rectangle
@@ -471,33 +407,7 @@ private void launchObject(Vector2 dragVector) {
         return body.isActive() &&
             body.getType() == BodyDef.BodyType.DynamicBody;
     }
-    private void renderTrajectory() {
-        if (dragging) {  // Only show trajectory while dragging
-            // Calculate launch velocity based on drag
-            Vector2 dragVector = new Vector2(dragEnd).sub(dragStart);
-//            dragVector.scl(0.2f);  // Use the same scaling factor as your launch method
-            float launchX = dragVector.x * 0.2f; // Negate X direction
-            float launchY = -dragVector.y * 0.2f; // Negate Y direction
-            Vector2 launchVector = new Vector2(launchX, launchY);
-            // Update trajectory points
-            updateTrajectoryPoints(currentBird.getBody().getPosition(), launchVector);
 
-            // Render the points
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(1, 1, 1, 0.5f);  // White with some transparency
-
-            for (Vector2 point : trajectoryPoints) {
-                // Convert physics coordinates to screen coordinates
-                shapeRenderer.circle(
-                    point.x * 100,  // Convert to screen coordinates
-                    point.y * 100,  // Convert to screen coordinates
-                    5  // Radius of the dots
-                );
-            }
-
-            shapeRenderer.end();
-        }
-    }
     private void renderRubberEffect() {
         if (isDragging) {
             // Set the projection matrix to match the viewport's camera
@@ -567,6 +477,8 @@ private void launchObject(Vector2 dragVector) {
         for (Bird bird : birdList) {
             bird.render();
         }
+//        projectileMotion.renderTrajectory(camera.combined);
+
 
 
 
@@ -576,7 +488,7 @@ private void launchObject(Vector2 dragVector) {
             batch.draw(pauseButton, pauseButtonBounds.x, pauseButtonBounds.y, pauseButtonBounds.width, pauseButtonBounds.height);
         }
         batch.end();
-        renderTrajectory();
+//        renderTrajectory();
 //        handleInput();
 //        resetBirdIfStopped();
         renderRubberEffect();
@@ -597,16 +509,7 @@ private void launchObject(Vector2 dragVector) {
             Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
             viewport.unproject(touchPos);  // Convert screen coordinates to world coordinates
 
-            // Check if the pause/play button is clicked
-//            if (pauseButtonBounds.contains(touchPos)) {
-//                if (isPaused) {
-//                    // If game is paused, clicking button will resume game
-//                    resumeGame();
-//                } else {
-//                    // If game is playing, clicking button will pause the game
-//                    pauseGame();
-//                }
-//            }
+
             if (pauseButtonBounds.contains(touchPos)) {
                 if (isPaused) {
                     resumeGame();
@@ -633,26 +536,6 @@ private void launchObject(Vector2 dragVector) {
         // Update the viewport size on window resize
         viewport.update(width, height, true);
     }
-//    private void loadGame() {
-//        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
-//            GameState gameState = (GameState) ois.readObject(); // Deserialize the game state
-//            game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
-//            System.out.println("Game loaded successfully!");
-//        } catch (IOException | ClassNotFoundException e) {
-//            e.printStackTrace();
-//            System.out.println("Failed to load game!");
-//        }
-//    }
-
-//    private void loadGame() {
-//        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
-//            gameState = (GameState) ois.readObject(); // Deserialize the game state
-//            System.out.println("Game loaded successfully!");
-//        } catch (IOException | ClassNotFoundException e) {
-//            e.printStackTrace();
-//            System.out.println("Failed to load game!");
-//        }
-//    }
 
     private void loadGame() {
         File saveFile = new File("savegame.ser");
@@ -669,16 +552,7 @@ private void launchObject(Vector2 dragVector) {
             System.out.println("Failed to load game!");
         }
     }
-//    private void initializeLevel(GameState gameState) {
-//        this.score = gameState.getScore();
-//        this.level = gameState.getLevel();
-//        if (this.currentBird == null) {
-//            slingStartPosition = new Vector2(2.7f, 3.0f);
-//            this.currentBird = new RedBird(batch, slingStartPosition, world); // Initialize currentBird if it is null
-//        }
-//        this.currentBird.getBody().setTransform(gameState.getBirdPosition(), 0);
-//        // Add any additional initialization logic here
-//    }
+
     private void saveGame() {
         // Update gameState with current game state
         gameState.setScore(score);
@@ -698,8 +572,6 @@ private void launchObject(Vector2 dragVector) {
     public void dispose() {
         batch.dispose();
         background.dispose();
-//        redBird1.dispose();  // Dispose the RedBird textures
-//        redBird2.dispose();  // Dispose the RedBird textures
         slingShot.dispose();  // Dispose the SlingShot textures
         pauseButton.dispose();
         playButton.dispose();
