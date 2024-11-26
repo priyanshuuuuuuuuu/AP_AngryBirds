@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 public class GameState implements Serializable {
     public static final GameState MAIN_MENU = new GameState(0, 1, new Vector2(0, 0));
+    //    public static final GameState MAIN_MENU = new GameState(0, 1, new Vector2(0, 0));
     private int score;
     private int level;
     private Vector2 birdPosition;
@@ -27,18 +28,6 @@ public class GameState implements Serializable {
 
     public Vector2 getBirdPosition() {
         return birdPosition;
-    }
-
-    public static GameState loadGameState(String filePath) throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
-            return (GameState) ois.readObject();
-        }
-    }
-
-    public void saveGameState(String filePath) throws IOException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
-            oos.writeObject(this);
-        }
     }
 
     public void setScore(int score) {
