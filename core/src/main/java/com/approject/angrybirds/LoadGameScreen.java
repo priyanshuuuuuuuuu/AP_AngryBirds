@@ -165,12 +165,10 @@ public class LoadGameScreen extends ScreenAdapter {
             // Convert screen coordinates to world coordinates
             // Check if a button was clicked
             if (levelButtons[0].contains(touchPos.x, touchPos.y)) {
-                loadGame();
+//                loadGame();
 //                game.setScreen(new Level1LoadingScreen(game, gameState));
             } else if (levelButtons[1].contains(touchPos.x, touchPos.y)) {
-                loadGame();
             } else if (levelButtons[2].contains(touchPos.x, touchPos.y)) {
-                loadGame();
             } else if (levelButtons[3].contains(touchPos.x, touchPos.y)) {
                 // game.setScreen(new Level4Screen(game));
             } else if (levelButtons[4].contains(touchPos.x, touchPos.y)) {

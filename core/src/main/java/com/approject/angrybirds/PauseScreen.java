@@ -165,16 +165,16 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
         }
     }
 
-//    private void loadGame() {
-//        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
-//            GameState gameState = (GameState) ois.readObject(); // Deserialize the game state
-//            game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
-//            System.out.println("Game loaded successfully!");
-//        } catch (IOException | ClassNotFoundException e) {
-//            e.printStackTrace();
-//            System.out.println("Failed to load game!");
-//        }
-//    }
+    private void loadGame() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
+            GameState gameState = (GameState) ois.readObject(); // Deserialize the game state
+            game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
+            System.out.println("Game loaded successfully!");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Failed to load game!");
+        }
+    }
 
 
     @Override
