@@ -149,12 +149,11 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
     }
 
     private void saveGame() {
-
-//        if (level1Screen == null) {
-//            System.out.println("Cannot save game: level1Screen is null!");
-//            return;
-//        }
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.ser"))) {
+        if (level1Screen == null) {
+            System.out.println("Cannot save game: level1Screen is null!");
+            return;
+        }
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("SAVEGAME_FILE.ser"))) {
             GameState gameState = new GameState(level1Screen.getScore(), level1Screen.getLevel(), level1Screen.getBirdPosition());
             oos.writeObject(gameState); // Serialize the game state
             System.out.println("Game saved successfully!");
@@ -168,7 +167,7 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
     }
 
     private void loadGame() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("LOADGAME_FILE.ser"))) {
             GameState gameState = (GameState) ois.readObject(); // Deserialize the game state
             game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
             System.out.println("Game loaded successfully!");
@@ -178,6 +177,41 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
         }
     }
 
+
+
+
+
+//    private void saveGame() {
+//        try (BufferedWriter writer = new BufferedWriter(new FileWriter("savegame.txt"))) {
+//            writer.write(level1Screen.getScore() + "\n");
+//            writer.write(level1Screen.getLevel() + "\n");
+//            writer.write(level1Screen.getBirdPosition().toString() + "\n");
+//            System.out.println("Game saved successfully!");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to save game due to an I/O error!");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to save game due to an unexpected error!");
+//        }
+//    }
+//    private void loadGame() {
+//        try (BufferedReader reader = new BufferedReader(new FileReader("loadgame.txt"))) {
+//            int score = Integer.parseInt(reader.readLine());
+//            int level = Integer.parseInt(reader.readLine());
+//            String birdPositionStr = reader.readLine();
+//            Vector2 birdPosition = new Vector2(Float.parseFloat(birdPositionStr.split(",")[0]), Float.parseFloat(birdPositionStr.split(",")[1]));
+//            GameState gameState = new GameState(score, level, birdPosition);
+//            game.setScreen(new Level1Screen(game, gameState));
+//            System.out.println("Game loaded successfully!");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to load game due to an I/O error!");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to load game due to an unexpected error!");
+//        }
+//    }
     @Override
     public void resize(int width, int height) {
         // Update the viewport size on window resize

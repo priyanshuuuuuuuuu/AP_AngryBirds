@@ -32,6 +32,7 @@ public class LoadingScreen extends ScreenAdapter {
     private static final float VIRTUAL_HEIGHT = 1080;
 
 
+
     public LoadingScreen(AngryBirds game, GameState gamestate) {
         this.game = game;
         this.gamestate = gamestate;

@@ -538,7 +538,7 @@ private void launchObject(Vector2 dragVector) {
     }
 
     private void loadGame() {
-        File saveFile = new File("savegame.ser");
+        File saveFile = new File("loadgame.ser");
         if (!saveFile.exists() || !saveFile.canRead()) {
             System.out.println("Save file does not exist or is not readable!");
             return;
