@@ -51,7 +51,7 @@ public class Level1LoadingScreen extends ScreenAdapter {
             public boolean keyDown(int keycode) {
                 // If spacebar is pressed, switch to Level1Screen immediately
                 if (keycode == Input.Keys.SPACE) {
-                    game.setScreen(new Level1Screen(game, gameState));
+                    game.setScreen(new Level1Screen(game));
                 }
                 return true;
             }
@@ -68,7 +68,7 @@ public class Level1LoadingScreen extends ScreenAdapter {
 
         // Check if 5 seconds have passed
         if (remainingTime <= 0) {
-            game.setScreen(new Level1Screen(game, gameState));
+            game.setScreen(new Level1Screen(game));
             return;  // Exit the render method early to avoid additional drawing
         }
 

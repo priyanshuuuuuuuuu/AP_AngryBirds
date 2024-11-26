@@ -42,20 +42,20 @@ public class LoadGameScreen extends ScreenAdapter {
         this.gameState = gameState;
     }
 
-    private void loadGame() {
-        File saveFile = new File("savegame.ser");
-        if (!saveFile.exists() || !saveFile.canRead()) {
-            System.out.println("Save file does not exist or is not readable!");
-            return;
-        }
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
-            gameState = (GameState) ois.readObject(); // Deserialize the game state
-            System.out.println("Game loaded successfully!");
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("Failed to load game!");
-        }
-    }
+//    private void loadGame() {
+//        File saveFile = new File("savegame.ser");
+//        if (!saveFile.exists() || !saveFile.canRead()) {
+//            System.out.println("Save file does not exist or is not readable!");
+//            return;
+//        }
+//        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
+//            gameState = (GameState) ois.readObject(); // Deserialize the game state
+//            System.out.println("Game loaded successfully!");
+//        } catch (IOException | ClassNotFoundException e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to load game!");
+//        }
+//    }
     @Override
     public void show() {
         batch = new SpriteBatch();
@@ -127,7 +127,7 @@ public class LoadGameScreen extends ScreenAdapter {
             viewport.unproject(touchPos);
 
             if (backButtonBounds.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new MainScreen(game, gameState));  // Navigate back to the Settings screen
+                game.setScreen(new MainScreen(game));  // Navigate back to the Settings screen
             }
         }
 
@@ -174,6 +174,12 @@ public class LoadGameScreen extends ScreenAdapter {
             if (levelButtons[0].contains(touchPos.x, touchPos.y)) {
 //                loadGame();
 //                game.setScreen(new Level1LoadingScreen(game, gameState));
+                Level1Screen level1Screen = AngryBirds.loadsavedLevel();
+                if(level1Screen == null){
+                    return;
+                }
+                level1Screen.loaded = 1;
+                game.setScreen(level1Screen);
             } else if (levelButtons[1].contains(touchPos.x, touchPos.y)) {
             } else if (levelButtons[2].contains(touchPos.x, touchPos.y)) {
             } else if (levelButtons[3].contains(touchPos.x, touchPos.y)) {

@@ -23,15 +23,20 @@ import java.io.*;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 //import java.util.Timer;
 
+import static com.approject.angrybirds.Bird.BIRD_HEIGHT;
+import static com.approject.angrybirds.Bird.BIRD_WIDTH;
+import static com.approject.angrybirds.Pigs.PIG_HEIGHT;
+import static com.approject.angrybirds.Pigs.PIG_WIDTH;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 
-public class Level1Screen extends ScreenAdapter  {
-    private AngryBirds game;
-    private SpriteBatch batch;
+public class Level1Screen extends ScreenAdapter{
+    public static AngryBirds game;
+    SpriteBatch batch;
     private int score = 0;
     private Texture background;
     private Viewport viewport;
@@ -54,7 +59,7 @@ public class Level1Screen extends ScreenAdapter  {
     private StoneBlocks stoneBlock3;
     private GlassBlock triangleGlassBlock;
     private Body body;
-    private World world;
+    World world;
     private Body groundBody;
     private MouseJoint mouseJoint;
     private Vector2 slingStartPosition, sitonsling;
@@ -69,12 +74,14 @@ public class Level1Screen extends ScreenAdapter  {
     private final int NUM_TRAJECTORY_POINTS = 50;  // Number of points to show
     private Array<Vector2> trajectoryPoints;
     private final Vector2 gravity = new Vector2(0, -9.8f);  // Gravity vector
-    private ArrayList<Bird> birdList;
+    public List<Bird> birdList;
     private Bird currentBird;
     private GameState gameState;
     private Texture saveButton;
     private Rectangle saveButtonBounds; // For detecting click on save button
     private int level;
+    public int loaded;
+    public List<Pigs> pigList;
 
 
     // Constants for virtual width and height
@@ -86,10 +93,16 @@ public class Level1Screen extends ScreenAdapter  {
     private int currentBirdIndex = 0;
 
 
-    public Level1Screen(AngryBirds game, GameState gameState) {
+    public Level1Screen(AngryBirds game) {
         this.game = game;
         isPaused = false;  // Game starts in playing state
         this.gameState = gameState;
+        birdList = new ArrayList<>();
+        this.batch = new SpriteBatch();
+        this.world = new World(new Vector2(0, -9.8f), true);
+        pigList = new ArrayList<>();
+        this.loaded = 0;
+
     }
 
     public int getScore() {
@@ -153,45 +166,11 @@ public class Level1Screen extends ScreenAdapter  {
     }
 
 
-        // Left boundary
-//        BodyDef leftBodyDef = new BodyDef();
-//        leftBodyDef.type = BodyDef.BodyType.StaticBody;
-//        leftBodyDef.position.set(0, 0);
-//        Body leftBoundary = world.createBody(leftBodyDef);
-//
-//        EdgeShape leftEdge = new EdgeShape();
-//        leftEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
-//        leftBoundary.createFixture(leftEdge, 0);
-//        leftEdge.dispose();
-//
-//        // Right boundary
-//        BodyDef rightBodyDef = new BodyDef();
-//        rightBodyDef.type = BodyDef.BodyType.StaticBody;
-//        rightBodyDef.position.set(screenWidth, 0);
-//        Body rightBoundary = world.createBody(rightBodyDef);
-//
-//        EdgeShape rightEdge = new EdgeShape();
-//        rightEdge.set(new Vector2(0, 0), new Vector2(0, screenHeight));
-//        rightBoundary.createFixture(rightEdge, 0);
-//        rightEdge.dispose();
-//
-//        // Top boundary
-//        BodyDef topBodyDef = new BodyDef();
-//        topBodyDef.type = BodyDef.BodyType.StaticBody;
-//        topBodyDef.position.set(0, screenHeight);
-//        Body topBoundary = world.createBody(topBodyDef);
-//
-//        EdgeShape topEdge = new EdgeShape();
-//        topEdge.set(new Vector2(0, 0), new Vector2(screenWidth, 0));
-//        topBoundary.createFixture(topEdge, 0);
-//        topEdge.dispose();
-//    }
-
-
 
     @Override
     public void show() {
-        loadGame();
+        world = new World(new Vector2(0, -9.8f), true);
+
         debugRenderer = new Box2DDebugRenderer();
         batch = new SpriteBatch();
         background = new Texture("gamePlay.png");
@@ -206,7 +185,6 @@ public class Level1Screen extends ScreenAdapter  {
 
 
 
-        world = new World(new Vector2(0, -9.8f), true);
         createScreenBoundaries();
         slingStartPosition = new Vector2(2.7f, 3.0f);
         sitonsling = new Vector2();
@@ -231,23 +209,21 @@ public class Level1Screen extends ScreenAdapter  {
         slingFixtureDef.isSensor = true;
         slingBody.createFixture(slingFixtureDef);
         slingShape.dispose();
+        if(loaded == 0){
+            creater();
+        }
 
-        birdList = new ArrayList<>();
-        birdList.add(new RedBird(batch, slingStartPosition, world));  // Bird 1
-        birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 2
-        birdList.add(new RedBird(batch, slingStartPosition, world));
+//        birdList = new ArrayList<>();
+//        birdList.add(new RedBird(batch, slingStartPosition, world));  // Bird 1
+//        birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 2
+//        birdList.add(new RedBird(batch, slingStartPosition, world));
 
         currentBird = birdList.get(currentBirdIndex);
         currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
         currentBird.getBody().setTransform(slingStartPosition, 0);
 
-        // Initialize RedBird objects with their positions
-//        redBird1 = new RedBird(batch, new Vector2(180 / 100f, 203 / 100f), world); // Position in Box2D units
-//        redBird1.body.applyLinearImpulse(new Vector2(0.5f, 0), redBird1.body.getWorldCenter(), true);
-//        redBird2 = new RedBird(batch, slingStartPosition, world);
-        // Set the bird's body type to static initially
-//        redBird2.getBody().setType(BodyDef.BodyType.StaticBody);
-//        redBird2.getBody().setTransform(slingStartPosition, 0);
+//        pigList = new ArrayList<>();
+//        pigList.add( new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world));
 
         verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
         verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700/100f, 250/100f), world);
@@ -260,7 +236,7 @@ public class Level1Screen extends ScreenAdapter  {
         slingShot = new SlingShot(batch, 230, 147);
         slingShot.show();  // Load the texture for SlingShot
 //        yellowBird = new YellowBird(batch, new Vector2(80 / 100f, 203 / 100f), world);
-        minionPig = new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world);
+//        minionPig = new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world);
         saveButtonBounds = new Rectangle(140, 950, 100, 100);
 
         trajectoryPoints = new Array<>(NUM_TRAJECTORY_POINTS);
@@ -338,6 +314,16 @@ public class Level1Screen extends ScreenAdapter  {
         pauseButtonBounds = new Rectangle(20, 950, 100, 100);
     }
 
+    private void creater(){
+        birdList = new ArrayList<>();
+        birdList.add(new RedBird(batch, slingStartPosition, world));  // Bird 1
+        birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 2
+        birdList.add(new RedBird(batch, slingStartPosition, world));
+        pigList = new ArrayList<>();
+        pigList.add( new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world));
+
+    }
+
     private void updateTrajectoryPoints(Vector2 slingStartPosition, Vector2 launchVelocity) {
         trajectoryPoints.clear();
 
@@ -387,71 +373,66 @@ private void launchObject(Vector2 dragVector) {
                     game.setScreen(new RetryScoreScreen(game, gameState));
                 }
             }
-        }, 1);
+        }, 4);
 
     }
     dragging = false;
     isDragging = false;
-//    Timer.schedule(new Timer.Task() {
-//        @Override
-//        public void run() {
-//            // Check if the current bird has stopped moving
-//            if (currentBirdIndex < birdList.size() - 1 && (currentBird.getBody().getLinearVelocity().len() < 0.1f || !isBodyActive(currentBird.getBody()))) {
-//                currentBirdIndex++;
-//                currentBird = birdList.get(currentBirdIndex);
-//                currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
-//                currentBird.getBody().setTransform(slingStartPosition, 0);
-//
-//                isDragging = false;
-//                dragging = false;
-//                // Prepare the next bird if available
-////                if (!birdList.isEmpty()) {
-//////                    redBird2 = (RedBird) birdList.poll();  // Get the next bird
-////                    currentBirdIndex++;
-////                    currentBird.getBody().setType(BodyDef.BodyType.StaticBody);  // Make it static for the slingshot
-////                    currentBird.getBody().setTransform(slingStartPosition, 0);
-////                }
-//            }
-//        }
-//    }, 2f);
 
 }
 
     private void checkPigCollision() {
-        for (Bird bird : birdList) {
-            if (isPigHit(bird, minionPig)) {
+//        for (Bird bird : birdList) {
+//            for (Pigs pig : pigList) {
+//                if (isPigHit(bird, pig)) {
+//                    System.out.println("Pig hit!");
+//
+//                    // Reduce the pig's health on collision
+//                    pig.takeDamage(1);  // You can pass the amount of damage here
+//
+//                    if (pig.getHealth() <= 0) {
+//                        // Wait for a 1-second delay before switching to the next screen
+//                        Timer.schedule(new Timer.Task() {
+//                            @Override
+//                            public void run() {
+//                                System.out.println("Changing the screen to Level Complete.");
+//                                game.setScreen(new LevelComplete(game));
+//                            }
+//                        }, 2); // Delay of 1 second
+//                    }
+//                    return;  // Exit after processing one collision
+//                }
+//            }
+//        }
+        for(Bird bird: birdList){
+            if(isPigHit(bird, pigList.get(0))){
                 System.out.println("Pig hit!");
-
-                // Reduce the pig's health on collision
-                minionPig.takeDamage(1);  // You can pass the amount of damage here
-
-                if (minionPig.getHealth() <= 0) {
-                    // Wait for a 1-second delay before switching to the next screen
-                    Timer.schedule(new Timer.Task() {
-                        @Override
-                        public void run() {
-                            System.out.println("Changing the screen to Level Complete.");
-                            game.setScreen(new LevelComplete(game, gameState));
-                        }
-                    }, 1); // Delay of 1 second
-                }
-                return;  // Exit after processing one collision
+                pigList.get(0).takeDamage(1);
             }
+        }
+        if(pigList.get(0).getHealth() <= 0){
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    System.out.println("Changing the screen to Level Complete.");
+                    game.setScreen(new LevelComplete(game));
+                }
+            }, 2);
         }
     }
 
 
-    private boolean isPigHit(Bird bird, MinionPigs pig) {
+    private boolean isPigHit(Bird bird, Pigs pig) {
         // Get positions of bird and pig
         Vector2 birdPos = bird.getBody().getPosition();
         Vector2 pigPos = pig.getBody().getPosition();
 
         // Approximate bird's radius as the distance from the center to a vertex
-        float birdRadius = Bird.BIRD_WIDTH / 2 / 100f;  // For a hexagon, it's the circumcircle radius
+        float birdRadius = BIRD_WIDTH / 2 / 100f;  // For a hexagon, it's the circumcircle radius
 
         // Approximate pig's radius as half the diagonal of the rectangle
-        float pigHalfWidth = MinionPigs.PIG_WIDTH / 2 / 100f;
-        float pigHalfHeight = MinionPigs.PIG_HEIGHT / 2 / 100f;
+        float pigHalfWidth = PIG_WIDTH / 2 / 100f;
+        float pigHalfHeight = PIG_HEIGHT / 2 / 100f;
         float pigRadius = (float) Math.sqrt(pigHalfWidth * pigHalfWidth + pigHalfHeight * pigHalfHeight);
 
         // Collision threshold as the sum of these radii
@@ -550,11 +531,7 @@ private void launchObject(Vector2 dragVector) {
         batch.begin();
         batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         batch.draw(scoreTextImage, 1700, 1020, 200, 50);
-        // Draw the RedBirds on the screen
-//        redBird1.render();
-//        redBird1.sprite.setRotation(redBird1.getBody().getAngle());
-//        redBird2.render();
-//        redBird2.sprite.setRotation(redBird2.getBody().getAngle());
+
         verticalWoodBlock1.render();
         verticalWoodBlock2.render();
 //        horizontalWoodBlock1.render();//
@@ -564,9 +541,22 @@ private void launchObject(Vector2 dragVector) {
         stoneBlock3.render();
         slingShot.render();
 //        yellowBird.render();
-        minionPig.render();
+//        minionPig.render();
         for (Bird bird : birdList) {
-            bird.render();
+//            bird.setBatch(batch);
+//            bird.setWorld(world);
+//            bird.render();
+            System.out.println("Bird22 position: " + bird.getBody().getPosition().x * 100 );
+            batch.draw(bird.texture, bird.getBody().getPosition().x*100f - BIRD_WIDTH/2, bird.getBody().getPosition().y*100f - BIRD_HEIGHT/2, BIRD_WIDTH, BIRD_HEIGHT);
+            System.out.println("Bird position: " + body.getPosition().x*100f);
+//            batch.draw(bird.texture, 270,300, BIRD_WIDTH, BIRD_HEIGHT);
+
+        }
+        for(Pigs pigs: pigList){
+//            pigs.setBatch(batch);
+//            pigs.setWorld(world);
+//            pigs.render();
+            batch.draw(pigs.texture, pigs.getBody().getPosition().x * 100f - PIG_WIDTH / 2, pigs.getBody().getPosition().y * 100f - PIG_HEIGHT / 2, PIG_WIDTH, PIG_HEIGHT);
         }
 
 
@@ -578,12 +568,8 @@ private void launchObject(Vector2 dragVector) {
         }
         batch.end();
         renderTrajectory();
-//        handleInput();
-//        resetBirdIfStopped();
+
         renderRubberEffect();
-//        Gdx.app.log("Debug", "RedBird1 Position: " + redBird1.getBody().getPosition());
-//        Gdx.app.log("Debug", "VerticalWoodBlock1 Position: " + verticalWoodBlock1.getBody().getPosition());
-//        Gdx.app.log("Debug", "MinionPig Position: " + minionPig.getBody().getPosition());
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.B)){
             currentBird.getBody().applyLinearImpulse(new Vector2(100, 50), currentBird.getBody().getWorldCenter(), true);
@@ -598,16 +584,7 @@ private void launchObject(Vector2 dragVector) {
             Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
             viewport.unproject(touchPos);  // Convert screen coordinates to world coordinates
 
-            // Check if the pause/play button is clicked
-//            if (pauseButtonBounds.contains(touchPos)) {
-//                if (isPaused) {
-//                    // If game is paused, clicking button will resume game
-//                    resumeGame();
-//                } else {
-//                    // If game is playing, clicking button will pause the game
-//                    pauseGame();
-//                }
-//            }
+
             if (pauseButtonBounds.contains(touchPos)) {
                 if (isPaused) {
                     resumeGame();
@@ -615,7 +592,8 @@ private void launchObject(Vector2 dragVector) {
                     pauseGame();
                 }
             } else if (saveButtonBounds.contains(touchPos)) {
-                saveGame();
+                System.out.println("Game saved");
+//                saveGame();
             }
         }
     }
@@ -634,67 +612,79 @@ private void launchObject(Vector2 dragVector) {
         // Update the viewport size on window resize
         viewport.update(width, height, true);
     }
-//    private void loadGame() {
-//        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
-//            GameState gameState = (GameState) ois.readObject(); // Deserialize the game state
-//            game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
+
+//    public void saveGame() {
+//        GameState gameState = new GameState();
+//        gameState.birds = new ArrayList<>();
+//        for(Bird bird: birdList){
+//            BirdData birdData = new BirdData();
+//            birdData.x = bird.body.getPosition().x;
+//            birdData.y = bird.body.getPosition().y;
+//            birdData.velocityX = bird.body.getLinearVelocity().x;
+//            birdData.velocityY = bird.body.getLinearVelocity().y;
+//            gameState.birds.add(birdData);
+//        }
+//        gameState.pigs = new ArrayList<>();
+//        for(Pigs pig : pigList){
+//            PigData pigData = new PigData();
+//            pigData.x = pig.body.getPosition().x;
+//            pigData.y = pig.body.getPosition().y;
+////            pigData.health = pig.health;
+//            gameState.pigs.add(pigData);
+//
+//        }
+//
+//        gameState.blocks = new ArrayList<>();
+//        BlockData blockData = new BlockData();
+//        blockData.x = verticalWoodBlock1.body.getPosition().x;
+//        blockData.y = verticalWoodBlock1.body.getPosition().y;
+//
+//        // Update gameState with current game state
+////        gameState.setScore(score);
+////        gameState.setLevel(1); // Assuming level 1 for this example
+////        gameState.setBirdPosition(currentBird.getBody().getPosition());
+//
+//        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.dat"))) {
+//            oos.writeObject(gameState); // Serialize the game state
+//            System.out.println("Game saved successfully!");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to save game!");
+//        }
+//    }
+
+//    public static Level1Screen loadGame(){
+//        try(ObjectInputStream in = new ObjectInputStream(new FileInputStream("savegame.dat"))) {
+//            GameState gameState = (GameState) in.readObject();
+//            Level1Screen level1Screen = new Level1Screen(game);
+//
+//            for(int i = 0; i < gameState.birds.size(); i++){
+//                BirdData birdData = gameState.birds.get(i);
+//                Bird birds = level1Screen.birdList.get(i);
+//                birds.body.setTransform(birdData.x, birdData.y, 0);
+//                birds.body.setLinearVelocity(birdData.velocityX, birdData.velocityY);
+//            }
+//            for(int i =0; i < gameState.pigs.size(); i++){
+//                PigData pigData = gameState.pigs.get(i);
+//                Pigs pigs = level1Screen.pigList.get(i);
+//                pigs.body.setTransform(pigData.x, pigData.y, 0);
+//            }
+//            for (BlockData blockData : gameState.blocks) {
+//                level1Screen.verticalWoodBlock1.body.setTransform(blockData.x, blockData.y, 0);
+//                level1Screen.verticalWoodBlock2.body.setTransform(blockData.x, blockData.y, 0);
+//                level1Screen.stoneBlock1.body.setTransform(blockData.x, blockData.y, 0);
+//                level1Screen.stoneBlock2.body.setTransform(blockData.x, blockData.y, 0);
+//                level1Screen.stoneBlock3.body.setTransform(blockData.x, blockData.y, 0);
+//
+//            }
 //            System.out.println("Game loaded successfully!");
-//        } catch (IOException | ClassNotFoundException e) {
+//            return level1Screen;
+//        }catch (IOException | ClassNotFoundException e){
 //            e.printStackTrace();
 //            System.out.println("Failed to load game!");
+//            return null;
 //        }
 //    }
-
-//    private void loadGame() {
-//        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
-//            gameState = (GameState) ois.readObject(); // Deserialize the game state
-//            System.out.println("Game loaded successfully!");
-//        } catch (IOException | ClassNotFoundException e) {
-//            e.printStackTrace();
-//            System.out.println("Failed to load game!");
-//        }
-//    }
-
-    private void loadGame() {
-        File saveFile = new File("loadgame.ser");
-        if (!saveFile.exists() || !saveFile.canRead()) {
-            System.out.println("Save file does not exist or is not readable!");
-            return;
-        }
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
-            gameState = (GameState) ois.readObject(); // Deserialize the game state
-            System.out.println("Game loaded successfully!");
-//            initializeLevel(gameState);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("Failed to load game!");
-        }
-    }
-//    private void initializeLevel(GameState gameState) {
-//        this.score = gameState.getScore();
-//        this.level = gameState.getLevel();
-//        if (this.currentBird == null) {
-//            slingStartPosition = new Vector2(2.7f, 3.0f);
-//            this.currentBird = new RedBird(batch, slingStartPosition, world); // Initialize currentBird if it is null
-//        }
-//        this.currentBird.getBody().setTransform(gameState.getBirdPosition(), 0);
-//        // Add any additional initialization logic here
-//    }
-    private void saveGame() {
-        // Update gameState with current game state
-        gameState.setScore(score);
-        gameState.setLevel(1); // Assuming level 1 for this example
-        gameState.setBirdPosition(currentBird.getBody().getPosition());
-
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.ser"))) {
-            oos.writeObject(gameState); // Serialize the game state
-            System.out.println("Game saved successfully!");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Failed to save game!");
-        }
-    }
-
     @Override
     public void dispose() {
         batch.dispose();

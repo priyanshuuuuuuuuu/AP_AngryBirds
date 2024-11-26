@@ -153,7 +153,7 @@ public class Settings extends ScreenAdapter {
         // Handle input for button actions
         if (Gdx.input.justTouched()) {
             if (crossButtonBounds.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new MainScreen(game, gameState));
+                game.setScreen(new MainScreen(game));
             }
             if (musicButtonBounds.contains(touchPos.x, touchPos.y)) {
                 isMusicOn = !isMusicOn;  // Toggle music on/off

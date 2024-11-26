@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class LevelsScreen extends ScreenAdapter {
@@ -47,7 +46,7 @@ public class LevelsScreen extends ScreenAdapter {
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
 
-    public LevelsScreen(AngryBirds game, GameState gameState) {
+    public LevelsScreen(AngryBirds game) {
         this.game = game;
         this.gameState = gameState;
     }
@@ -139,7 +138,7 @@ public class LevelsScreen extends ScreenAdapter {
             viewport.unproject(touchPos);
 
             if (backButtonBounds.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new MainScreen(game, gameState));  // Navigate back to the Settings screen
+                game.setScreen(new MainScreen(game));  // Navigate back to the Settings screen
             }
         }
         // Draw title image at the top

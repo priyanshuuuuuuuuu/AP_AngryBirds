@@ -34,7 +34,7 @@ public class MainScreen extends ScreenAdapter {
     OrthographicCamera camera;
     Viewport viewport;
 
-    public MainScreen(AngryBirds game, GameState gameState) {
+    public MainScreen(AngryBirds game) {
         this.game = game;
         this.gameState = gameState;
     }
@@ -123,7 +123,7 @@ public class MainScreen extends ScreenAdapter {
             batch.draw(loadGameHover, loadGameButton.x, loadGameButton.y, loadGameButton.width, loadGameButton.height);
             isHovering = true;
             if(Gdx.input.isTouched()){
-//                game.setScreen(new LoadGameScreen(game, gameState));
+                game.setScreen(new LoadGameScreen(game, gameState));
                 loadGame();
             }
         } else {
@@ -135,7 +135,7 @@ public class MainScreen extends ScreenAdapter {
         // Button actions
         if (Gdx.input.isTouched()) {
             if (newGameButton.contains(touchPos.x, touchPos.y)) {
-                game.setScreen(new LevelsScreen(game, gameState));
+                game.setScreen(new LevelsScreen(game));
             } else if (loadGameButton.contains(touchPos.x, touchPos.y)) {
                 loadGame();
                 System.out.println("Load Game");
@@ -154,7 +154,7 @@ public class MainScreen extends ScreenAdapter {
         }
     }
     private void loadGame() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.dat"))) {
             gameState = (GameState) ois.readObject(); // Deserialize the game state
             game.setScreen(new LoadGameScreen(game, gameState)); // Load the level with the saved game state
             System.out.println("Game loaded successfully!");

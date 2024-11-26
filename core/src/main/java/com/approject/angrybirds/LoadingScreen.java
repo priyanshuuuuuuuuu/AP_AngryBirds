@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class LoadingScreen extends ScreenAdapter {
@@ -33,7 +32,7 @@ public class LoadingScreen extends ScreenAdapter {
 
 
 
-    public LoadingScreen(AngryBirds game, GameState gamestate) {
+    public LoadingScreen(AngryBirds game) {
         this.game = game;
         this.gamestate = gamestate;
     }
@@ -63,7 +62,7 @@ public class LoadingScreen extends ScreenAdapter {
             public boolean keyDown(int keycode) {
                 // If spacebar is pressed, switch to MainScreen
                 if (keycode == Input.Keys.SPACE) {
-                    game.setScreen(new MainScreen(game, GameState.MAIN_MENU));
+                    game.setScreen(new MainScreen(game));
                 }
                 return true;
             }
@@ -114,7 +113,7 @@ public class LoadingScreen extends ScreenAdapter {
 
         // Check if spacebar is pressed, then switch to MainScreen
         if (elapsedTime >= maxLoadingTime && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            game.setScreen(new MainScreen(game, gamestate));
+            game.setScreen(new MainScreen(game));
         }
     }
 

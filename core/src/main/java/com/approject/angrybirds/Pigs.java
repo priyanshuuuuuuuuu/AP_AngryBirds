@@ -17,22 +17,23 @@ public abstract class Pigs {
     protected World world;
     protected Sprite sprite;
     private int health;
+    int type;
 
     // Modified constructor to accept health as a parameter
-    public Pigs(Texture texture, SpriteBatch batch, Vector2 position, Vector2 velocity, int health) {
+    public Pigs(Texture texture, SpriteBatch batch, Vector2 position, Vector2 velocity, int health, int type) {
         this.texture = texture;
         this.batch = batch;
         this.position = position;
-        this.velocity = velocity;
         sprite = new Sprite(texture);
         this.health = health;  // Set health to the provided value
+        this.type = type;
     }
 
     public void initializeBody(World world) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;  // Dynamic body for physical interaction
         bodyDef.position.set(position);
-        bodyDef.linearVelocity.set(velocity);
+//        bodyDef.linearVelocity.set(velocity);
         body = world.createBody(bodyDef);
 
         // Define a hexagonal shape
@@ -61,12 +62,12 @@ public abstract class Pigs {
         shape.dispose();  // Clean up the shape after creating the fixture
     }
 
-    public void render() {
-        if (body != null) {
-            position.set(body.getPosition().x * 100f - PIG_WIDTH / 2, body.getPosition().y * 100f - PIG_HEIGHT / 2);
-        }
-        batch.draw(texture, position.x, position.y, PIG_WIDTH, PIG_HEIGHT);
-    }
+//    public void render() {
+//        if (body != null) {
+//            position.set(body.getPosition().x * 100f - PIG_WIDTH / 2, body.getPosition().y * 100f - PIG_HEIGHT / 2);
+//        }
+//        batch.draw(texture, position.x, position.y, PIG_WIDTH, PIG_HEIGHT);
+//    }
 
     public Body getBody() {
         return body;
@@ -75,6 +76,10 @@ public abstract class Pigs {
     public void dispose() {
         texture.dispose();
     }
+    public void setPosition(float x, float y) {
+        position.set(x, y);
+    }
+
 
     // Method to handle the damage when pig is hit
     public void takeDamage(int damage) {
@@ -98,5 +103,11 @@ public abstract class Pigs {
 
     public int getHealth() {
         return health;
+    }
+    public void setBatch(SpriteBatch batch) {
+        this.batch = batch;
+    }
+    public void setWorld(World world) {
+        initializeBody(world);
     }
 }

@@ -19,18 +19,15 @@ public class LevelComplete extends ScreenAdapter {
     private Viewport viewport;
     Texture nextButton, nextHoverButton, homeButton, homeHoverButton;
     Rectangle nextButtonBound, homeButtonBound;
-    private GameState gameState;
 
-    public LevelComplete(AngryBirds game, GameState gameState) {
+    public LevelComplete(AngryBirds game) {
         this.game = game;
-        this.gameState = gameState;
     }
 
     @Override
     public void show() {
         batch = new SpriteBatch();
         backGroundImage = new Texture("sucess.png");
-
         nextButton = new Texture("next.png");
         nextHoverButton = new Texture("nextHover.png");
         homeButton = new Texture("home.png");
@@ -75,7 +72,7 @@ public class LevelComplete extends ScreenAdapter {
         if (nextButtonBound.contains(touchPos.x, touchPos.y)) {
             batch.draw(nextHoverButton, nextButtonBound.x, nextButtonBound.y, nextButtonBound.width, nextButtonBound.height);
             if (Gdx.input.isTouched()) {
-                game.setScreen(new LevelsScreen(game, gameState));  // Retry the level
+                game.setScreen(new LevelsScreen(game));  // Retry the level
             }
         } else {
             batch.draw(nextButton, nextButtonBound.x, nextButtonBound.y, nextButtonBound.width, nextButtonBound.height);
@@ -85,7 +82,7 @@ public class LevelComplete extends ScreenAdapter {
         if (homeButtonBound.contains(touchPos.x, touchPos.y)) {
             batch.draw(homeHoverButton, homeButtonBound.x, homeButtonBound.y, homeButtonBound.width, homeButtonBound.height);
             if (Gdx.input.isTouched()) {
-                game.setScreen(new MainScreen(game, gameState));  // Navigate to MainScreen
+                game.setScreen(new MainScreen(game));  // Navigate to MainScreen
             }
         } else {
             batch.draw(homeButton, homeButtonBound.x, homeButtonBound.y, homeButtonBound.width, homeButtonBound.height);

@@ -18,8 +18,9 @@ public abstract class Bird {
     private Vector2 slingStartPosition;
     protected Rectangle bounds;
     protected int health;  // Health is now protected, so subclasses can access it
+    protected int type;
 
-    public Bird(Texture texture, SpriteBatch batch, Vector2 position, Vector2 velocity, int initialHealth) {
+    public Bird(Texture texture, SpriteBatch batch, Vector2 position, Vector2 velocity, int initialHealth, int type) {
         this.texture = texture;
         this.batch = batch;
         this.position = position;
@@ -27,6 +28,7 @@ public abstract class Bird {
         this.health = initialHealth;  // Initialize health from subclass
         bounds = new Rectangle(position.x, position.y, BIRD_WIDTH, BIRD_HEIGHT);
         sprite = new Sprite(texture);
+        this.type = type;
     }
 
     public void initializeBody(World world) {
@@ -67,12 +69,17 @@ public abstract class Bird {
         bounds.setPosition(body.getPosition().x - BIRD_WIDTH/2, body.getPosition().y - BIRD_HEIGHT/2);
     }
 
-    public void render() {
-        if(body != null){
-            position.set(body.getPosition().x*100f - BIRD_WIDTH/2, body.getPosition().y*100f - BIRD_HEIGHT/2);
-        }
-        batch.draw(texture, position.x, position.y, BIRD_WIDTH, BIRD_HEIGHT);
-    }
+//    public void render() {
+//        if(body != null){
+//            position.set(body.getPosition().x*100f - BIRD_WIDTH/2, body.getPosition().y*100f - BIRD_HEIGHT/2);
+//        }
+//        batch.end();
+//        batch.begin();
+//        // Removed batch.begin() and batch.end() from here to ensure bird rendering is handled by the main render method.
+//        batch.draw(texture, position.x, position.y, BIRD_WIDTH, BIRD_HEIGHT);
+//        batch.end();
+//        batch.begin();
+//    }
 
     public void dispose() {
         texture.dispose();
@@ -80,6 +87,12 @@ public abstract class Bird {
 
     public void setPosition(float x, float y) {
         position.set(x, y);
+    }
+    public void setBatch(SpriteBatch batch) {
+        this.batch = batch;
+    }
+    public void setWorld(World world) {
+        initializeBody(world);
     }
 
     public Rectangle getBounds() {

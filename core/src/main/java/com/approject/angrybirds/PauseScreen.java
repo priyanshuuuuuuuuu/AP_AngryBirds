@@ -110,7 +110,7 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
             isHovering = true;
             if (Gdx.input.isTouched()) {
                 // Logic to restart the game (re-initialize the level)
-                game.setScreen(new Level1Screen(game, gamestate)); // Restart the level
+                game.setScreen(new Level1Screen(game)); // Restart the level
             }
         } else {
             batch.draw(restartButton, restartButtonBounds.x, restartButtonBounds.y, restartButtonBounds.width, restartButtonBounds.height);
@@ -121,7 +121,8 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
             batch.draw(saveGameHoverButton, saveGameButtonBounds.x, saveGameButtonBounds.y, saveGameButtonBounds.width, saveGameButtonBounds.height);
             isHovering = true;
             if (Gdx.input.isTouched()) {
-                saveGame(); // Save the game state
+//                level1Screen.saveGame(); // Save the game state
+                AngryBirds.saveLevel(level1Screen);
             }
         } else {
             batch.draw(saveGameButton, saveGameButtonBounds.x, saveGameButtonBounds.y, saveGameButtonBounds.width, saveGameButtonBounds.height);
@@ -148,28 +149,28 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
         }
     }
 
-    private void saveGame() {
-        if (level1Screen == null) {
-            System.out.println("Cannot save game: level1Screen is null!");
-            return;
-        }
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("SAVEGAME_FILE.ser"))) {
-            GameState gameState = new GameState(level1Screen.getScore(), level1Screen.getLevel(), level1Screen.getBirdPosition());
-            oos.writeObject(gameState); // Serialize the game state
-            System.out.println("Game saved successfully!");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Failed to save game due to an I/O error!");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Failed to save game due to an unexpected error!");
-        }
-    }
+//    private void saveGame() {
+//        if (level1Screen == null) {
+//            System.out.println("Cannot save game: level1Screen is null!");
+//            return;
+//        }
+//        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("SAVEGAME_FILE.ser"))) {
+//            GameState gameState = new GameState(level1Screen.getScore(), level1Screen.getLevel(), level1Screen.getBirdPosition());
+//            oos.writeObject(gameState); // Serialize the game state
+//            System.out.println("Game saved successfully!");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to save game due to an I/O error!");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to save game due to an unexpected error!");
+//        }
+//    }
 
     private void loadGame() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("LOADGAME_FILE.ser"))) {
             GameState gameState = (GameState) ois.readObject(); // Deserialize the game state
-            game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
+            game.setScreen(new Level1Screen(game)); // Load the level with the saved game state
             System.out.println("Game loaded successfully!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

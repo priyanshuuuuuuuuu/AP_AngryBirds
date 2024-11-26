@@ -8,7 +8,7 @@ public class RedBird extends Bird {
 
     public RedBird(SpriteBatch batch, Vector2 position, World world) {
         // Set the health of RedBird to 1 (or any other number you want)
-        super(new Texture("redBird.png"), batch, position, new Vector2(0, 0), 40);
+        super(new Texture("redBird.png"), batch, position, new Vector2(0, 0), 40, 1);
         initializeBody(world);
     }
 

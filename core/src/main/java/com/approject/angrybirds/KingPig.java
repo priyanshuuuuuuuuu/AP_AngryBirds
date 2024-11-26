@@ -9,7 +9,7 @@ public class KingPig extends Pigs {
 
     // Constructor with a higher health value for KingPig
     public KingPig(SpriteBatch batch, Vector2 position, World world) {
-        super(new Texture("piggy.png"), batch, position, new Vector2(0, 0), 150);  // Set health to 150
+        super(new Texture("piggy.png"), batch, position, new Vector2(0, 0), 150, 11);  // Set health to 150
         initializeBody(world);
     }
 
