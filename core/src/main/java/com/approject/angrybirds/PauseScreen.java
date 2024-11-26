@@ -30,7 +30,7 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
 
-    public PauseScreen(AngryBirds game,Level1Screen level1Screen, GameState gamestate) {
+    public PauseScreen(AngryBirds game, Level1Screen level1Screen, GameState gamestate) {
         this.game = game;
         this.level1Screen = level1Screen;
         this.gamestate = gamestate;
@@ -130,7 +130,7 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
             batch.draw(quitHoverButton, quitButtonBounds.x, quitButtonBounds.y, quitButtonBounds.width, quitButtonBounds.height);
             isHovering = true;
             if (Gdx.input.isTouched()) {
-                game.setScreen(new LoadGameScreen(game, gamestate)); // Navigate to load game screen
+                game.setScreen(new RetryScoreScreen(game, gamestate)); // Navigate to load game screen
             }
         } else {
             batch.draw(quitButton, quitButtonBounds.x, quitButtonBounds.y, quitButtonBounds.width, quitButtonBounds.height);

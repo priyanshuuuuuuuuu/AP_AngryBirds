@@ -17,8 +17,6 @@ public class RetryScoreScreen extends ScreenAdapter {
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
     private Viewport viewport;
-    private Texture pigs;
-    private Texture title;
     Texture retryButton, retryHoverButton, homeButton, homeHoverButton;
     Rectangle retryButtonBound, homeButtonBound;
     private GameState gameState;
@@ -31,9 +29,8 @@ public class RetryScoreScreen extends ScreenAdapter {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        backGroundImage = new Texture("retryScoreImage.png");
-        pigs = new Texture("pigs.png");
-        title = new Texture("wellTried.png");
+        backGroundImage = new Texture("fail.png");
+
         retryButton = new Texture("retryButton.png");
         retryHoverButton = new Texture("retryHover.png");
         homeButton = new Texture("home.png");
@@ -69,8 +66,7 @@ public class RetryScoreScreen extends ScreenAdapter {
         batch.begin();
         // Draw background and other elements
         batch.draw(backGroundImage, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        batch.draw(pigs, 550, 0, 900, 900);
-        batch.draw(title, 360, 800, 1200, 200);
+
 
         Vector2 touchPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
         viewport.unproject(touchPos);  // Convert screen coordinates to world coordinates
@@ -107,8 +103,6 @@ public class RetryScoreScreen extends ScreenAdapter {
     public void dispose() {
         backGroundImage.dispose();
         batch.dispose();
-        pigs.dispose();
-        title.dispose();
         retryButton.dispose();
         retryHoverButton.dispose();
         homeButton.dispose();

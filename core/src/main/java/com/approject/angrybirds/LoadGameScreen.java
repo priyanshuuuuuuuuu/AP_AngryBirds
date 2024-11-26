@@ -160,6 +160,13 @@ public class LoadGameScreen extends ScreenAdapter {
 
         batch.end();
 
+
+        //load
+        //pigs dead ,number of birds ,blocks
+
+        //save
+
+
         // Handle input in world coordinates
         if (Gdx.input.isTouched()) {
             // Convert screen coordinates to world coordinates

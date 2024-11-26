@@ -156,7 +156,7 @@ public class MainScreen extends ScreenAdapter {
     private void loadGame() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.ser"))) {
             gameState = (GameState) ois.readObject(); // Deserialize the game state
-            game.setScreen(new Level1Screen(game, gameState)); // Load the level with the saved game state
+            game.setScreen(new LoadGameScreen(game, gameState)); // Load the level with the saved game state
             System.out.println("Game loaded successfully!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
