@@ -474,7 +474,8 @@ private void launchObject(Vector2 dragVector) {
     private void renderTrajectory() {
         if (dragging) {  // Only show trajectory while dragging
             // Calculate launch velocity based on drag
-            Vector2 dragVector = new Vector2(dragEnd).sub(dragStart);
+//            Vector2 dragVector = new Vector2(dragEnd).sub(dragStart);
+            Vector2 dragVector = new Vector2(dragStart).sub(dragEnd);
 //            dragVector.scl(0.2f);  // Use the same scaling factor as your launch method
             float launchX = dragVector.x * 0.2f; // Negate X direction
             float launchY = -dragVector.y * 0.2f; // Negate Y direction
@@ -489,8 +490,8 @@ private void launchObject(Vector2 dragVector) {
             for (Vector2 point : trajectoryPoints) {
                 // Convert physics coordinates to screen coordinates
                 shapeRenderer.circle(
-                    point.x * 100,  // Convert to screen coordinates
-                    point.y * 100,  // Convert to screen coordinates
+                    point.x * 60,  // Convert to screen coordinates
+                    point.y * 60,  // Convert to screen coordinates
                     5  // Radius of the dots
                 );
             }
