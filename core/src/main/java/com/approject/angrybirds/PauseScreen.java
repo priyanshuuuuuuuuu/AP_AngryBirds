@@ -13,6 +13,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import java.io.*;
 
 public class PauseScreen extends ScreenAdapter implements Serializable {
+    private static final String SAVEGAME_FILE = "savegame.ser"; // Save game file name
+    private static final String LOADGAME_FILE = "loadgame.ser"; // Load game file name
     private AngryBirds game;
     private Level1Screen level1Screen; // Reference to the level screen
     private SpriteBatch batch;
@@ -175,7 +177,6 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
             System.out.println("Failed to load game!");
         }
     }
-
 
     @Override
     public void resize(int width, int height) {
