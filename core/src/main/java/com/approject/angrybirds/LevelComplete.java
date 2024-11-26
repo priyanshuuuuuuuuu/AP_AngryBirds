@@ -17,8 +17,8 @@ public class LevelComplete extends ScreenAdapter {
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
     private Viewport viewport;
-    Texture retryButton, retryHoverButton, homeButton, homeHoverButton;
-    Rectangle retryButtonBound, homeButtonBound;
+    Texture nextButton, nextHoverButton, homeButton, homeHoverButton;
+    Rectangle nextButtonBound, homeButtonBound;
     private GameState gameState;
 
     public LevelComplete(AngryBirds game, GameState gameState) {
@@ -31,8 +31,8 @@ public class LevelComplete extends ScreenAdapter {
         batch = new SpriteBatch();
         backGroundImage = new Texture("sucess.png");
 
-        retryButton = new Texture("retryButton.png");
-        retryHoverButton = new Texture("retryHover.png");
+        nextButton = new Texture("next.png");
+        nextHoverButton = new Texture("nextHover.png");
         homeButton = new Texture("home.png");
         homeHoverButton = new Texture("homeHover.png");
         MusicControl.stopGameplayMusic();
@@ -42,7 +42,7 @@ public class LevelComplete extends ScreenAdapter {
         float retryButtonHeight = 100;
         float retryButtonX = (VIRTUAL_WIDTH - retryButtonWidth) / 2; // Center horizontally
         float buttonY = 100; // Bottom alignment for both buttons
-        retryButtonBound = new Rectangle(retryButtonX, buttonY, retryButtonWidth, retryButtonHeight);
+        nextButtonBound = new Rectangle(retryButtonX, buttonY, retryButtonWidth, retryButtonHeight);
 
         // Set home button dimensions and position (100x100, aligned to left)
         float homeButtonSize = 100;
@@ -72,13 +72,13 @@ public class LevelComplete extends ScreenAdapter {
         viewport.unproject(touchPos);  // Convert screen coordinates to world coordinates
 
         // Retry button hover and action
-        if (retryButtonBound.contains(touchPos.x, touchPos.y)) {
-            batch.draw(retryHoverButton, retryButtonBound.x, retryButtonBound.y, retryButtonBound.width, retryButtonBound.height);
+        if (nextButtonBound.contains(touchPos.x, touchPos.y)) {
+            batch.draw(nextHoverButton, nextButtonBound.x, nextButtonBound.y, nextButtonBound.width, nextButtonBound.height);
             if (Gdx.input.isTouched()) {
-                game.setScreen(new Level1Screen(game, gameState));  // Retry the level
+                game.setScreen(new LevelsScreen(game, gameState));  // Retry the level
             }
         } else {
-            batch.draw(retryButton, retryButtonBound.x, retryButtonBound.y, retryButtonBound.width, retryButtonBound.height);
+            batch.draw(nextButton, nextButtonBound.x, nextButtonBound.y, nextButtonBound.width, nextButtonBound.height);
         }
 
         // Home button hover and action
@@ -103,8 +103,8 @@ public class LevelComplete extends ScreenAdapter {
     public void dispose() {
         backGroundImage.dispose();
         batch.dispose();
-        retryButton.dispose();
-        retryHoverButton.dispose();
+        nextButton.dispose();
+        nextHoverButton.dispose();
         homeButton.dispose();
         homeHoverButton.dispose();
         MusicControl.dispose();

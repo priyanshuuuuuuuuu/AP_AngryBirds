@@ -4,11 +4,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-
 public class RedBird extends Bird {
 
     public RedBird(SpriteBatch batch, Vector2 position, World world) {
-        super(new Texture("redBird.png"), batch, position, new Vector2(0, 0));
+        // Set the health of RedBird to 1 (or any other number you want)
+        super(new Texture("redBird.png"), batch, position, new Vector2(0, 0), 40);
         initializeBody(world);
     }
 
@@ -17,5 +17,4 @@ public class RedBird extends Bird {
         // RedBird doesn't have any special ability
         System.out.println("Red Bird has no special ability.");
     }
-
 }

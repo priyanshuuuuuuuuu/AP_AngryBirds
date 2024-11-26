@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-
 public abstract class Bird {
     protected Texture texture;
     protected SpriteBatch batch;
@@ -18,15 +17,18 @@ public abstract class Bird {
     protected Sprite sprite;
     private Vector2 slingStartPosition;
     protected Rectangle bounds;
+    protected int health;  // Health is now protected, so subclasses can access it
 
-    public Bird(Texture texture, SpriteBatch batch, Vector2 position, Vector2 velocity) {
+    public Bird(Texture texture, SpriteBatch batch, Vector2 position, Vector2 velocity, int initialHealth) {
         this.texture = texture;
         this.batch = batch;
         this.position = position;
         this.velocity = velocity;
+        this.health = initialHealth;  // Initialize health from subclass
         bounds = new Rectangle(position.x, position.y, BIRD_WIDTH, BIRD_HEIGHT);
         sprite = new Sprite(texture);
     }
+
     public void initializeBody(World world) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody;  // Initial state
@@ -59,18 +61,17 @@ public abstract class Bird {
         shape.dispose();  // Clean up
     }
 
-
     public abstract void specialAbility();
+
     public void updateBounds() {
         bounds.setPosition(body.getPosition().x - BIRD_WIDTH/2, body.getPosition().y - BIRD_HEIGHT/2);
     }
 
-
     public void render() {
         if(body != null){
-            position.set(body.getPosition().x*100f- BIRD_WIDTH/2, body.getPosition().y*100f- BIRD_HEIGHT/2);
+            position.set(body.getPosition().x*100f - BIRD_WIDTH/2, body.getPosition().y*100f - BIRD_HEIGHT/2);
         }
-        batch.draw(texture, position.x, position.y, BIRD_WIDTH, BIRD_HEIGHT);;
+        batch.draw(texture, position.x, position.y, BIRD_WIDTH, BIRD_HEIGHT);
     }
 
     public void dispose() {
@@ -80,6 +81,7 @@ public abstract class Bird {
     public void setPosition(float x, float y) {
         position.set(x, y);
     }
+
     public Rectangle getBounds() {
         return new Rectangle(
             sprite.getX(),
@@ -91,5 +93,18 @@ public abstract class Bird {
 
     public Body getBody() {
         return body;
+    }
+
+    public void takeDamage(int damage) {
+        health -= damage;
+        System.out.println("Bird took damage. Remaining health: " + health);
+        if (health <= 0) {
+            destroy();
+        }
+    }
+
+    private void destroy() {
+        System.out.println("Bird destroyed!");
+        // Code to remove the bird from the game (e.g., remove from world and bird list)
     }
 }

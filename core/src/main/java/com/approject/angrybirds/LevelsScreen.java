@@ -93,7 +93,9 @@ public class LevelsScreen extends ScreenAdapter {
         // Set camera to look at the center of the world
         camera.position.set(VIRTUAL_WIDTH / 2f, VIRTUAL_HEIGHT / 2f, 0);
         camera.update();
-
+        MusicControl.stopScoreMusic();
+        MusicControl.playBackgroundMusic();
+        MusicControl.stopSuccessMusic();
         // Initialize buttons as world coordinates rectangles
         levelButtons = new Rectangle[15];
 
@@ -203,6 +205,7 @@ public class LevelsScreen extends ScreenAdapter {
             if (levelButtons[0].contains(touchPos.x, touchPos.y)) {
                 game.setScreen(new Level1LoadingScreen(game, gameState));
             } else if (levelButtons[1].contains(touchPos.x, touchPos.y)) {
+                game.setScreen(new Level2LoadingScreen(game, gameState));
                 // game.setScreen(new Level2Screen(game));
             } else if (levelButtons[2].contains(touchPos.x, touchPos.y)) {
                 // game.setScreen(new Level3Screen(game));

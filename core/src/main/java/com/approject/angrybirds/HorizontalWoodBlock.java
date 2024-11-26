@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.World;
 public class HorizontalWoodBlock extends WoodBlocks{
 
     public HorizontalWoodBlock(SpriteBatch batch, Vector2 position, World world) {
-        super(new Texture("woodBigBlock.png"), batch, position, world,100);
+        super(new Texture("stone.png"), batch, position, world,100);
     }
 
     @Override

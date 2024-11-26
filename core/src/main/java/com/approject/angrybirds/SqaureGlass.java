@@ -5,10 +5,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 
-public class TriangleGlassBlock extends GlassBlock{
+public class SqaureGlass extends GlassBlock{
 
-    public TriangleGlassBlock(SpriteBatch batch, Vector2 position, World world) {
-        super(new Texture("glassTriangleBlock.png"), batch, position, world);
+    public SqaureGlass(SpriteBatch batch, Vector2 position, World world) {
+        super(new Texture("glass.png"), batch, position, world);
     }
 
     @Override
