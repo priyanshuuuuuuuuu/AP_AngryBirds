@@ -535,7 +535,7 @@
 ////        yellowBird.render();
 //        minionPig.render();
 //        for (Bird bird : birdList) {
-//            bird.render();
+////            bird.render();
 //        }
 //
 //
