@@ -478,7 +478,7 @@ private void launchObject(Vector2 dragVector) {
             Vector2 dragVector = new Vector2(dragStart).sub(dragEnd);
 //            dragVector.scl(0.2f);  // Use the same scaling factor as your launch method
             float launchX = dragVector.x * 0.2f; // Negate X direction
-            float launchY = -dragVector.y * 0.2f; // Negate Y direction
+            float launchY = -dragVector.y * 0.3f; // Negate Y direction
             Vector2 launchVector = new Vector2(launchX, launchY);
             // Update trajectory points
             updateTrajectoryPoints(currentBird.getBody().getPosition(), launchVector);
@@ -492,7 +492,7 @@ private void launchObject(Vector2 dragVector) {
                 shapeRenderer.circle(
                     point.x * 60,  // Convert to screen coordinates
                     point.y * 60,  // Convert to screen coordinates
-                    5  // Radius of the dots
+                    5 // Radius of the dots
                 );
             }
 
