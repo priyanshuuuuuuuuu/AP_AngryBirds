@@ -123,8 +123,9 @@ public class MainScreen extends ScreenAdapter {
             batch.draw(loadGameHover, loadGameButton.x, loadGameButton.y, loadGameButton.width, loadGameButton.height);
             isHovering = true;
             if(Gdx.input.isTouched()){
-                game.setScreen(new LoadGameScreen(game, gameState));
+//                game.setScreen(new LoadGameScreen(game, gameState));
                 loadGame();
+                System.out.println("load game");
             }
         } else {
             batch.draw(loadGame, loadGameButton.x, loadGameButton.y, loadGameButton.width, loadGameButton.height);
@@ -156,7 +157,7 @@ public class MainScreen extends ScreenAdapter {
     private void loadGame() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("savegame.dat"))) {
             gameState = (GameState) ois.readObject(); // Deserialize the game state
-            game.setScreen(new LoadGameScreen(game, gameState)); // Load the level with the saved game state
+            game.setScreen(Level1Screen.loadGame()); // Load the level with the saved game state
             System.out.println("Game loaded successfully!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

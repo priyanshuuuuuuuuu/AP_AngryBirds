@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class Level2LoadingScreen extends ScreenAdapter {
+public class Level3LoadingScreen extends ScreenAdapter {
     private SpriteBatch batch;
     private Texture backgroundImage;
     private AngryBirds game;
@@ -28,7 +28,7 @@ public class Level2LoadingScreen extends ScreenAdapter {
     // Time tracking variable for the 5-second loading delay
     private float elapsedTime = 0;
 
-    public Level2LoadingScreen(AngryBirds game, GameState gameState) {
+    public Level3LoadingScreen(AngryBirds game, GameState gameState) {
         this.game = game;
         this.gameState = gameState;
     }
@@ -36,7 +36,7 @@ public class Level2LoadingScreen extends ScreenAdapter {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        backgroundImage = new Texture("11.png");
+        backgroundImage = new Texture("55.png");
         loading = new Texture("loading.png");
         font = new BitmapFont();  // Initialize font with default settings
 
@@ -51,7 +51,7 @@ public class Level2LoadingScreen extends ScreenAdapter {
             public boolean keyDown(int keycode) {
                 // If spacebar is pressed, switch to Level1Screen immediately
                 if (keycode == Input.Keys.SPACE) {
-                    game.setScreen(new Level2Screen(game));
+                    game.setScreen(new Level3Screen(game));
                 }
                 return true;
             }

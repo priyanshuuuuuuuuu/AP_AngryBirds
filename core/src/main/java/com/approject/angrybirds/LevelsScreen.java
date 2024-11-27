@@ -205,9 +205,9 @@ public class LevelsScreen extends ScreenAdapter {
                 game.setScreen(new Level1LoadingScreen(game, gameState));
             } else if (levelButtons[1].contains(touchPos.x, touchPos.y)) {
                 game.setScreen(new Level2LoadingScreen(game, gameState));
-                // game.setScreen(new Level2Screen(game));
+//                 game.setScreen(new Level2Screen(game));
             } else if (levelButtons[2].contains(touchPos.x, touchPos.y)) {
-                // game.setScreen(new Level3Screen(game));
+                 game.setScreen(new Level3LoadingScreen(game, gameState));
             } else if (levelButtons[3].contains(touchPos.x, touchPos.y)) {
                 // game.setScreen(new Level4Screen(game));
             } else if (levelButtons[4].contains(touchPos.x, touchPos.y)) {

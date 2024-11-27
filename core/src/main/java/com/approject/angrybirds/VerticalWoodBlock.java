@@ -10,13 +10,10 @@ import com.badlogic.gdx.physics.box2d.World;
 public class VerticalWoodBlock extends WoodBlocks {
 
     public VerticalWoodBlock(SpriteBatch batch, Vector2 position, World world) {
-        super(new Texture("woodVerticalBlock.png"), batch, position, world, 100);
+        super(new Texture("woodVerticalBlock.png"), batch, position, world, 30);
     }
 
-    @Override
-    public void health() {
-        System.out.println("Vertical Wood Block health: " + getBody().getUserData());
-    }
+
 
     @Override
     public void initializeBody() {

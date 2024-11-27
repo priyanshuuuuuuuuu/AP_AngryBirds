@@ -103,6 +103,10 @@ public abstract class Bird {
             sprite.getHeight()
         );
     }
+    public void launch(Vector2 launchVector) {
+        body.setType(BodyDef.BodyType.DynamicBody);
+        body.applyLinearImpulse(launchVector, body.getWorldCenter(), true);
+    }
 
     public Body getBody() {
         return body;

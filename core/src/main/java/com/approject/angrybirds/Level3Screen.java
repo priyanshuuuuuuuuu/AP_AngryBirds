@@ -35,7 +35,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 
-public class Level1Screen extends ScreenAdapter{
+public class Level3Screen extends ScreenAdapter{
     public static AngryBirds game;
     SpriteBatch batch;
     private int score = 0;
@@ -53,6 +53,7 @@ public class Level1Screen extends ScreenAdapter{
     private Texture scoreTextImage;
     private WoodBlocks verticalWoodBlock1;
     private WoodBlocks verticalWoodBlock2;
+    private GlassBlock verticalGlassBlock;
     private WoodBlocks horizontalWoodBlock1;
     private ShapeRenderer shapeRenderer;
     private StoneBlocks stoneBlock1;
@@ -83,8 +84,6 @@ public class Level1Screen extends ScreenAdapter{
     private int level;
     public int loaded;
     public List<Pigs> pigList;
-    private boolean levelComplete = false;
-    private List<Object> blockList;
 
 
     // Constants for virtual width and height
@@ -96,7 +95,7 @@ public class Level1Screen extends ScreenAdapter{
     private int currentBirdIndex = 0;
 
 
-    public Level1Screen(AngryBirds game) {
+    public Level3Screen(AngryBirds game) {
         this.game = game;
         isPaused = false;  // Game starts in playing state
         this.gameState = gameState;
@@ -105,7 +104,6 @@ public class Level1Screen extends ScreenAdapter{
         this.world = new World(new Vector2(0, -9.8f), true);
         pigList = new ArrayList<>();
         this.loaded = 0;
-        blockList = new ArrayList<>();
 
     }
 
@@ -177,7 +175,7 @@ public class Level1Screen extends ScreenAdapter{
 
         debugRenderer = new Box2DDebugRenderer();
         batch = new SpriteBatch();
-        background = new Texture("gamePlay.png");
+        background = new Texture("level3 2.png");
         pauseButton = new Texture("pauseButton.png");
         playButton = new Texture("play.png");
         scoreTextImage = new Texture("score.png");
@@ -186,7 +184,6 @@ public class Level1Screen extends ScreenAdapter{
         MusicControl.stopBackgroundMusic();
         MusicControl.playGameplayMusic();
         shapeRenderer = new ShapeRenderer();
-
 
 
 
@@ -229,12 +226,10 @@ public class Level1Screen extends ScreenAdapter{
 
 //        pigList = new ArrayList<>();
 //        pigList.add( new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world));
-        blockList.add(new VerticalWoodBlock(batch, new Vector2(1525 / 100f, 250 / 100f), world));
-        blockList.add(new VerticalWoodBlock(batch, new Vector2(1700 / 100f, 250 / 100f), world));
-        blockList.add(new MediumSizedStoneBlock(batch, new Vector2(1530 / 100f, 158 / 100f), world));
-        blockList.add(new MediumSizedStoneBlock(batch, new Vector2(1610 / 100f, 158 / 100f), world));
-        blockList.add(new MediumSizedStoneBlock(batch, new Vector2(1690 / 100f, 158 / 100f), world));
 
+        verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
+        verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700/100f, 250/100f), world);
+        verticalGlassBlock = new VerticalGlassBlock(batch, new Vector2(1350/100f, 250/100f), world);
 
 //        horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1600/100f, 350/100f), world);
 //        stoneBlock1 = new MediumSizedStoneBlock(batch , new Vector2(1530/100f, 158/100f), world);
@@ -326,10 +321,12 @@ public class Level1Screen extends ScreenAdapter{
     private void creater(){
         birdList = new ArrayList<>();
         birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 1
-        birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 2
-        birdList.add(new RedBird(batch, slingStartPosition, world));
+        birdList.add(new BlueBird(batch, slingStartPosition, world));  // Bird 2
+        birdList.add(new BlackBird(batch, slingStartPosition, world));
         pigList = new ArrayList<>();
         pigList.add( new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world));
+        pigList.add(new KingPig(batch, new Vector2(1400/100f, 223/100f), world));
+        pigList.add(new FatPig(batch, new Vector2(1800/100f, 223/100f), world));
 
     }
 
@@ -359,43 +356,43 @@ public class Level1Screen extends ScreenAdapter{
             trajectoryPoints.add(new Vector2(newX, newY));
         }
     }
-private void launchObject(Vector2 dragVector) {
-    // Reverse the x and y components of the drag vector manually
-    float launchX = dragVector.x * 0.2f; // Negate X direction
-    float launchY = -dragVector.y * 0.2f; // Negate Y direction
-    Vector2 launchVector = new Vector2(launchX, launchY);
+    private void launchObject(Vector2 dragVector) {
+        // Reverse the x and y components of the drag vector manually
+        float launchX = dragVector.x * 0.2f; // Negate X direction
+        float launchY = -dragVector.y * 0.2f; // Negate Y direction
+        Vector2 launchVector = new Vector2(launchX, launchY);
 
-    System.out.println("Drag vector: " + dragVector + ", Launch vector: " + launchVector);
+        System.out.println("Drag vector: " + dragVector + ", Launch vector: " + launchVector);
 
-    // Apply the calculated impulse
-    currentBird.getBody().setType(BodyDef.BodyType.DynamicBody);
-    currentBird.getBody().applyLinearImpulse(launchVector, currentBird.getBody().getWorldCenter(), true);
-    currentBirdIndex++;
-    try{
-        currentBird = birdList.get(currentBirdIndex);
-    }catch (IndexOutOfBoundsException e){
-        System.out.println("No more birds left");
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                if (game.getScreen() instanceof Level1Screen) { // Check if we're still on the current level screen
-                    game.setScreen(new RetryScoreScreen(game, gameState));
+        // Apply the calculated impulse
+        currentBird.getBody().setType(BodyDef.BodyType.DynamicBody);
+        currentBird.getBody().applyLinearImpulse(launchVector, currentBird.getBody().getWorldCenter(), true);
+        currentBirdIndex++;
+        try{
+            currentBird = birdList.get(currentBirdIndex);
+        }catch (IndexOutOfBoundsException e){
+            System.out.println("No more birds left");
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    if (game.getScreen() instanceof Level3Screen) { // Check if we're still on the current level screen
+                        game.setScreen(new RetryScoreScreen(game, gameState));
+                    }
                 }
-            }
-        }, 4);
+            }, 4);
+
+        }
+        dragging = false;
+        isDragging = false;
 
     }
-    dragging = false;
-    isDragging = false;
-
-}
 
     private boolean transitionScheduled = false; // Add this flag
 
-    private void checkCollision() {
+    private void checkPigCollision() {
         for (Bird bird : birdList) {
-            for (Iterator<Pigs> pigIterator = pigList.iterator(); pigIterator.hasNext(); ) {
-                Pigs pig = pigIterator.next();
+            for (Iterator<Pigs> iterator = pigList.iterator(); iterator.hasNext(); ) {
+                Pigs pig = iterator.next();
                 if (isPigHit(bird, pig)) {
                     System.out.println("Pig hit!");
                     pig.takeDamage(1);
@@ -404,40 +401,15 @@ private void launchObject(Vector2 dragVector) {
                         // Destroy the pig's body in the Box2D world
                         world.destroyBody(pig.getBody());
                         // Remove the pig from the list
-                        pigIterator.remove();
+                        iterator.remove();
                     }
                 }
             }
-
-            for (Iterator<Object> blockIterator = blockList.iterator(); blockIterator.hasNext(); ) {
-                Object block = blockIterator.next();
-                if (block instanceof WoodBlocks && isBlockHit(bird, (WoodBlocks) block)) {
-                    ((WoodBlocks) block).takeDamage(1);
-                    if (((WoodBlocks) block).health <= 0) {
-                        world.destroyBody(((WoodBlocks) block).body);
-                        blockIterator.remove();
-                    }
-                } else if (block instanceof StoneBlocks && isBlockHit(bird, (StoneBlocks) block)) {
-                    ((StoneBlocks) block).takeDamage(1);
-                    if (((StoneBlocks) block).health <= 0) {
-                        world.destroyBody(((StoneBlocks) block).body);
-                        blockIterator.remove();
-                    }
-                } else if (block instanceof GlassBlock && isBlockHit(bird, (GlassBlock) block)) {
-                    ((GlassBlock) block).takeDamage(1);
-                    if (((GlassBlock) block).health <= 0) {
-                        world.destroyBody(((GlassBlock) block).body);
-                        blockIterator.remove();
-                    }
-                }
-            }
-
         }
 
         // Check if all pigs are removed and schedule level completion transition only once
         if (pigList.isEmpty() && !transitionScheduled) {
             transitionScheduled = true; // Mark the transition as scheduled
-            levelComplete = true;
             Timer.schedule(new Timer.Task() {
                 @Override
                 public void run() {
@@ -447,7 +419,6 @@ private void launchObject(Vector2 dragVector) {
             }, 2); // Delay transition by 2 seconds
         }
     }
-
 
 
     private boolean isPigHit(Bird bird, Pigs pig) {
@@ -471,15 +442,6 @@ private void launchObject(Vector2 dragVector) {
 
         // Check if the distance is less than the threshold
         return distance < collisionThreshold;
-    }
-    private boolean isBlockHit(Bird bird, WoodBlocks block){
-        return false;
-    }
-    private boolean isBlockHit(Bird bird, GlassBlock block){
-        return false;
-    }
-    private boolean isBlockHit(Bird bird, StoneBlocks block){
-        return false;
     }
 
 
@@ -569,8 +531,8 @@ private void launchObject(Vector2 dragVector) {
         batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         batch.draw(scoreTextImage, 1700, 1020, 200, 50);
 
-//        verticalWoodBlock1.render();
-//        verticalWoodBlock2.render();
+        verticalWoodBlock1.render();
+        verticalWoodBlock2.render();
 //        horizontalWoodBlock1.render();//
 //        stoneBlock1.render();
 //        stoneBlock2.render();
@@ -578,6 +540,7 @@ private void launchObject(Vector2 dragVector) {
 //        stoneBlock3.render();
         slingShot.render();
 //        yellowBird.render();
+        verticalGlassBlock.render();
 //        minionPig.render();
         for (Bird bird : birdList) {
 //            bird.setBatch(batch);
@@ -595,15 +558,7 @@ private void launchObject(Vector2 dragVector) {
 //            pigs.render();
             batch.draw(pigs.texture, pigs.getBody().getPosition().x * 100f - PIG_WIDTH / 2, pigs.getBody().getPosition().y * 100f - PIG_HEIGHT / 2, PIG_WIDTH, PIG_HEIGHT);
         }
-        for (Object block : blockList) {
-            if (block instanceof WoodBlocks) {
-                ((WoodBlocks) block).render();
-            } else if (block instanceof StoneBlocks) {
-                ((StoneBlocks) block).render();
-            } else if (block instanceof GlassBlock) {
-                ((GlassBlock) block).render();
-            }
-        }
+
 
 
         if (isPaused) {
@@ -619,7 +574,7 @@ private void launchObject(Vector2 dragVector) {
         if(Gdx.input.isKeyJustPressed(Input.Keys.B)){
             currentBird.getBody().applyLinearImpulse(new Vector2(100, 50), currentBird.getBody().getWorldCenter(), true);
         }
-        checkCollision();
+        checkPigCollision();
 
 
 
@@ -645,7 +600,7 @@ private void launchObject(Vector2 dragVector) {
 
     private void pauseGame() {
         isPaused = true;
-        game.setScreen(new Pause1Screen(game, this, gameState));  // Switch to pause screen
+        game.setScreen(new Pause3Screen(game, this, gameState));  // Switch to pause screen
     }
 
     private void resumeGame() {
@@ -685,9 +640,9 @@ private void launchObject(Vector2 dragVector) {
 //        blockData.y = verticalWoodBlock1.body.getPosition().y;
 //
 //        // Update gameState with current game state
-////        gameState.setScore(score);
-////        gameState.setLevel(1); // Assuming level 1 for this example
-////        gameState.setBirdPosition(currentBird.getBody().getPosition());
+    ////        gameState.setScore(score);
+    ////        gameState.setLevel(1); // Assuming level 1 for this example
+    ////        gameState.setBirdPosition(currentBird.getBody().getPosition());
 //
 //        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.dat"))) {
 //            oos.writeObject(gameState); // Serialize the game state
@@ -743,114 +698,7 @@ private void launchObject(Vector2 dragVector) {
         debugRenderer.dispose();
         MusicControl.stopBackgroundMusic();
         shapeRenderer.dispose();
+        verticalGlassBlock.dispose();
 
-    }
-
-    public boolean isLevelComplete() {
-        return levelComplete;
-    }
-
-    public void setLevelComplete(boolean levelComplete) {
-        this.levelComplete = levelComplete;
-    }
-    public void saveGame() {
-        GameState gameState = new GameState();
-        gameState.birds = new ArrayList<>();
-        for (Bird bird : birdList) {
-            BirdData birdData = new BirdData();
-            birdData.x = bird.getBody().getPosition().x;
-            birdData.y = bird.getBody().getPosition().y;
-            birdData.velocityX = bird.getBody().getLinearVelocity().x;
-            birdData.velocityY = bird.getBody().getLinearVelocity().y;
-            gameState.birds.add(birdData);
-        }
-        gameState.pigs = new ArrayList<>();
-        for (Pigs pig : pigList) {
-            PigData pigData = new PigData();
-            pigData.x = pig.getBody().getPosition().x;
-            pigData.y = pig.getBody().getPosition().y;
-            gameState.pigs.add(pigData);
-        }
-        gameState.blocks = new ArrayList<>();
-        for (Object block : blockList) {
-            BlockData blockData = new BlockData();
-            if (block instanceof WoodBlocks) {
-                blockData.x = ((WoodBlocks) block).getBody().getPosition().x;
-                blockData.y = ((WoodBlocks) block).getBody().getPosition().y;
-            } else if (block instanceof StoneBlocks) {
-                blockData.x = ((StoneBlocks) block).getBody().getPosition().x;
-                blockData.y = ((StoneBlocks) block).getBody().getPosition().y;
-            } else if (block instanceof GlassBlock) {
-                blockData.x = ((GlassBlock) block).getBody().getPosition().x;
-                blockData.y = ((GlassBlock) block).getBody().getPosition().y;
-            }
-            gameState.blocks.add(blockData);
-        }
-
-        gameState.setScore(score);
-        gameState.setLevel(level);
-        gameState.setBirdPosition(currentBird.getBody().getPosition());
-
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.dat"))) {
-            oos.writeObject(gameState);
-            System.out.println("Game saved successfully!");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Failed to save game!");
-        }
-    }
-    public static Level1Screen loadGame() {
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("savegame.dat"))) {
-            GameState gameState = (GameState) in.readObject();
-            Level1Screen level1Screen = new Level1Screen(new AngryBirds());
-
-
-            for (int i = 0; i < gameState.birds.size(); i++) {
-                if(i < level1Screen.birdList.size()){
-                    BirdData birdData = gameState.birds.get(i);
-                    Bird bird = level1Screen.birdList.get(i);
-                    bird.getBody().setTransform(birdData.x, birdData.y, 0);
-                    bird.getBody().setLinearVelocity(birdData.velocityX, birdData.velocityY);
-                }
-//                BirdData birdData = gameState.birds.get(i);
-//                Bird bird = level1Screen.birdList.get(i);
-//                bird.getBody().setTransform(birdData.x, birdData.y, 0);
-//                bird.getBody().setLinearVelocity(birdData.velocityX, birdData.velocityY);
-            }
-            for (int i = 0; i < gameState.pigs.size(); i++) {
-                if (i < level1Screen.pigList.size()) {
-                    PigData pigData = gameState.pigs.get(i);
-                    Pigs pig = level1Screen.pigList.get(i);
-                    pig.getBody().setTransform(pigData.x, pigData.y, 0);
-                }
-            }
-            for (int i = 0; i < gameState.blocks.size(); i++) {
-                if (i < level1Screen.blockList.size()) {
-                    BlockData blockData = gameState.blocks.get(i);
-                    Object block = level1Screen.blockList.get(i);
-                    if (block instanceof WoodBlocks) {
-                        ((WoodBlocks) block).getBody().setTransform(blockData.x, blockData.y, 0);
-                    } else if (block instanceof StoneBlocks) {
-                        ((StoneBlocks) block).getBody().setTransform(blockData.x, blockData.y, 0);
-                    } else if (block instanceof GlassBlock) {
-                        ((GlassBlock) block).getBody().setTransform(blockData.x, blockData.y, 0);
-                    }
-                }
-            }
-
-            level1Screen.score = gameState.getScore();
-            level1Screen.level = gameState.getLevel();
-            if (level1Screen.currentBird != null && gameState.getBirdPosition() != null) {
-                level1Screen.currentBird.getBody().setTransform(gameState.getBirdPosition(), 0);
-            }
-//            level1Screen.currentBird.getBody().setTransform(gameState.getBirdPosition(), 0);
-
-            System.out.println("Game loaded successfully!");
-            return level1Screen;
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("Failed to load game!");
-            return null;
-        }
     }
 }

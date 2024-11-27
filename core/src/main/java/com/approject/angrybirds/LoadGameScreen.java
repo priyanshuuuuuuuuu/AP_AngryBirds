@@ -174,12 +174,12 @@ public class LoadGameScreen extends ScreenAdapter {
             if (levelButtons[0].contains(touchPos.x, touchPos.y)) {
 //                loadGame();
 //                game.setScreen(new Level1LoadingScreen(game, gameState));
-                Level1Screen level1Screen = AngryBirds.loadsavedLevel();
-                if(level1Screen == null){
-                    return;
-                }
-                level1Screen.loaded = 1;
-                game.setScreen(level1Screen);
+//                Level1Screen level1Screen = AngryBirds.loadsavedLevel();
+//                if(level1Screen == null){
+//                    return;
+//                }
+//                level1Screen.loaded = 1;
+//                game.setScreen(level1Screen);
             } else if (levelButtons[1].contains(touchPos.x, touchPos.y)) {
             } else if (levelButtons[2].contains(touchPos.x, touchPos.y)) {
             } else if (levelButtons[3].contains(touchPos.x, touchPos.y)) {

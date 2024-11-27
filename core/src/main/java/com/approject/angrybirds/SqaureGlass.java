@@ -8,11 +8,8 @@ import com.badlogic.gdx.physics.box2d.World;
 public class SqaureGlass extends GlassBlock{
 
     public SqaureGlass(SpriteBatch batch, Vector2 position, World world) {
-        super(new Texture("glass.png"), batch, position, world);
+        super(new Texture("glass.png"), batch, position, world, 10);
     }
 
-    @Override
-    public void health() {
-        System.out.println("No health for now");
-    }
+
 }
