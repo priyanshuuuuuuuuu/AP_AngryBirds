@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import java.io.*;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 //import java.util.Timer;
@@ -82,6 +83,8 @@ public class Level1Screen extends ScreenAdapter{
     private int level;
     public int loaded;
     public List<Pigs> pigList;
+    private boolean levelComplete = false;
+    private List<Object> blockList;
 
 
     // Constants for virtual width and height
@@ -102,6 +105,7 @@ public class Level1Screen extends ScreenAdapter{
         this.world = new World(new Vector2(0, -9.8f), true);
         pigList = new ArrayList<>();
         this.loaded = 0;
+        blockList = new ArrayList<>();
 
     }
 
@@ -123,10 +127,10 @@ public class Level1Screen extends ScreenAdapter{
         System.out.println("Score: " + score);
     }
 
-    private void removeBlock(WoodBlocks block) {
-        world.destroyBody(block.getBody());
-        block.dispose();
-    }
+//    private void removeBlock(WoodBlocks block) {
+//        world.destroyBody(block.getBody());
+//        block.dispose();
+//    }
     private void resetBirdIfStopped() {
         if (currentBird.getBody().getLinearVelocity().len() < 0.1f && currentBird.getBody().getType() == BodyDef.BodyType.DynamicBody) {
             // Bird has stopped moving; reset it for dragging
@@ -185,6 +189,7 @@ public class Level1Screen extends ScreenAdapter{
 
 
 
+
         createScreenBoundaries();
         slingStartPosition = new Vector2(2.7f, 3.0f);
         sitonsling = new Vector2();
@@ -224,13 +229,17 @@ public class Level1Screen extends ScreenAdapter{
 
 //        pigList = new ArrayList<>();
 //        pigList.add( new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world));
+        blockList.add(new VerticalWoodBlock(batch, new Vector2(1525 / 100f, 250 / 100f), world));
+        blockList.add(new VerticalWoodBlock(batch, new Vector2(1700 / 100f, 250 / 100f), world));
+        blockList.add(new MediumSizedStoneBlock(batch, new Vector2(1530 / 100f, 158 / 100f), world));
+        blockList.add(new MediumSizedStoneBlock(batch, new Vector2(1610 / 100f, 158 / 100f), world));
+        blockList.add(new MediumSizedStoneBlock(batch, new Vector2(1690 / 100f, 158 / 100f), world));
 
-        verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
-        verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700/100f, 250/100f), world);
+
 //        horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1600/100f, 350/100f), world);
-        stoneBlock1 = new MediumSizedStoneBlock(batch , new Vector2(1530/100f, 158/100f), world);
-        stoneBlock2 = new MediumSizedStoneBlock(batch , new Vector2(1610/100f, 158/100f),world);
-        stoneBlock3 = new MediumSizedStoneBlock(batch , new Vector2(1690/100f, 158/100f),world);
+//        stoneBlock1 = new MediumSizedStoneBlock(batch , new Vector2(1530/100f, 158/100f), world);
+//        stoneBlock2 = new MediumSizedStoneBlock(batch , new Vector2(1610/100f, 158/100f),world);
+//        stoneBlock3 = new MediumSizedStoneBlock(batch , new Vector2(1690/100f, 158/100f),world);
 //        triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1617 /100f, 395/100f), world);
         // Initialize SlingShot object and load its texture
         slingShot = new SlingShot(batch, 230, 147);
@@ -316,7 +325,7 @@ public class Level1Screen extends ScreenAdapter{
 
     private void creater(){
         birdList = new ArrayList<>();
-        birdList.add(new RedBird(batch, slingStartPosition, world));  // Bird 1
+        birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 1
         birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 2
         birdList.add(new RedBird(batch, slingStartPosition, world));
         pigList = new ArrayList<>();
@@ -380,45 +389,64 @@ private void launchObject(Vector2 dragVector) {
 
 }
 
-    private void checkPigCollision() {
-//        for (Bird bird : birdList) {
-//            for (Pigs pig : pigList) {
-//                if (isPigHit(bird, pig)) {
-//                    System.out.println("Pig hit!");
-//
-//                    // Reduce the pig's health on collision
-//                    pig.takeDamage(1);  // You can pass the amount of damage here
-//
-//                    if (pig.getHealth() <= 0) {
-//                        // Wait for a 1-second delay before switching to the next screen
-//                        Timer.schedule(new Timer.Task() {
-//                            @Override
-//                            public void run() {
-//                                System.out.println("Changing the screen to Level Complete.");
-//                                game.setScreen(new LevelComplete(game));
-//                            }
-//                        }, 2); // Delay of 1 second
-//                    }
-//                    return;  // Exit after processing one collision
-//                }
-//            }
-//        }
-        for(Bird bird: birdList){
-            if(isPigHit(bird, pigList.get(0))){
-                System.out.println("Pig hit!");
-                pigList.get(0).takeDamage(1);
+    private boolean transitionScheduled = false; // Add this flag
+
+    private void checkCollision() {
+        for (Bird bird : birdList) {
+            for (Iterator<Pigs> pigIterator = pigList.iterator(); pigIterator.hasNext(); ) {
+                Pigs pig = pigIterator.next();
+                if (isPigHit(bird, pig)) {
+                    System.out.println("Pig hit!");
+                    pig.takeDamage(1);
+
+                    if (pig.getHealth() <= 0) {
+                        // Destroy the pig's body in the Box2D world
+                        world.destroyBody(pig.getBody());
+                        // Remove the pig from the list
+                        pigIterator.remove();
+                    }
+                }
             }
+
+            for (Iterator<Object> blockIterator = blockList.iterator(); blockIterator.hasNext(); ) {
+                Object block = blockIterator.next();
+                if (block instanceof WoodBlocks && isBlockHit(bird, (WoodBlocks) block)) {
+                    ((WoodBlocks) block).takeDamage(1);
+                    if (((WoodBlocks) block).health <= 0) {
+                        world.destroyBody(((WoodBlocks) block).body);
+                        blockIterator.remove();
+                    }
+                } else if (block instanceof StoneBlocks && isBlockHit(bird, (StoneBlocks) block)) {
+                    ((StoneBlocks) block).takeDamage(1);
+                    if (((StoneBlocks) block).health <= 0) {
+                        world.destroyBody(((StoneBlocks) block).body);
+                        blockIterator.remove();
+                    }
+                } else if (block instanceof GlassBlock && isBlockHit(bird, (GlassBlock) block)) {
+                    ((GlassBlock) block).takeDamage(1);
+                    if (((GlassBlock) block).health <= 0) {
+                        world.destroyBody(((GlassBlock) block).body);
+                        blockIterator.remove();
+                    }
+                }
+            }
+
         }
-        if(pigList.get(0).getHealth() <= 0){
+
+        // Check if all pigs are removed and schedule level completion transition only once
+        if (pigList.isEmpty() && !transitionScheduled) {
+            transitionScheduled = true; // Mark the transition as scheduled
+            levelComplete = true;
             Timer.schedule(new Timer.Task() {
                 @Override
                 public void run() {
                     System.out.println("Changing the screen to Level Complete.");
                     game.setScreen(new LevelComplete(game));
                 }
-            }, 2);
+            }, 2); // Delay transition by 2 seconds
         }
     }
+
 
 
     private boolean isPigHit(Bird bird, Pigs pig) {
@@ -442,6 +470,15 @@ private void launchObject(Vector2 dragVector) {
 
         // Check if the distance is less than the threshold
         return distance < collisionThreshold;
+    }
+    private boolean isBlockHit(Bird bird, WoodBlocks block){
+        return false;
+    }
+    private boolean isBlockHit(Bird bird, GlassBlock block){
+        return false;
+    }
+    private boolean isBlockHit(Bird bird, StoneBlocks block){
+        return false;
     }
 
 
@@ -531,13 +568,13 @@ private void launchObject(Vector2 dragVector) {
         batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         batch.draw(scoreTextImage, 1700, 1020, 200, 50);
 
-        verticalWoodBlock1.render();
-        verticalWoodBlock2.render();
+//        verticalWoodBlock1.render();
+//        verticalWoodBlock2.render();
 //        horizontalWoodBlock1.render();//
-        stoneBlock1.render();
-        stoneBlock2.render();
+//        stoneBlock1.render();
+//        stoneBlock2.render();
 //        triangleGlassBlock.render();
-        stoneBlock3.render();
+//        stoneBlock3.render();
         slingShot.render();
 //        yellowBird.render();
 //        minionPig.render();
@@ -557,7 +594,15 @@ private void launchObject(Vector2 dragVector) {
 //            pigs.render();
             batch.draw(pigs.texture, pigs.getBody().getPosition().x * 100f - PIG_WIDTH / 2, pigs.getBody().getPosition().y * 100f - PIG_HEIGHT / 2, PIG_WIDTH, PIG_HEIGHT);
         }
-
+        for (Object block : blockList) {
+            if (block instanceof WoodBlocks) {
+                ((WoodBlocks) block).render();
+            } else if (block instanceof StoneBlocks) {
+                ((StoneBlocks) block).render();
+            } else if (block instanceof GlassBlock) {
+                ((GlassBlock) block).render();
+            }
+        }
 
 
         if (isPaused) {
@@ -573,7 +618,7 @@ private void launchObject(Vector2 dragVector) {
         if(Gdx.input.isKeyJustPressed(Input.Keys.B)){
             currentBird.getBody().applyLinearImpulse(new Vector2(100, 50), currentBird.getBody().getWorldCenter(), true);
         }
-        checkPigCollision();
+        checkCollision();
 
 
 
@@ -599,7 +644,7 @@ private void launchObject(Vector2 dragVector) {
 
     private void pauseGame() {
         isPaused = true;
-        game.setScreen(new PauseScreen(game, this, gameState));  // Switch to pause screen
+        game.setScreen(new Pause1Screen(game, this, gameState));  // Switch to pause screen
     }
 
     private void resumeGame() {
@@ -698,5 +743,113 @@ private void launchObject(Vector2 dragVector) {
         MusicControl.stopBackgroundMusic();
         shapeRenderer.dispose();
 
+    }
+
+    public boolean isLevelComplete() {
+        return levelComplete;
+    }
+
+    public void setLevelComplete(boolean levelComplete) {
+        this.levelComplete = levelComplete;
+    }
+    public void saveGame() {
+        GameState gameState = new GameState();
+        gameState.birds = new ArrayList<>();
+        for (Bird bird : birdList) {
+            BirdData birdData = new BirdData();
+            birdData.x = bird.getBody().getPosition().x;
+            birdData.y = bird.getBody().getPosition().y;
+            birdData.velocityX = bird.getBody().getLinearVelocity().x;
+            birdData.velocityY = bird.getBody().getLinearVelocity().y;
+            gameState.birds.add(birdData);
+        }
+        gameState.pigs = new ArrayList<>();
+        for (Pigs pig : pigList) {
+            PigData pigData = new PigData();
+            pigData.x = pig.getBody().getPosition().x;
+            pigData.y = pig.getBody().getPosition().y;
+            gameState.pigs.add(pigData);
+        }
+        gameState.blocks = new ArrayList<>();
+        for (Object block : blockList) {
+            BlockData blockData = new BlockData();
+            if (block instanceof WoodBlocks) {
+                blockData.x = ((WoodBlocks) block).getBody().getPosition().x;
+                blockData.y = ((WoodBlocks) block).getBody().getPosition().y;
+            } else if (block instanceof StoneBlocks) {
+                blockData.x = ((StoneBlocks) block).getBody().getPosition().x;
+                blockData.y = ((StoneBlocks) block).getBody().getPosition().y;
+            } else if (block instanceof GlassBlock) {
+                blockData.x = ((GlassBlock) block).getBody().getPosition().x;
+                blockData.y = ((GlassBlock) block).getBody().getPosition().y;
+            }
+            gameState.blocks.add(blockData);
+        }
+
+        gameState.setScore(score);
+        gameState.setLevel(level);
+        gameState.setBirdPosition(currentBird.getBody().getPosition());
+
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("savegame.dat"))) {
+            oos.writeObject(gameState);
+            System.out.println("Game saved successfully!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Failed to save game!");
+        }
+    }
+    public static Level1Screen loadGame() {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("savegame.dat"))) {
+            GameState gameState = (GameState) in.readObject();
+            Level1Screen level1Screen = new Level1Screen(new AngryBirds());
+
+
+            for (int i = 0; i < gameState.birds.size(); i++) {
+                if(i < level1Screen.birdList.size()){
+                    BirdData birdData = gameState.birds.get(i);
+                    Bird bird = level1Screen.birdList.get(i);
+                    bird.getBody().setTransform(birdData.x, birdData.y, 0);
+                    bird.getBody().setLinearVelocity(birdData.velocityX, birdData.velocityY);
+                }
+//                BirdData birdData = gameState.birds.get(i);
+//                Bird bird = level1Screen.birdList.get(i);
+//                bird.getBody().setTransform(birdData.x, birdData.y, 0);
+//                bird.getBody().setLinearVelocity(birdData.velocityX, birdData.velocityY);
+            }
+            for (int i = 0; i < gameState.pigs.size(); i++) {
+                if (i < level1Screen.pigList.size()) {
+                    PigData pigData = gameState.pigs.get(i);
+                    Pigs pig = level1Screen.pigList.get(i);
+                    pig.getBody().setTransform(pigData.x, pigData.y, 0);
+                }
+            }
+            for (int i = 0; i < gameState.blocks.size(); i++) {
+                if (i < level1Screen.blockList.size()) {
+                    BlockData blockData = gameState.blocks.get(i);
+                    Object block = level1Screen.blockList.get(i);
+                    if (block instanceof WoodBlocks) {
+                        ((WoodBlocks) block).getBody().setTransform(blockData.x, blockData.y, 0);
+                    } else if (block instanceof StoneBlocks) {
+                        ((StoneBlocks) block).getBody().setTransform(blockData.x, blockData.y, 0);
+                    } else if (block instanceof GlassBlock) {
+                        ((GlassBlock) block).getBody().setTransform(blockData.x, blockData.y, 0);
+                    }
+                }
+            }
+
+            level1Screen.score = gameState.getScore();
+            level1Screen.level = gameState.getLevel();
+            if (level1Screen.currentBird != null && gameState.getBirdPosition() != null) {
+                level1Screen.currentBird.getBody().setTransform(gameState.getBirdPosition(), 0);
+            }
+//            level1Screen.currentBird.getBody().setTransform(gameState.getBirdPosition(), 0);
+
+            System.out.println("Game loaded successfully!");
+            return level1Screen;
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Failed to load game!");
+            return null;
+        }
     }
 }

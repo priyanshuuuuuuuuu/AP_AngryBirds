@@ -75,7 +75,7 @@ public class RetryScoreScreen extends ScreenAdapter {
         if (retryButtonBound.contains(touchPos.x, touchPos.y)) {
             batch.draw(retryHoverButton, retryButtonBound.x, retryButtonBound.y, retryButtonBound.width, retryButtonBound.height);
             if (Gdx.input.isTouched()) {
-                game.setScreen(new Level1Screen(game));  // Retry the level
+                game.setScreen(new LevelsScreen(game));  // Retry the level
             }
         } else {
             batch.draw(retryButton, retryButtonBound.x, retryButtonBound.y, retryButtonBound.width, retryButtonBound.height);

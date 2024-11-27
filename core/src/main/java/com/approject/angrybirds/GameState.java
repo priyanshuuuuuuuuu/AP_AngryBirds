@@ -6,47 +6,45 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.io.Serializable;
 
+import java.io.Serializable;
+import java.util.List;
+
 public class GameState implements Serializable {
-//    public static final GameState MAIN_MENU = new GameState(0, 1, new Vector2(0, 0));
-    //    public static final GameState MAIN_MENU = new GameState(0, 1, new Vector2(0, 0));
+    private static final long serialVersionUID = -4007385269365714679L;
+    public List<BirdData> birds;
+    public List<PigData> pigs;
+    public List<BlockData> blocks;
     private int score;
     private int level;
     private Vector2 birdPosition;
-    public ArrayList<BirdData> birds;
-    public ArrayList<PigData> pigs;
-    public ArrayList<BlockData> blocks;
 
-//    public GameState(int Score, int Level, Vector2 birdPosition) {
-//        this.score = Score;
-//        this.level = Level;
-//        this.birdPosition = birdPosition;
-//    }
-
-
+    // Getters and setters for score, level, and birdPosition
     public int getScore() {
         return score;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public Vector2 getBirdPosition() {
-        return birdPosition;
     }
 
     public void setScore(int score) {
         this.score = score;
     }
 
-    public void setLevel(int i) {
-        this.level = i;
+    public int getLevel() {
+        return level;
     }
 
-    public void setBirdPosition(Vector2 position) {
-        this.birdPosition = position;
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public Vector2 getBirdPosition() {
+        return birdPosition;
+    }
+
+    public void setBirdPosition(Vector2 birdPosition) {
+        this.birdPosition = birdPosition;
     }
 }
+
+
 
 class BirdData implements Serializable{
     public float x, y;

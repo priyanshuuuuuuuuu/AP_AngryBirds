@@ -12,9 +12,10 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.io.*;
 
-public class PauseScreen extends ScreenAdapter implements Serializable {
+public class Pause3Screen extends ScreenAdapter implements Serializable {
     private static final String SAVEGAME_FILE = "savegame.ser"; // Save game file name
     private static final String LOADGAME_FILE = "loadgame.ser"; // Load game file name
+    private final Level3Screen level3Screen;
     private AngryBirds game;
     private Level1Screen level1Screen; // Reference to the level screen
     private SpriteBatch batch;
@@ -32,9 +33,9 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
 
-    public PauseScreen(AngryBirds game, Level1Screen level1Screen, GameState gamestate) {
+    public Pause3Screen(AngryBirds game, Level3Screen level3Screen, GameState gamestate) {
         this.game = game;
-        this.level1Screen = level1Screen;
+        this.level3Screen = level3Screen;
         this.gamestate = gamestate;
     }
 
@@ -98,7 +99,7 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
             batch.draw(resumeHoverButton, resumeButtonBounds.x, resumeButtonBounds.y, resumeButtonBounds.width, resumeButtonBounds.height);
             isHovering = true;
             if (Gdx.input.isTouched()) {
-                game.setScreen(level1Screen); // Resume the game
+                game.setScreen(level3Screen); // Resume the game
             }
         } else {
             batch.draw(resumeButton, resumeButtonBounds.x, resumeButtonBounds.y, resumeButtonBounds.width, resumeButtonBounds.height);
@@ -110,7 +111,7 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
             isHovering = true;
             if (Gdx.input.isTouched()) {
                 // Logic to restart the game (re-initialize the level)
-                game.setScreen(new Level1Screen(game)); // Restart the level
+                game.setScreen(new Level3Screen(game)); // Restart the level
             }
         } else {
             batch.draw(restartButton, restartButtonBounds.x, restartButtonBounds.y, restartButtonBounds.width, restartButtonBounds.height);
@@ -122,7 +123,7 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
             isHovering = true;
             if (Gdx.input.isTouched()) {
 //                level1Screen.saveGame(); // Save the game state
-                AngryBirds.saveLevel(level1Screen);
+//                AngryBirds.saveLevel(level1Screen);
             }
         } else {
             batch.draw(saveGameButton, saveGameButtonBounds.x, saveGameButtonBounds.y, saveGameButtonBounds.width, saveGameButtonBounds.height);
@@ -182,7 +183,7 @@ public class PauseScreen extends ScreenAdapter implements Serializable {
 
 
 
-//    private void saveGame() {
+    //    private void saveGame() {
 //        try (BufferedWriter writer = new BufferedWriter(new FileWriter("savegame.txt"))) {
 //            writer.write(level1Screen.getScore() + "\n");
 //            writer.write(level1Screen.getLevel() + "\n");

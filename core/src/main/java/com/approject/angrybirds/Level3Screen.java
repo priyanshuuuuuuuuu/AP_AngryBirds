@@ -35,7 +35,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 
-public class Level2Screen extends ScreenAdapter{
+public class Level3Screen extends ScreenAdapter{
     public static AngryBirds game;
     SpriteBatch batch;
     private int score = 0;
@@ -53,12 +53,13 @@ public class Level2Screen extends ScreenAdapter{
     private Texture scoreTextImage;
     private WoodBlocks verticalWoodBlock1;
     private WoodBlocks verticalWoodBlock2;
+    private GlassBlock verticalGlassBlock;
     private WoodBlocks horizontalWoodBlock1;
     private ShapeRenderer shapeRenderer;
     private StoneBlocks stoneBlock1;
     private StoneBlocks stoneBlock2;
     private StoneBlocks stoneBlock3;
-    private GlassBlock squareGlassBlock, squareGlassBlock1;
+    private GlassBlock triangleGlassBlock;
     private Body body;
     World world;
     private Body groundBody;
@@ -94,7 +95,7 @@ public class Level2Screen extends ScreenAdapter{
     private int currentBirdIndex = 0;
 
 
-    public Level2Screen(AngryBirds game) {
+    public Level3Screen(AngryBirds game) {
         this.game = game;
         isPaused = false;  // Game starts in playing state
         this.gameState = gameState;
@@ -174,7 +175,7 @@ public class Level2Screen extends ScreenAdapter{
 
         debugRenderer = new Box2DDebugRenderer();
         batch = new SpriteBatch();
-        background = new Texture("level2bg.png");
+        background = new Texture("level3 2.png");
         pauseButton = new Texture("pauseButton.png");
         playButton = new Texture("play.png");
         scoreTextImage = new Texture("score.png");
@@ -225,12 +226,15 @@ public class Level2Screen extends ScreenAdapter{
 
 //        pigList = new ArrayList<>();
 //        pigList.add( new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world));
+
         verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
         verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700/100f, 250/100f), world);
-        horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1600/100f, 350/100f), world);
-        squareGlassBlock = new SqaureGlass(batch, new Vector2(1610 /100f, 395/100f), world);
-        squareGlassBlock1 = new SqaureGlass(batch, new Vector2(1610 /100f, 395/100f), world);
+        verticalGlassBlock = new VerticalGlassBlock(batch, new Vector2(1350/100f, 250/100f), world);
 
+//        horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1600/100f, 350/100f), world);
+//        stoneBlock1 = new MediumSizedStoneBlock(batch , new Vector2(1530/100f, 158/100f), world);
+//        stoneBlock2 = new MediumSizedStoneBlock(batch , new Vector2(1610/100f, 158/100f),world);
+//        stoneBlock3 = new MediumSizedStoneBlock(batch , new Vector2(1690/100f, 158/100f),world);
 //        triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1617 /100f, 395/100f), world);
         // Initialize SlingShot object and load its texture
         slingShot = new SlingShot(batch, 230, 147);
@@ -285,7 +289,7 @@ public class Level2Screen extends ScreenAdapter{
         // Define ground body
         BodyDef groundBodyDef = new BodyDef();
         groundBodyDef.type = BodyDef.BodyType.StaticBody;
-        groundBodyDef.position.set(0, 100 / 100f); // Set Y position for the ground (adjust as needed)
+        groundBodyDef.position.set(0, 150 / 100f); // Set Y position for the ground (adjust as needed)
 
         groundBody = world.createBody(groundBodyDef);
 
@@ -317,11 +321,12 @@ public class Level2Screen extends ScreenAdapter{
     private void creater(){
         birdList = new ArrayList<>();
         birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 1
-        birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 2
-        birdList.add(new RedBird(batch, slingStartPosition, world));
+        birdList.add(new BlueBird(batch, slingStartPosition, world));  // Bird 2
+        birdList.add(new BlackBird(batch, slingStartPosition, world));
         pigList = new ArrayList<>();
         pigList.add( new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world));
-        pigList.add(new KingPig(batch, new Vector2(1610 / 100f, 500/ 100f), world));
+        pigList.add(new KingPig(batch, new Vector2(1400/100f, 223/100f), world));
+        pigList.add(new FatPig(batch, new Vector2(1800/100f, 223/100f), world));
 
     }
 
@@ -370,7 +375,7 @@ public class Level2Screen extends ScreenAdapter{
             Timer.schedule(new Timer.Task() {
                 @Override
                 public void run() {
-                    if (game.getScreen() instanceof Level2Screen) { // Check if we're still on the current level screen
+                    if (game.getScreen() instanceof Level3Screen) { // Check if we're still on the current level screen
                         game.setScreen(new RetryScoreScreen(game, gameState));
                     }
                 }
@@ -528,15 +533,14 @@ public class Level2Screen extends ScreenAdapter{
 
         verticalWoodBlock1.render();
         verticalWoodBlock2.render();
-        horizontalWoodBlock1.render();//
+//        horizontalWoodBlock1.render();//
 //        stoneBlock1.render();
 //        stoneBlock2.render();
 //        triangleGlassBlock.render();
 //        stoneBlock3.render();
         slingShot.render();
-        squareGlassBlock.render();
-        squareGlassBlock1.render();
 //        yellowBird.render();
+        verticalGlassBlock.render();
 //        minionPig.render();
         for (Bird bird : birdList) {
 //            bird.setBatch(batch);
@@ -596,7 +600,7 @@ public class Level2Screen extends ScreenAdapter{
 
     private void pauseGame() {
         isPaused = true;
-        game.setScreen(new Pause2Screen(game, this, gameState));  // Switch to pause screen
+        game.setScreen(new Pause3Screen(game, this, gameState));  // Switch to pause screen
     }
 
     private void resumeGame() {
@@ -694,6 +698,7 @@ public class Level2Screen extends ScreenAdapter{
         debugRenderer.dispose();
         MusicControl.stopBackgroundMusic();
         shapeRenderer.dispose();
+        verticalGlassBlock.dispose();
 
     }
 }

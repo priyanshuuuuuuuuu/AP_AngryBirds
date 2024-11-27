@@ -11,9 +11,4 @@ public class SmallWoodBlock extends WoodBlocks{
         super(new Texture("woodSmallBlock.png"), batch, position, world,100);
     }
 
-    @Override
-    public void health() {
-        System.out.println("No health for now");
-    }
-
 }
