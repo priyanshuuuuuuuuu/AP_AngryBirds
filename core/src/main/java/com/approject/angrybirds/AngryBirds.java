@@ -28,7 +28,7 @@ public class AngryBirds extends Game {
     public void dispose () {
         batch.dispose();
         stage.dispose();
-    }
+    }//priyanshu
     public static void saveLevel(Level1Screen gameScreen) {
         // Using gamescreen save the data as i mentioned above in a file
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("D:\\AP_AngryBirds\\savedlevel.txt"))) {
