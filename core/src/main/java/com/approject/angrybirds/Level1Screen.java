@@ -321,7 +321,6 @@ public class Level1Screen extends ScreenAdapter{
         birdList.add(new RedBird(batch, slingStartPosition, world));
         pigList = new ArrayList<>();
         pigList.add( new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world));
-
     }
 
     private void updateTrajectoryPoints(Vector2 slingStartPosition, Vector2 launchVelocity) {
