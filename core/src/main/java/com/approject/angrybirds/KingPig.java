@@ -12,6 +12,4 @@ public class KingPig extends Pigs {
         super(new Texture("piggy.png"), batch, position, new Vector2(0, 0), 150, 11);  // Set health to 150
         initializeBody(world);
     }
-
-    // Additional logic specific to the KingPig class can go here if needed
 }
