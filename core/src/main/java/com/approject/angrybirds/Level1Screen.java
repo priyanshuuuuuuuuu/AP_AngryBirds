@@ -73,7 +73,7 @@ public class Level1Screen extends ScreenAdapter{
     private Array<Vector2> trajectoryPoints;
     private final Vector2 gravity = new Vector2(0, -9.8f);  // Gravity vector
     public List<Bird> birdList;
-    private Bird currentBird;
+    public Bird currentBird;
     private GameState gameState;
     private Texture saveButton;
     private Rectangle saveButtonBounds; // For detecting click on save button
@@ -413,7 +413,7 @@ public class Level1Screen extends ScreenAdapter{
             trajectoryPoints.add(new Vector2(newX, newY));
         }
     }
-    private void launchObject(Vector2 dragVector) {
+    public void launchObject(Vector2 dragVector) {
         // Reverse the x and y components of the drag vector manually
         float launchX = dragVector.x * 0.2f; // Negate X direction
         float launchY = -dragVector.y * 0.2f; // Negate Y direction
