@@ -1,6 +1,7 @@
 package com.approject.angrybirds;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -84,6 +85,11 @@ public class Level3Screen extends ScreenAdapter{
     private int level;
     public int loaded;
     public List<Pigs> pigList;
+    private Music blueBirdMusic;
+    private Music redBirdMusic;
+    private Music yellowBirdMusic;
+    private Music pigHit;
+    private Music blackBirdMusic;
 
 
     // Constants for virtual width and height
@@ -184,14 +190,17 @@ public class Level3Screen extends ScreenAdapter{
         MusicControl.stopBackgroundMusic();
         MusicControl.playGameplayMusic();
         shapeRenderer = new ShapeRenderer();
-
-
+        shapeRenderer = new ShapeRenderer();
+        redBirdMusic = Gdx.audio.newMusic(Gdx.files.internal("a.mp3"));
+        yellowBirdMusic = Gdx.audio.newMusic(Gdx.files.internal("c.mp3"));
+        blueBirdMusic = Gdx.audio.newMusic(Gdx.files.internal("b.mp3"));
+        pigHit = Gdx.audio.newMusic(Gdx.files.internal("d.mp3"));
+        blackBirdMusic = Gdx.audio.newMusic(Gdx.files.internal("p.mp3"));
 
         createScreenBoundaries();
         slingStartPosition = new Vector2(2.7f, 3.0f);
         sitonsling = new Vector2();
         dragPosition = new Vector2(slingStartPosition);
-//        trajectoryPointTexture = new Texture("dot.png");
         font = new BitmapFont();
         font.setColor(Color.WHITE);
 
@@ -199,7 +208,7 @@ public class Level3Screen extends ScreenAdapter{
         slingBodyDef.type = BodyDef.BodyType.StaticBody;
         slingBodyDef.position.set(slingStartPosition);
         Body slingBody = world.createBody(slingBodyDef);
-//
+
         PolygonShape slingShape = new PolygonShape();
         slingShape.setAsBox(0.1f, 0.1f);
 
@@ -211,36 +220,23 @@ public class Level3Screen extends ScreenAdapter{
         slingFixtureDef.isSensor = true;
         slingBody.createFixture(slingFixtureDef);
         slingShape.dispose();
-        if(loaded == 0){
+        if (loaded == 0) {
             creater();
         }
 
-//        birdList = new ArrayList<>();
-//        birdList.add(new RedBird(batch, slingStartPosition, world));  // Bird 1
-//        birdList.add(new YellowBird(batch, slingStartPosition, world));  // Bird 2
-//        birdList.add(new RedBird(batch, slingStartPosition, world));
+        currentBirdIndex = 0; // Reset the current bird index
+        if (!birdList.isEmpty()) {
+            currentBird = birdList.get(currentBirdIndex);
+            currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
+            currentBird.getBody().setTransform(slingStartPosition, 0);
+        }
 
-        currentBird = birdList.get(currentBirdIndex);
-        currentBird.getBody().setType(BodyDef.BodyType.StaticBody);
-        currentBird.getBody().setTransform(slingStartPosition, 0);
+        verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525 / 100f, 250 / 100f), world);
+        verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700 / 100f, 250 / 100f), world);
+        verticalGlassBlock = new VerticalGlassBlock(batch, new Vector2(1350 / 100f, 250 / 100f), world);
 
-//        pigList = new ArrayList<>();
-//        pigList.add( new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world));
-
-        verticalWoodBlock1 = new VerticalWoodBlock(batch, new Vector2(1525/100f, 250/100f), world);
-        verticalWoodBlock2 = new VerticalWoodBlock(batch, new Vector2(1700/100f, 250/100f), world);
-        verticalGlassBlock = new VerticalGlassBlock(batch, new Vector2(1350/100f, 250/100f), world);
-
-//        horizontalWoodBlock1 = new HorizontalWoodBlock(batch , new Vector2(1600/100f, 350/100f), world);
-//        stoneBlock1 = new MediumSizedStoneBlock(batch , new Vector2(1530/100f, 158/100f), world);
-//        stoneBlock2 = new MediumSizedStoneBlock(batch , new Vector2(1610/100f, 158/100f),world);
-//        stoneBlock3 = new MediumSizedStoneBlock(batch , new Vector2(1690/100f, 158/100f),world);
-//        triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1617 /100f, 395/100f), world);
-        // Initialize SlingShot object and load its texture
         slingShot = new SlingShot(batch, 230, 147);
-        slingShot.show();  // Load the texture for SlingShot
-//        yellowBird = new YellowBird(batch, new Vector2(80 / 100f, 203 / 100f), world);
-//        minionPig = new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world);
+        slingShot.show();
         saveButtonBounds = new Rectangle(140, 950, 100, 100);
 
         trajectoryPoints = new Array<>(NUM_TRAJECTORY_POINTS);
@@ -248,7 +244,6 @@ public class Level3Screen extends ScreenAdapter{
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                // Record the drag start position (convert screen to world coordinates if needed)
                 dragStart.set(screenX, screenY);
                 dragging = true;
                 return true;
@@ -257,64 +252,46 @@ public class Level3Screen extends ScreenAdapter{
             @Override
             public boolean touchDragged(int screenX, int screenY, int pointer) {
                 if (dragging) {
-                    // Update drag end position while dragging
                     dragEnd.set(screenX, screenY);
                 }
                 return true;
             }
 
-            @Override //
+            @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 if (dragging) {
                     dragging = false;
-
-                    // Final drag end position
                     dragEnd.set(screenX, screenY);
-
-                    // Calculate the drag vector (dragStart -> dragEnd in the opposite direction)
                     Vector2 dragVector = new Vector2(dragStart).sub(dragEnd);
-
-                    // Print or use the drag vector for launching
                     System.out.println("Launch Vector: " + dragVector);
-
-                    // Use the drag vector in your game logic (e.g., launching an object)
                     launchObject(dragVector);
-
                     return true;
                 }
                 return false;
             }
         });
 
-        // Define ground body
         BodyDef groundBodyDef = new BodyDef();
         groundBodyDef.type = BodyDef.BodyType.StaticBody;
-        groundBodyDef.position.set(0, 150 / 100f); // Set Y position for the ground (adjust as needed)
+        groundBodyDef.position.set(0, 150 / 100f);
 
         groundBody = world.createBody(groundBodyDef);
 
-
-        // Define the ground shape as an edge
         EdgeShape groundShape = new EdgeShape();
-        groundShape.set(new Vector2(0, 0), new Vector2(VIRTUAL_WIDTH / 100f, 0)); // Edge from left to right
+        groundShape.set(new Vector2(0, 0), new Vector2(VIRTUAL_WIDTH / 100f, 0));
 
-        // Create fixture for ground
         FixtureDef groundFixture = new FixtureDef();
         groundFixture.shape = groundShape;
-        groundFixture.friction = 1; // Add friction for realism
-        groundFixture.restitution = 0f; // Prevent bouncing
+        groundFixture.friction = 1;
+        groundFixture.restitution = 0f;
 
         groundBody.createFixture(groundFixture);
         groundShape.dispose();
 
-        // Create a viewport with 1920x1080 dimensions
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        viewport.apply(true);  // Center the camera at the start
+        viewport.apply(true);
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-
-
-        // Define the bounds of the pause button (used for click detection)
         pauseButtonBounds = new Rectangle(20, 950, 100, 100);
     }
 
@@ -367,6 +344,17 @@ public class Level3Screen extends ScreenAdapter{
         // Apply the calculated impulse
         currentBird.getBody().setType(BodyDef.BodyType.DynamicBody);
         currentBird.getBody().applyLinearImpulse(launchVector, currentBird.getBody().getWorldCenter(), true);
+        if(currentBird instanceof YellowBird) {
+            yellowBirdMusic.play();
+        } else if(currentBird instanceof BlueBird) {
+            blueBirdMusic.play();
+        } else if(currentBird instanceof BlackBird) {
+            blackBirdMusic.play();
+        }else if(currentBird instanceof RedBird){
+            redBirdMusic.play();
+        }else{
+            return;
+        }
         currentBirdIndex++;
         try{
             currentBird = birdList.get(currentBirdIndex);
@@ -395,6 +383,7 @@ public class Level3Screen extends ScreenAdapter{
                 Pigs pig = iterator.next();
                 if (isPigHit(bird, pig)) {
                     System.out.println("Pig hit!");
+                    pigHit.play();
                     pig.takeDamage(1);
 
                     if (pig.getHealth() <= 0) {
@@ -543,15 +532,20 @@ public class Level3Screen extends ScreenAdapter{
         verticalGlassBlock.render();
 //        minionPig.render();
         for (Bird bird : birdList) {
-//            bird.setBatch(batch);
-//            bird.setWorld(world);
-//            bird.render();
-            System.out.println("Bird22 position: " + bird.getBody().getPosition().x * 100 );
-            batch.draw(bird.texture, bird.getBody().getPosition().x*100f - BIRD_WIDTH/2, bird.getBody().getPosition().y*100f - BIRD_HEIGHT/2, BIRD_WIDTH, BIRD_HEIGHT);
-            System.out.println("Bird position: " + body.getPosition().x*100f);
-//            batch.draw(bird.texture, 270,300, BIRD_WIDTH, BIRD_HEIGHT);
-
+            float rotation = bird.getBody().getAngle() * MathUtils.radiansToDegrees;  // Convert radians to degrees
+            batch.draw(bird.texture,
+                bird.getBody().getPosition().x * 100f - BIRD_WIDTH / 2,
+                bird.getBody().getPosition().y * 100f - BIRD_HEIGHT / 2,
+                BIRD_WIDTH / 2, BIRD_HEIGHT / 2,  // Origin of rotation
+                BIRD_WIDTH, BIRD_HEIGHT,  // Width and height
+                1, 1,  // Scale
+                rotation,  // Rotation angle
+                0, 0,  // Source X and Y
+                bird.texture.getWidth(), bird.texture.getHeight(),  // Source width and height
+                false, false);  // Flip X and Y
         }
+
+
         for(Pigs pigs: pigList){
 //            pigs.setBatch(batch);
 //            pigs.setWorld(world);
@@ -699,6 +693,11 @@ public class Level3Screen extends ScreenAdapter{
         MusicControl.stopBackgroundMusic();
         shapeRenderer.dispose();
         verticalGlassBlock.dispose();
+        redBirdMusic.dispose();
+        yellowBirdMusic.dispose();
+        blueBirdMusic.dispose();
+        pigHit.dispose();
+        blackBirdMusic.dispose();
 
     }
 }

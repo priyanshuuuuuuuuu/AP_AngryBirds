@@ -1,6 +1,7 @@
 package com.approject.angrybirds;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -83,6 +84,10 @@ public class Level2Screen extends ScreenAdapter{
     private int level;
     public int loaded;
     public List<Pigs> pigList;
+    private Music blueBirdMusic;
+    private Music redBirdMusic;
+    private Music yellowBirdMusic;
+    private Music pigHit;
 
 
     // Constants for virtual width and height
@@ -183,6 +188,11 @@ public class Level2Screen extends ScreenAdapter{
         MusicControl.stopBackgroundMusic();
         MusicControl.playGameplayMusic();
         shapeRenderer = new ShapeRenderer();
+        redBirdMusic = Gdx.audio.newMusic(Gdx.files.internal("a.mp3"));
+        yellowBirdMusic = Gdx.audio.newMusic(Gdx.files.internal("c.mp3"));
+        blueBirdMusic = Gdx.audio.newMusic(Gdx.files.internal("b.mp3"));
+        pigHit = Gdx.audio.newMusic(Gdx.files.internal("d.mp3"));
+
 
 
 
@@ -362,6 +372,15 @@ public class Level2Screen extends ScreenAdapter{
         // Apply the calculated impulse
         currentBird.getBody().setType(BodyDef.BodyType.DynamicBody);
         currentBird.getBody().applyLinearImpulse(launchVector, currentBird.getBody().getWorldCenter(), true);
+        if(currentBird instanceof YellowBird) {
+            yellowBirdMusic.play();
+        }else if(currentBird instanceof RedBird){
+            redBirdMusic.play();
+        }else if(currentBird instanceof BlueBird){
+            blueBirdMusic.play();
+        }else{
+            return;
+        }
         currentBirdIndex++;
         try{
             currentBird = birdList.get(currentBirdIndex);
@@ -390,6 +409,7 @@ public class Level2Screen extends ScreenAdapter{
                 Pigs pig = iterator.next();
                 if (isPigHit(bird, pig)) {
                     System.out.println("Pig hit!");
+                    pigHit.play();
                     pig.takeDamage(1);
 
                     if (pig.getHealth() <= 0) {
@@ -539,15 +559,20 @@ public class Level2Screen extends ScreenAdapter{
 //        yellowBird.render();
 //        minionPig.render();
         for (Bird bird : birdList) {
-//            bird.setBatch(batch);
-//            bird.setWorld(world);
-//            bird.render();
-            System.out.println("Bird22 position: " + bird.getBody().getPosition().x * 100 );
-            batch.draw(bird.texture, bird.getBody().getPosition().x*100f - BIRD_WIDTH/2, bird.getBody().getPosition().y*100f - BIRD_HEIGHT/2, BIRD_WIDTH, BIRD_HEIGHT);
-            System.out.println("Bird position: " + body.getPosition().x*100f);
-//            batch.draw(bird.texture, 270,300, BIRD_WIDTH, BIRD_HEIGHT);
-
+            float rotation = bird.getBody().getAngle() * MathUtils.radiansToDegrees;  // Convert radians to degrees
+            batch.draw(bird.texture,
+                bird.getBody().getPosition().x * 100f - BIRD_WIDTH / 2,
+                bird.getBody().getPosition().y * 100f - BIRD_HEIGHT / 2,
+                BIRD_WIDTH / 2, BIRD_HEIGHT / 2,  // Origin of rotation
+                BIRD_WIDTH, BIRD_HEIGHT,  // Width and height
+                1, 1,  // Scale
+                rotation,  // Rotation angle
+                0, 0,  // Source X and Y
+                bird.texture.getWidth(), bird.texture.getHeight(),  // Source width and height
+                false, false);  // Flip X and Y
         }
+
+
         for(Pigs pigs: pigList){
 //            pigs.setBatch(batch);
 //            pigs.setWorld(world);
@@ -694,6 +719,10 @@ public class Level2Screen extends ScreenAdapter{
         debugRenderer.dispose();
         MusicControl.stopBackgroundMusic();
         shapeRenderer.dispose();
+        redBirdMusic.dispose();
+        yellowBirdMusic.dispose();
+        blueBirdMusic.dispose();
+        pigHit.dispose();
 
     }
 }

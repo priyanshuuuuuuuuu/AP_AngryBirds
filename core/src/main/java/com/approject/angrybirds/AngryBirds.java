@@ -8,13 +8,15 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 public class AngryBirds extends Game {
     SpriteBatch batch;
     Stage stage;
+    private Level1Screen level1Screen;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
         stage = new Stage();
 //        GameState gameState = new GameState(0,1, new Vector2(0,0));
-        setScreen(new Level1Screen(this));
+        setScreen(new Level2Screen(this));
+        level1Screen = new Level1Screen(this);
 
     }
 
@@ -23,6 +25,7 @@ public class AngryBirds extends Game {
         batch.dispose();
         stage.dispose();
     }
+
 }
 //    public static void saveLevel(Level1Screen gameScreen) {
 //        // Using gamescreen save the data as i mentioned above in a file

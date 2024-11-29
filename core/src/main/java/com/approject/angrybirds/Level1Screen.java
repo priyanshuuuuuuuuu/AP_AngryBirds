@@ -1,11 +1,13 @@
 package com.approject.angrybirds;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -80,6 +82,9 @@ public class Level1Screen extends ScreenAdapter{
     public List<Pigs> pigList;
     private boolean levelComplete = false;
     private List<Object> blockList;
+    private Music redBirdSound;
+    private Music yellowBirdSound;
+    private Music pigHitSound;
 
 
     // Constants for virtual width and height
@@ -229,6 +234,9 @@ public class Level1Screen extends ScreenAdapter{
         MusicControl.stopBackgroundMusic();
         MusicControl.playGameplayMusic();
         shapeRenderer = new ShapeRenderer();
+        redBirdSound = Gdx.audio.newMusic(Gdx.files.internal("a.mp3"));
+        yellowBirdSound = Gdx.audio.newMusic(Gdx.files.internal("y.mp3"));
+        pigHitSound = Gdx.audio.newMusic(Gdx.files.internal("d.mp3"));
 
 
 
@@ -401,36 +409,45 @@ public class Level1Screen extends ScreenAdapter{
             trajectoryPoints.add(new Vector2(newX, newY));
         }
     }
-private void launchObject(Vector2 dragVector) {
-    // Reverse the x and y components of the drag vector manually
-    float launchX = dragVector.x * 0.2f; // Negate X direction
-    float launchY = -dragVector.y * 0.2f; // Negate Y direction
-    Vector2 launchVector = new Vector2(launchX, launchY);
+    private void launchObject(Vector2 dragVector) {
+        // Reverse the x and y components of the drag vector manually
+        float launchX = dragVector.x * 0.2f; // Negate X direction
+        float launchY = -dragVector.y * 0.2f; // Negate Y direction
+        Vector2 launchVector = new Vector2(launchX, launchY);
 
-    System.out.println("Drag vector: " + dragVector + ", Launch vector: " + launchVector);
+        System.out.println("Drag vector: " + dragVector + ", Launch vector: " + launchVector);
 
-    // Apply the calculated impulse
-    currentBird.getBody().setType(BodyDef.BodyType.DynamicBody);
-    currentBird.getBody().applyLinearImpulse(launchVector, currentBird.getBody().getWorldCenter(), true);
-    currentBirdIndex++;
-    try{
-        currentBird = birdList.get(currentBirdIndex);
-    }catch (IndexOutOfBoundsException e){
-        System.out.println("No more birds left");
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                if (game.getScreen() instanceof Level1Screen) { // Check if we're still on the current level screen
-                    game.setScreen(new RetryScoreScreen(game, gameState));
-                }
+        // Apply the calculated impulse
+        currentBird.getBody().setType(BodyDef.BodyType.DynamicBody);
+        currentBird.getBody().applyLinearImpulse(launchVector, currentBird.getBody().getWorldCenter(), true);
+
+        // Check if there are more birds left before incrementing the index
+        if (currentBirdIndex < birdList.size() - 1) {
+            if(currentBird instanceof  RedBird){
+                redBirdSound.play();
+            }else if (currentBird instanceof YellowBird){
+                yellowBirdSound.play();
+            }else{
+                return;
             }
-        }, 4);
 
+            currentBirdIndex++;
+            currentBird = birdList.get(currentBirdIndex);
+        } else {
+            System.out.println("No more birds left");
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    if (game.getScreen() instanceof Level1Screen) { // Check if we're still on the current level screen
+                        game.setScreen(new RetryScoreScreen(game, gameState));
+                    }
+                }
+            }, 4);
+        }
+
+        dragging = false;
+        isDragging = false;
     }
-    dragging = false;
-    isDragging = false;
-
-}
 
     private boolean transitionScheduled = false; // Add this flag
 
@@ -440,6 +457,8 @@ private void launchObject(Vector2 dragVector) {
                 Pigs pig = pigIterator.next();
                 if (isPigHit(bird, pig)) {
                     System.out.println("Pig hit!");
+                    pigHitSound.play();
+                    addScore(100);  // Add score for hitting the pig
                     pig.takeDamage(1);
 
                     if (pig.getHealth() <= 0) {
@@ -685,13 +704,20 @@ private void launchObject(Vector2 dragVector) {
 //
 //        }
         for (Bird bird : birdList) {
-//            if (bird.isAtRest() && !bird.isPositionPrinted()) {
-//                System.out.println("Bird position: " + bird.getBody().getPosition().x * 100);
-//                bird.setPositionPrinted(true);  // Ensure it prints only once
-//            }
-            batch.draw(bird.texture, bird.getBody().getPosition().x*100f - BIRD_WIDTH/2, bird.getBody().getPosition().y*100f - BIRD_HEIGHT/2, BIRD_WIDTH, BIRD_HEIGHT);
-
+            float rotation = bird.getBody().getAngle() * MathUtils.radiansToDegrees;  // Convert radians to degrees
+            batch.draw(bird.texture,
+                bird.getBody().getPosition().x * 100f - BIRD_WIDTH / 2,
+                bird.getBody().getPosition().y * 100f - BIRD_HEIGHT / 2,
+                BIRD_WIDTH / 2, BIRD_HEIGHT / 2,  // Origin of rotation
+                BIRD_WIDTH, BIRD_HEIGHT,  // Width and height
+                1, 1,  // Scale
+                rotation,  // Rotation angle
+                0, 0,  // Source X and Y
+                bird.texture.getWidth(), bird.texture.getHeight(),  // Source width and height
+                false, false);  // Flip X and Y
         }
+
+
         for(Pigs pigs: pigList){
 //            pigs.setBatch(batch);
 //            pigs.setWorld(world);
@@ -845,7 +871,10 @@ private void launchObject(Vector2 dragVector) {
         scoreTextImage.dispose();
         debugRenderer.dispose();
         MusicControl.stopBackgroundMusic();
+        redBirdSound.dispose();
+        yellowBirdSound.dispose();
         shapeRenderer.dispose();
+        pigHitSound.dispose();
 
     }
 
@@ -856,6 +885,7 @@ private void launchObject(Vector2 dragVector) {
     public void setLevelComplete(boolean levelComplete) {
         this.levelComplete = levelComplete;
     }
+
     public void saveGame() {
         GameState gameState = new GameState();
         gameState.birds = new ArrayList<>();
@@ -911,36 +941,39 @@ private void launchObject(Vector2 dragVector) {
             GameState gameState = (GameState) in.readObject();
             Level1Screen level1Screen = new Level1Screen(new AngryBirds());
 
-
-            for (int i = 0; i < gameState.birds.size(); i++) {
-                if(i < level1Screen.birdList.size()){
+            if (!gameState.birds.isEmpty()) {
+                for (int i = 0; i < gameState.birds.size(); i++) {
                     BirdData birdData = gameState.birds.get(i);
-                    Bird bird = level1Screen.birdList.get(i);
-                    bird.getBody().setTransform(birdData.x, birdData.y, 0);
-                    bird.getBody().setLinearVelocity(birdData.velocityX, birdData.velocityY);
+                    if (i < level1Screen.birdList.size()) {
+                        Bird bird = level1Screen.birdList.get(i);
+                        bird.getBody().setTransform(birdData.x, birdData.y, 0);
+                        bird.getBody().setLinearVelocity(birdData.velocityX, birdData.velocityY);
+                    }
                 }
-//                BirdData birdData = gameState.birds.get(i);
-//                Bird bird = level1Screen.birdList.get(i);
-//                bird.getBody().setTransform(birdData.x, birdData.y, 0);
-//                bird.getBody().setLinearVelocity(birdData.velocityX, birdData.velocityY);
             }
-            for (int i = 0; i < gameState.pigs.size(); i++) {
-                if (i < level1Screen.pigList.size()) {
+
+            if (!gameState.pigs.isEmpty()) {
+                for (int i = 0; i < gameState.pigs.size(); i++) {
                     PigData pigData = gameState.pigs.get(i);
-                    Pigs pig = level1Screen.pigList.get(i);
-                    pig.getBody().setTransform(pigData.x, pigData.y, 0);
+                    if (i < level1Screen.pigList.size()) {
+                        Pigs pig = level1Screen.pigList.get(i);
+                        pig.getBody().setTransform(pigData.x, pigData.y, 0);
+                    }
                 }
             }
-            for (int i = 0; i < gameState.blocks.size(); i++) {
-                if (i < level1Screen.blockList.size()) {
+
+            if (!gameState.blocks.isEmpty()) {
+                for (int i = 0; i < gameState.blocks.size(); i++) {
                     BlockData blockData = gameState.blocks.get(i);
-                    Object block = level1Screen.blockList.get(i);
-                    if (block instanceof WoodBlocks) {
-                        ((WoodBlocks) block).getBody().setTransform(blockData.x, blockData.y, 0);
-                    } else if (block instanceof StoneBlocks) {
-                        ((StoneBlocks) block).getBody().setTransform(blockData.x, blockData.y, 0);
-                    } else if (block instanceof GlassBlock) {
-                        ((GlassBlock) block).getBody().setTransform(blockData.x, blockData.y, 0);
+                    if (i < level1Screen.blockList.size()) {
+                        Object block = level1Screen.blockList.get(i);
+                        if (block instanceof WoodBlocks) {
+                            ((WoodBlocks) block).getBody().setTransform(blockData.x, blockData.y, 0);
+                        } else if (block instanceof StoneBlocks) {
+                            ((StoneBlocks) block).getBody().setTransform(blockData.x, blockData.y, 0);
+                        } else if (block instanceof GlassBlock) {
+                            ((GlassBlock) block).getBody().setTransform(blockData.x, blockData.y, 0);
+                        }
                     }
                 }
             }
@@ -950,7 +983,6 @@ private void launchObject(Vector2 dragVector) {
             if (level1Screen.currentBird != null && gameState.getBirdPosition() != null) {
                 level1Screen.currentBird.getBody().setTransform(gameState.getBirdPosition(), 0);
             }
-//            level1Screen.currentBird.getBody().setTransform(gameState.getBirdPosition(), 0);
 
             System.out.println("Game loaded successfully!");
             return level1Screen;
