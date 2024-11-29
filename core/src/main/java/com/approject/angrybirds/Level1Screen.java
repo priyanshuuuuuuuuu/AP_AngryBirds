@@ -106,6 +106,8 @@ public class Level1Screen extends ScreenAdapter{
         pigList = new ArrayList<>();
         this.loaded = 0;
         initializeNewGame();
+        font = new BitmapFont();
+        font.setColor(Color.BLACK);
 
         blockList = new ArrayList<>();
 
