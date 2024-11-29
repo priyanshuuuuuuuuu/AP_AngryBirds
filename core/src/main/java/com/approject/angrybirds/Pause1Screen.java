@@ -16,7 +16,7 @@ public class Pause1Screen extends ScreenAdapter implements Serializable {
     private static final String SAVEGAME_FILE = "savegame.ser"; // Save game file name
     private static final String LOADGAME_FILE = "loadgame.ser"; // Load game file name
     private AngryBirds game;
-    private Level1Screen level1Screen; // Reference to the level screen
+    private final  Level1Screen level1Screen; // Reference to the level screen
     private SpriteBatch batch;
     private Texture background;
     private Texture resumeButton, resumeHoverButton;
@@ -27,6 +27,7 @@ public class Pause1Screen extends ScreenAdapter implements Serializable {
     private Viewport viewport; // Viewport for handling screen resizing
     private Texture gamePause;
     private GameState gamestate;
+
 
     // Constants for virtual width and height
     private static final float VIRTUAL_WIDTH = 1920;
@@ -121,8 +122,10 @@ public class Pause1Screen extends ScreenAdapter implements Serializable {
             batch.draw(saveGameHoverButton, saveGameButtonBounds.x, saveGameButtonBounds.y, saveGameButtonBounds.width, saveGameButtonBounds.height);
             isHovering = true;
             if (Gdx.input.isTouched()) {
-//                level1Screen.saveGame(); // Save the game state
+                level1Screen.saveGame(); // Save the game state
+                System.out.println("Game saved initiated from pause screen!!");
 //                AngryBirds.saveLevel(level1Screen);
+
             }
         } else {
             batch.draw(saveGameButton, saveGameButtonBounds.x, saveGameButtonBounds.y, saveGameButtonBounds.width, saveGameButtonBounds.height);

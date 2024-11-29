@@ -124,4 +124,8 @@ public abstract class Bird {
         System.out.println("Bird destroyed!");
         // Code to remove the bird from the game (e.g., remove from world and bird list)
     }
+
+    public void setPositionPrinted(boolean b) {
+
+    }
 }
