@@ -427,13 +427,13 @@ public class Level1Screen extends ScreenAdapter{
 
         // Check if there are more birds left before incrementing the index
         if (currentBirdIndex < birdList.size() - 1) {
-            if(currentBird instanceof  RedBird){
-                redBirdSound.play();
-            }else if (currentBird instanceof YellowBird){
-                yellowBirdSound.play();
-            }else{
-                return;
-            }
+//            if(currentBird instanceof  RedBird){
+//                redBirdSound.play();
+//            }else if (currentBird instanceof YellowBird){
+//                yellowBirdSound.play();
+//            }else{
+//                return;
+//            }
 
             currentBirdIndex++;
             currentBird = birdList.get(currentBirdIndex);
