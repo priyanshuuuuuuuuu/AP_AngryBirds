@@ -27,6 +27,7 @@ public class MainScreen extends ScreenAdapter {
     AngryBirds game;
     Rectangle newGameButton, loadGameButton, settingsButton, exitButton;
     private GameState gameState;
+    private Level1Screen level1Screen = null;
 
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
@@ -36,6 +37,7 @@ public class MainScreen extends ScreenAdapter {
 
     public MainScreen(AngryBirds game) {
         this.game = game;
+        this.level1Screen = level1Screen;
         this.gameState = gameState;
     }
 
@@ -124,7 +126,8 @@ public class MainScreen extends ScreenAdapter {
             isHovering = true;
             if(Gdx.input.isTouched()){
 //                game.setScreen(new LoadGameScreen(game, gameState));
-                loadGame();
+//                Level1Screen.loadGame();
+//                game.setScreen(new LoadGameScreen(game, gameState));
                 System.out.println("load game");
             }
         } else {
@@ -138,7 +141,8 @@ public class MainScreen extends ScreenAdapter {
             if (newGameButton.contains(touchPos.x, touchPos.y)) {
                 game.setScreen(new LevelsScreen(game));
             } else if (loadGameButton.contains(touchPos.x, touchPos.y)) {
-                loadGame();
+//                Level1Screen.loadGame();
+                game.setScreen(new LoadGameScreen(game, gameState, level1Screen));
                 System.out.println("Load Game");
             } else if (settingsButton.contains(touchPos.x, touchPos.y)) {
                 game.setScreen(new Settings(game, gameState));

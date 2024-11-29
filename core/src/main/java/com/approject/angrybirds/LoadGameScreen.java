@@ -27,6 +27,7 @@ public class LoadGameScreen extends ScreenAdapter {
     Rectangle[] levelButtons;
     private Rectangle backButtonBounds;
     private GameState gameState;
+    private final Level1Screen level1Screen;
 
 
     OrthographicCamera camera;
@@ -37,9 +38,10 @@ public class LoadGameScreen extends ScreenAdapter {
     private static final float VIRTUAL_WIDTH = 1920;
     private static final float VIRTUAL_HEIGHT = 1080;
 
-    public LoadGameScreen(AngryBirds game, GameState gameState) {
+    public LoadGameScreen(AngryBirds game, GameState gameState, Level1Screen level1Screen) {
         this.game = game;
         this.gameState = gameState;
+        this.level1Screen = level1Screen;
     }
 
 //    private void loadGame() {
@@ -56,6 +58,22 @@ public class LoadGameScreen extends ScreenAdapter {
 //            System.out.println("Failed to load game!");
 //        }
 //    }
+private GameState loadGameState() {
+    File saveFile = new File("D:\\AP_AngryBirds\\core\\src\\main\\java\\com\\approject\\angrybirds\\savegame.dat");
+    if (!saveFile.exists() || !saveFile.canRead()) {
+        System.out.println("Save file does not exist or is not readable!");
+        return null;
+    }
+    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
+        GameState loadedGameState = (GameState) ois.readObject(); // Deserialize the game state
+        System.out.println("Game loaded successfully!");
+        return loadedGameState;
+    } catch (IOException | ClassNotFoundException e) {
+        e.printStackTrace();
+        System.out.println("Failed to load game!");
+        return null;
+    }
+}
     @Override
     public void show() {
         batch = new SpriteBatch();
@@ -128,6 +146,12 @@ public class LoadGameScreen extends ScreenAdapter {
 
             if (backButtonBounds.contains(touchPos.x, touchPos.y)) {
                 game.setScreen(new MainScreen(game));  // Navigate back to the Settings screen
+            }else if(levelButtons[0].contains(touchPos.x, touchPos.y)) {
+                // Load the game state and start the level
+                GameState loadedGameState = loadGameState();
+                if (loadedGameState != null) {
+                    Level1Screen loadedLevel1Screen = new Level1Screen(game);
+                }
             }
         }
 
@@ -172,14 +196,14 @@ public class LoadGameScreen extends ScreenAdapter {
             // Convert screen coordinates to world coordinates
             // Check if a button was clicked
             if (levelButtons[0].contains(touchPos.x, touchPos.y)) {
-//                loadGame();
-//                game.setScreen(new Level1LoadingScreen(game, gameState));
-//                Level1Screen level1Screen = AngryBirds.loadsavedLevel();
-//                if(level1Screen == null){
-//                    return;
-//                }
-//                level1Screen.loaded = 1;
-//                game.setScreen(level1Screen);
+                GameState loadedGameState = loadGameState();
+                if(loadedGameState != null) {
+                    System.out.println("Setting Screen to levelScreen after loading game");
+                    game.setScreen(new Level1Screen(game, gameState));
+                }else{
+                    System.out.println("Load game state is null, staying on LoadgameScreen");
+                }
+
             } else if (levelButtons[1].contains(touchPos.x, touchPos.y)) {
             } else if (levelButtons[2].contains(touchPos.x, touchPos.y)) {
             } else if (levelButtons[3].contains(touchPos.x, touchPos.y)) {
