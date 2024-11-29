@@ -372,15 +372,7 @@ public class Level2Screen extends ScreenAdapter{
         // Apply the calculated impulse
         currentBird.getBody().setType(BodyDef.BodyType.DynamicBody);
         currentBird.getBody().applyLinearImpulse(launchVector, currentBird.getBody().getWorldCenter(), true);
-        if(currentBird instanceof YellowBird) {
-            yellowBirdMusic.play();
-        }else if(currentBird instanceof RedBird){
-            redBirdMusic.play();
-        }else if(currentBird instanceof BlueBird){
-            blueBirdMusic.play();
-        }else{
-            return;
-        }
+
         currentBirdIndex++;
         try{
             currentBird = birdList.get(currentBirdIndex);
@@ -719,10 +711,7 @@ public class Level2Screen extends ScreenAdapter{
         debugRenderer.dispose();
         MusicControl.stopBackgroundMusic();
         shapeRenderer.dispose();
-        redBirdMusic.dispose();
-        yellowBirdMusic.dispose();
-        blueBirdMusic.dispose();
-        pigHit.dispose();
+
 
     }
 }
