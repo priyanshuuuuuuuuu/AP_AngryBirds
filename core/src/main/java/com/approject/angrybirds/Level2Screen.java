@@ -187,7 +187,7 @@ public class Level2Screen extends ScreenAdapter{
 
 
         createScreenBoundaries();
-        slingStartPosition = new Vector2(2.7f, 3.0f);
+        slingStartPosition = new Vector2(2.7f, 2.7f);
         sitonsling = new Vector2();
         dragPosition = new Vector2(slingStartPosition);
 //        trajectoryPointTexture = new Texture("dot.png");
@@ -233,7 +233,7 @@ public class Level2Screen extends ScreenAdapter{
 
 //        triangleGlassBlock = new TriangleGlassBlock(batch, new Vector2(1617 /100f, 395/100f), world);
         // Initialize SlingShot object and load its texture
-        slingShot = new SlingShot(batch, 230, 147);
+        slingShot = new SlingShot(batch, 230, 110);
         slingShot.show();  // Load the texture for SlingShot
 //        yellowBird = new YellowBird(batch, new Vector2(80 / 100f, 203 / 100f), world);
 //        minionPig = new MinionPigs(batch, new Vector2(1620 / 100f, 223/ 100f), world);
