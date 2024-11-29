@@ -15,7 +15,7 @@ public class AngryBirds extends Game {
         batch = new SpriteBatch();
         stage = new Stage();
 //        GameState gameState = new GameState(0,1, new Vector2(0,0));
-        setScreen(new LoadingScreen(this));
+        setScreen(new Level1Screen(this));
         level1Screen = new Level1Screen(this);
 
     }

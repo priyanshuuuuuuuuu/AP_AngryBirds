@@ -108,6 +108,7 @@ public class Level1Screen extends ScreenAdapter{
         initializeNewGame();
         font = new BitmapFont();
         font.setColor(Color.BLACK);
+        font.getData().setScale(2.0f);
 
         blockList = new ArrayList<>();
 
@@ -250,7 +251,8 @@ public class Level1Screen extends ScreenAdapter{
         dragPosition = new Vector2(slingStartPosition);
 //        trajectoryPointTexture = new Texture("dot.png");
         font = new BitmapFont();
-        font.setColor(Color.WHITE);
+        font.setColor(Color.BLACK);
+        font.getData().setScale(5.0f);
 
         BodyDef slingBodyDef = new BodyDef();
         slingBodyDef.type = BodyDef.BodyType.StaticBody;
@@ -684,6 +686,8 @@ public class Level1Screen extends ScreenAdapter{
         batch.begin();
         batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         batch.draw(scoreTextImage, 1700, 1020, 200, 50);
+        font.draw(batch, " " + score, 1700, 1000);
+
 
 //        verticalWoodBlock1.render();
 //        verticalWoodBlock2.render();
